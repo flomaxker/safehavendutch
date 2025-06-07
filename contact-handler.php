@@ -16,6 +16,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // --- Get and Trim Input ---
     $user_name = isset($_POST['name']) ? trim($_POST['name']) : '';
+    // Remove CRLF characters to prevent header injection
+    $user_name = str_replace(["\r", "\n"], '', $user_name);
     $user_email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $user_message = isset($_POST['message']) ? trim($_POST['message']) : ''; // Raw message
 
@@ -41,9 +43,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $display_user_name = htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8');
         $display_user_email = htmlspecialchars($user_email, ENT_QUOTES, 'UTF-8'); // For display in HTML body
 
-        // For the Reply-To header, we need the raw (but validated) email and potentially name
-        $header_replyto_name = $user_name; // Can use raw name for Reply-To display name
-        $header_replyto_email = $user_email; // Use raw validated email for Reply-To
+        // Prepare values for the Reply-To header. The email has already been validated.
+        // Use the sanitized name to avoid header injection.
+        $header_replyto_name = $user_name;
+        $header_replyto_email = $user_email;
 
         // For the message content in an HTML email:
         // 1. Escape HTML special characters to prevent XSS if this HTML is ever viewed in a browser.
@@ -87,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $headers = "From: " . $from_display_name . " <" . $server_mandated_from_email . ">\r\n";
         // For Reply-To, it's generally better to use the raw name and email (after validation)
         // rather than htmlspecialchar'd versions, as mail clients handle display names.
-        $headers .= "Reply-To: " . $header_replyto_name . " <" . $header_replyto_email . ">\r\n";
+        $headers .= "Reply-To: \"" . $header_replyto_name . "\" <" . $header_replyto_email . ">\r\n";
         // *** CHANGE Content-Type to HTML ***
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
         $headers .= "MIME-Version: 1.0\r\n"; // Good practice for HTML emails
