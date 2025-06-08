@@ -1,7 +1,8 @@
 <?php
 
+use App\Database\Database;
+
 require_once __DIR__ . '/../bootstrap.php';
-require_once __DIR__ . '/../app/Database.php';
 
 try {
     $db = new Database();

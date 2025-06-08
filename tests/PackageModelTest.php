@@ -1,8 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-
-require_once __DIR__ . '/../app/Models/Package.php';
+use App\Models\Package;
 
 /**
  * Tests for the Package model using an in-memory SQLite database.
