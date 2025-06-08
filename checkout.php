@@ -1,11 +1,13 @@
 <?php
-session_start();
 
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/app/Database.php';
-require_once __DIR__ . '/app/Models/Package.php';
-require_once __DIR__ . '/app/Models/Purchase.php';
-require_once __DIR__ . '/app/PaymentHandler.php';
+
+use App\Database\Database;
+use App\Models\Package;
+use App\Models\Purchase;
+use App\Payment\PaymentHandler;
+
+session_start();
 
 if (empty($_SESSION['user_id'])) {
     header('Location: login.php');

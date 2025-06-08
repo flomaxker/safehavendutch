@@ -1,6 +1,8 @@
 <?php
 
+namespace App\Models;
 
+use PDO;
 
 /**
  * Model for lesson packages.
