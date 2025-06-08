@@ -15,7 +15,7 @@ This document summarizes how the contact form and payment checkout are implement
 
 ## PaymentHandler
 
-- `app/PaymentHandler.php` no longer creates its own dependencies. Instead it
+ - `app/Payment/PaymentHandler.php` no longer creates its own dependencies. Instead it
   receives a PDO connection, `Package` model, `Purchase` model and a
   `\Stripe\StripeClient` instance via the constructor.
 - `createCheckoutSession()` builds a Stripe checkout session and records a

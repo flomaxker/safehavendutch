@@ -1,7 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../bootstrap.php';
-require_once __DIR__ . '/../app/Database.php';
+
+use App\Database\Database;
+use PDOException;
 
 try {
     $db = new Database();
