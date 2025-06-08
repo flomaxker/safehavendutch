@@ -42,7 +42,9 @@ This project powers the Safe Haven Dutch website. It uses PHP with Composer depe
 
 ## Basic usage
 
-Once your `.env` file is configured and migrations are applied, you can run the application via a local PHP server or integrate it with your web server. Stripe webhook handling is in `stripe_webhook.php`. Checkout sessions are created in `checkout.php`.
+Once your `.env` file is configured and migrations are applied, you can run the application via a local PHP server or integrate it with your web server. Stripe webhook handling is in `stripe_webhook.php`. Checkout sessions are created in `checkout.php`. The contact form submission logic lives in `contact-handler.php` and uses **PHPMailer** for sending HTML emails.
+
+Further details on the checkout flow and contact form can be found in `docs/USAGE_CONTACT_PAYMENT.md`.
 
 
 ## Customization roadmap

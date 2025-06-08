@@ -12,7 +12,10 @@ $endpointSecret = getenv('STRIPE_WEBHOOK_SECRET');
 
 $db = new Database();
 $pdo = $db->getConnection();
-$handler = new PaymentHandler($pdo, getenv('STRIPE_SECRET_KEY'));
+$packageModel = new Package($pdo);
+$purchaseModel = new Purchase($pdo);
+$stripe = new \Stripe\StripeClient(getenv('STRIPE_SECRET_KEY'));
+$handler = new PaymentHandler($pdo, $packageModel, $purchaseModel, $stripe);
 
 try {
     $handler->handleWebhook($payload, $sigHeader, $endpointSecret);

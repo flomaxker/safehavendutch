@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 // --- Configuration ---
 $recipient_email = "hello@safehavendutch.nl";
 $server_mandated_from_email = "noreply@kersten.online";
@@ -86,35 +90,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email_body .= "</body></html>";
 
 
-        // --- Construct Headers ---
-        $headers = "From: " . $from_display_name . " <" . $server_mandated_from_email . ">\r\n";
-        // For Reply-To, it's generally better to use the raw name and email (after validation)
-        // rather than htmlspecialchar'd versions, as mail clients handle display names.
-        $headers .= "Reply-To: \"" . $header_replyto_name . "\" <" . $header_replyto_email . ">\r\n";
-        // *** CHANGE Content-Type to HTML ***
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= "MIME-Version: 1.0\r\n"; // Good practice for HTML emails
-        $headers .= "X-Mailer: PHP/" . phpversion();
+        $mail = new PHPMailer(true);
 
+        try {
+            $mail->setFrom($server_mandated_from_email, $from_display_name);
+            $mail->addAddress($recipient_email);
+            $mail->addReplyTo($header_replyto_email, $header_replyto_name);
+            $mail->isHTML(true);
+            $mail->Subject = $email_subject;
+            $mail->Body    = $email_body;
+            $mail->AltBody = $user_message;
 
-        // Optional: Log preview
-        // error_log("HTML_EMAIL_MAILER - PREPARING TO SEND EMAIL. Subject: '" . $email_subject . "'", 0);
-
-        if (mail($recipient_email, $email_subject, $email_body, $headers)) {
+            $mail->send();
             $response['success'] = true;
             http_response_code(200);
-            // error_log("HTML_EMAIL_MAILER - Mail successfully sent to: " . $recipient_email, 0);
-        } else {
-            $php_last_error = error_get_last();
-            $mail_failure_reason = "mail() function returned false. ";
-            if ($php_last_error !== null && stripos(strtolower($php_last_error['message']), 'mail') !== false) {
-                $mail_failure_reason .= "Last PHP error related to mail: " . htmlspecialchars($php_last_error['message']);
-            } else {
-                $mail_failure_reason .= "No specific PHP error captured.";
-            }
-            error_log("HTML_EMAIL_MAILER - Mail sending FAILED. Reason: $mail_failure_reason", 0); // Keep this error log
+        } catch (Exception $e) {
+            error_log("HTML_EMAIL_MAILER - Mail sending FAILED. Reason: " . $mail->ErrorInfo, 0);
             $response['errors'][] = "Message could not be sent due to a server issue. Please try again.";
-            $response['detailed_error_guess'] = $mail_failure_reason;
+            $response['detailed_error_guess'] = $mail->ErrorInfo;
             http_response_code(500);
         }
     }

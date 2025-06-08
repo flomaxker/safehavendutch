@@ -63,13 +63,10 @@ class PaymentHandlerTest extends TestCase
         $pdo->exec("INSERT INTO users (name, email, password) VALUES ('User', 'user@example.com', 'secret')");
         $userId = (int)$pdo->lastInsertId();
 
-        $handler = new \PaymentHandler($pdo, 'sk_test');
-
-        // Replace Stripe client with stub
-        $ref = new \ReflectionProperty(\PaymentHandler::class, 'stripe');
-        $ref->setAccessible(true);
         $stripeStub = new \Stripe\StripeClient('sk_test');
-        $ref->setValue($handler, $stripeStub);
+        $packageModel = new \Package($pdo);
+        $purchaseModel = new \Purchase($pdo);
+        $handler = new \PaymentHandler($pdo, $packageModel, $purchaseModel, $stripeStub);
 
         $url = $handler->createCheckoutSession($userId, $packageId, 'http://success', 'http://cancel');
 
@@ -91,7 +88,10 @@ class PaymentHandlerTest extends TestCase
         $pdo->exec("INSERT INTO purchases (user_id, package_id, stripe_session_id, amount_cents, status) VALUES ($userId, $packageId, 'sess_123', 1000, 'pending')");
         $purchaseId = (int)$pdo->lastInsertId();
 
-        $handler = new \PaymentHandler($pdo, 'sk_test');
+        $stripeStub = new \Stripe\StripeClient('sk_test');
+        $packageModel = new \Package($pdo);
+        $purchaseModel = new \Purchase($pdo);
+        $handler = new \PaymentHandler($pdo, $packageModel, $purchaseModel, $stripeStub);
 
         $event = [
             'type' => 'checkout.session.completed',
