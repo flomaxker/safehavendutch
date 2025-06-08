@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 // --- Configuration ---
 $recipient_email = "hello@safehavendutch.nl";
 $server_mandated_from_email = "noreply@kersten.online";
@@ -15,15 +16,11 @@ $response = ['success' => false, 'errors' => []];
 // --- Check Request Method ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Optional: Keep logging for a bit if you like
-    // error_log("HTML_EMAIL_MAILER - POST DATA RECEIVED: " . print_r($_POST, true), 0);
-
     // --- Get and Trim Input ---
     $user_name = isset($_POST['name']) ? trim($_POST['name']) : '';
-    // Remove CRLF characters to prevent header injection
     $user_name = str_replace(["\r", "\n"], '', $user_name);
     $user_email = isset($_POST['email']) ? trim($_POST['email']) : '';
-    $user_message = isset($_POST['message']) ? trim($_POST['message']) : ''; // Raw message
+    $user_message = isset($_POST['message']) ? trim($_POST['message']) : '';
 
     // --- Server-side Validate Input ---
     if (empty($user_name)) {
@@ -40,30 +37,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!empty($response['errors'])) {
         http_response_code(400);
-        // error_log("HTML_EMAIL_MAILER - Validation errors: " . print_r($response['errors'], true), 0);
     } else {
-        // --- Sanitize inputs appropriately ---
-        // For display in HTML (subject, body names, etc.), htmlspecialchars is good.
         $display_user_name = htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8');
-        $display_user_email = htmlspecialchars($user_email, ENT_QUOTES, 'UTF-8'); // For display in HTML body
+        $display_user_email = htmlspecialchars($user_email, ENT_QUOTES, 'UTF-8');
 
-        // Prepare values for the Reply-To header. The email has already been validated.
-        // Use the sanitized name to avoid header injection.
         $header_replyto_name = $user_name;
         $header_replyto_email = $user_email;
 
-        // For the message content in an HTML email:
-        // 1. Escape HTML special characters to prevent XSS if this HTML is ever viewed in a browser.
-        // 2. Convert newlines (from textarea) to <br> tags for HTML display.
         $message_for_html_body = nl2br(htmlspecialchars($user_message, ENT_QUOTES, 'UTF-8'));
 
-        // --- Construct Email Content ---
         $email_subject = $email_subject_prefix;
         if (!empty($display_user_name)) {
             $email_subject .= " from " . $display_user_name;
         }
 
-        // Construct HTML Email Body
         $email_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>";
         $email_body .= "<title>" . htmlspecialchars($email_subject, ENT_QUOTES, 'UTF-8') . "</title>";
         $email_body .= "<style>";
@@ -72,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email_body .= "h2 { color: #2c3e50; margin-top:0; }";
         $email_body .= "p { margin-bottom: 10px; }";
         $email_body .= "strong { color: #34495e; }";
-        $email_body .= ".message-content { padding: 15px; background-color: #ffffff; border: 1px solid #eee; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word; }"; // white-space: pre-wrap helps with long lines
+        $email_body .= ".message-content { padding: 15px; background-color: #ffffff; border: 1px solid #eee; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word; }";
         $email_body .= "hr { border: 0; height: 1px; background: #ddd; margin: 20px 0; }";
         $email_body .= ".footer { font-size: 0.9em; color: #7f8c8d; text-align: center; margin-top: 20px;}";
         $email_body .= "</style></head><body>";
@@ -81,14 +68,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email_body .= "<p>You have received a new message from your website contact form:</p>";
         $email_body .= "<hr>";
         $email_body .= "<p><strong>Name:</strong> " . $display_user_name . "</p>";
-        $email_body .= "<p><strong>Email:</strong> <a href='mailto:" . rawurlencode($user_email) . "'>" . $display_user_email . "</a></p>"; // Make email clickable
+        $email_body .= "<p><strong>Email:</strong> <a href='mailto:" . rawurlencode($user_email) . "'>" . $display_user_email . "</a></p>";
         $email_body .= "<p><strong>Message:</strong></p>";
         $email_body .= "<div class='message-content'>" . $message_for_html_body . "</div>";
         $email_body .= "<hr>";
         $email_body .= "<p class='footer'><em>Sent via Safe Haven Dutch Coaching Website</em></p>";
         $email_body .= "</div>";
         $email_body .= "</body></html>";
-
 
         $mail = new PHPMailer(true);
 
@@ -114,10 +100,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 } else {
     $response['errors'][] = "Invalid request method.";
     http_response_code(405);
-    // error_log("HTML_EMAIL_MAILER - Invalid request method.", 0);
 }
 
 header('Content-Type: application/json');
 echo json_encode($response);
 exit;
-?>

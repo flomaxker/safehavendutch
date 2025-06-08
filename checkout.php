@@ -1,11 +1,5 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/app/Database.php';
-require_once __DIR__ . '/app/Models/Package.php';
-require_once __DIR__ . '/app/Models/Purchase.php';
-require_once __DIR__ . '/app/PaymentHandler.php';
+require_once __DIR__ . '/bootstrap.php';
 
 if (empty($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -13,9 +7,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 $packageId = (int)($_GET['package_id'] ?? 0);
-$db = new Database();
-$pdo = $db->getConnection();
-$packageModel = new Package($pdo);
+$packageModel = $container->get('packageModel');
 $package = $packageModel->getById($packageId);
 
 if (!$package || !$package['active']) {
@@ -24,16 +16,17 @@ if (!$package || !$package['active']) {
     exit;
 }
 
-$stripeSecret = getenv('STRIPE_SECRET_KEY');
+$handler = $container->get('paymentHandler');
 $successUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/checkout_success.php';
-$cancelUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/checkout_cancel.php';
-
-$stripe = new \Stripe\StripeClient($stripeSecret);
-$purchaseModel = new Purchase($pdo);
-$handler = new PaymentHandler($pdo, $packageModel, $purchaseModel, $stripe);
+$cancelUrl  = 'https://' . $_SERVER['HTTP_HOST'] . '/checkout_cancel.php';
 
 try {
-    $sessionUrl = $handler->createCheckoutSession($_SESSION['user_id'], $packageId, $successUrl, $cancelUrl);
+    $sessionUrl = $handler->createCheckoutSession(
+        $_SESSION['user_id'],
+        $packageId,
+        $successUrl,
+        $cancelUrl
+    );
     header('Location: ' . $sessionUrl);
     exit;
 } catch (Exception $e) {
