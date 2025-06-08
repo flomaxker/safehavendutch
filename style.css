@@ -58,7 +58,7 @@ ul:not(.nav-menu):not(.contact-links):not(.flags-container ul):not(.coach-type u
 .section-padding { padding-top: 4rem; padding-bottom: 4rem; }
 section:nth-of-type(even) { background-color: var(--color-bg); }
 section:nth-of-type(odd) { background-color: var(--color-white); }
-#home { background: linear-gradient(to right, rgba(37, 99, 235, 0.85), rgba(20, 184, 166, 0.85)), url('/assets/images/alexei-maridashvili-BOqK8p1pHX4-unsplash.jpg') center/cover no-repeat; } /* Ensure image path is correct */
+#home { background: linear-gradient(to right, rgba(37, 99, 235, 0.85), rgba(20, 184, 166, 0.85)), url('/assets/images/default-hero.jpg') center/cover no-repeat; } /* Ensure image path is correct */
 #contact { background-color: var(--color-primary); color: var(--color-white); }
 .text-center { text-align: center; }
 .text-primary { color: var(--color-primary); }
