@@ -17,14 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: index.php');
     exit;
 }
+$title = 'Add Package - Admin';
+require __DIR__ . '/../header.php';
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Add Package - Admin</title>
-</head>
-<body>
     <h1>Add New Package</h1>
     <form method="post">
         <label>Name: <input type="text" name="name" required></label><br>
@@ -35,5 +30,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit">Create Package</button>
     </form>
     <a href="index.php">Back to list</a>
-</body>
-</html>
+<?php require __DIR__ . '/../footer.php'; ?>

@@ -20,14 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
 }
 
 $packages = $packageModel->getAll();
+$title = 'Packages - Admin';
+require __DIR__ . '/../header.php';
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Packages - Admin</title>
-</head>
-<body>
     <h1>Lesson Packages</h1>
     <a href="create.php">Add New Package</a>
     <table border="1" cellpadding="5" cellspacing="0">
@@ -67,5 +62,4 @@ $packages = $packageModel->getAll();
             <?php endforeach; ?>
         </tbody>
     </table>
-</body>
-</html>
+<?php require __DIR__ . '/../footer.php'; ?>
