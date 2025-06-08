@@ -63,31 +63,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $email_subject .= " from " . $display_user_name;
         }
 
-        // Construct HTML Email Body
-        $email_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>";
-        $email_body .= "<title>" . htmlspecialchars($email_subject, ENT_QUOTES, 'UTF-8') . "</title>";
-        $email_body .= "<style>";
-        $email_body .= "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }";
-        $email_body .= ".container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }";
-        $email_body .= "h2 { color: #2c3e50; margin-top:0; }";
-        $email_body .= "p { margin-bottom: 10px; }";
-        $email_body .= "strong { color: #34495e; }";
-        $email_body .= ".message-content { padding: 15px; background-color: #ffffff; border: 1px solid #eee; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word; }"; // white-space: pre-wrap helps with long lines
-        $email_body .= "hr { border: 0; height: 1px; background: #ddd; margin: 20px 0; }";
-        $email_body .= ".footer { font-size: 0.9em; color: #7f8c8d; text-align: center; margin-top: 20px;}";
-        $email_body .= "</style></head><body>";
-        $email_body .= "<div class='container'>";
-        $email_body .= "<h2>New Contact Form Submission</h2>";
-        $email_body .= "<p>You have received a new message from your website contact form:</p>";
-        $email_body .= "<hr>";
-        $email_body .= "<p><strong>Name:</strong> " . $display_user_name . "</p>";
-        $email_body .= "<p><strong>Email:</strong> <a href='mailto:" . rawurlencode($user_email) . "'>" . $display_user_email . "</a></p>"; // Make email clickable
-        $email_body .= "<p><strong>Message:</strong></p>";
-        $email_body .= "<div class='message-content'>" . $message_for_html_body . "</div>";
-        $email_body .= "<hr>";
-        $email_body .= "<p class='footer'><em>Sent via Safe Haven Dutch Coaching Website</em></p>";
-        $email_body .= "</div>";
-        $email_body .= "</body></html>";
+        // Construct HTML Email Body using external template
+        ob_start();
+        include __DIR__ . '/templates/contact_email.php';
+        $email_body = ob_get_clean();
 
 
         $mail = new PHPMailer(true);
