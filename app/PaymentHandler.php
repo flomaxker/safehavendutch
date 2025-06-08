@@ -1,29 +1,35 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Models/Purchase.php';
 require_once __DIR__ . '/Models/Package.php';
+
+use Stripe\StripeClient;
+use Stripe\Webhook;
 
 /**
  * Handles Stripe checkout session creation and webhook events.
  */
 class PaymentHandler
 {
-    /** @var \Stripe\StripeClient */
+    /** @var StripeClient */
     private $stripe;
     /** @var PDO */
     private $pdo;
+    /** @var Package */
+    private $packageModel;
+    /** @var Purchase */
+    private $purchaseModel;
 
     /**
      * PaymentHandler constructor.
-     * @param PDO $pdo
-     * @param string $stripeSecretKey
      */
-    public function __construct($pdo, $stripeSecretKey)
+    public function __construct(PDO $pdo, Package $packageModel, Purchase $purchaseModel, StripeClient $stripe)
     {
         $this->pdo = $pdo;
-        $this->stripe = new \Stripe\StripeClient($stripeSecretKey);
+        $this->packageModel = $packageModel;
+        $this->purchaseModel = $purchaseModel;
+        $this->stripe = $stripe;
     }
 
     /**
@@ -37,14 +43,12 @@ class PaymentHandler
      */
     public function createCheckoutSession($userId, $packageId, $successUrl, $cancelUrl)
     {
-        $packageModel = new Package($this->pdo);
-        $package = $packageModel->getById($packageId);
+        $package = $this->packageModel->getById($packageId);
         if (!$package) {
             throw new Exception('Package not found');
         }
 
-        $purchaseModel = new Purchase($this->pdo);
-        $purchaseId = $purchaseModel->create(
+        $purchaseId = $this->purchaseModel->create(
             $userId,
             $packageId,
             '',
@@ -71,7 +75,7 @@ class PaymentHandler
             'metadata' => ['purchase_id' => $purchaseId],
         ]);
 
-        $purchaseModel->updateSessionId($purchaseId, $session->id);
+        $this->purchaseModel->updateSessionId($purchaseId, $session->id);
 
         return $session->url;
     }
@@ -84,7 +88,7 @@ class PaymentHandler
      */
     public function handleWebhook($payload, $sigHeader, $endpointSecret)
     {
-        $event = \Stripe\Webhook::constructEvent(
+        $event = Webhook::constructEvent(
             $payload,
             $sigHeader,
             $endpointSecret
@@ -96,12 +100,10 @@ class PaymentHandler
                 ? (int)$session->metadata->purchase_id
                 : null;
             if ($purchaseId) {
-                $purchaseModel = new Purchase($this->pdo);
-                $purchaseModel->updateStatusById($purchaseId, 'completed');
+                $this->purchaseModel->updateStatusById($purchaseId, 'completed');
 
-                $purchase = $purchaseModel->getById($purchaseId);
-                $packageModel = new Package($this->pdo);
-                $package = $packageModel->getById($purchase['package_id']);
+                $purchase = $this->purchaseModel->getById($purchaseId);
+                $package = $this->packageModel->getById($purchase['package_id']);
 
                 $stmt = $this->pdo->prepare(
                     'UPDATE users SET credit_balance = credit_balance + :credits WHERE id = :user_id'

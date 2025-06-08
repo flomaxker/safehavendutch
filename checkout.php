@@ -28,7 +28,9 @@ $stripeSecret = getenv('STRIPE_SECRET_KEY');
 $successUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/checkout_success.php';
 $cancelUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/checkout_cancel.php';
 
-$handler = new PaymentHandler($pdo, $stripeSecret);
+$stripe = new \Stripe\StripeClient($stripeSecret);
+$purchaseModel = new Purchase($pdo);
+$handler = new PaymentHandler($pdo, $packageModel, $purchaseModel, $stripe);
 
 try {
     $sessionUrl = $handler->createCheckoutSession($_SESSION['user_id'], $packageId, $successUrl, $cancelUrl);
