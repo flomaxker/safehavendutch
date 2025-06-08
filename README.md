@@ -44,3 +44,7 @@ This project powers the Safe Haven Dutch website. It uses PHP with Composer depe
 
 Once your `.env` file is configured and migrations are applied, you can run the application via a local PHP server or integrate it with your web server. Stripe webhook handling is in `stripe_webhook.php`. Checkout sessions are created in `checkout.php`.
 
+
+## Customization roadmap
+
+The site currently uses static HTML files for pages like `index.html` and `announcement.html`. These provide the default layout for Safe Haven Dutch Coaching. The `content/` and `uploads/` directories serve as placeholders for a future CMS that will allow dynamic pages and user-generated content. Until that system is built, the static HTML remains in place.
