@@ -13,13 +13,13 @@ use Stripe\Webhook;
 class PaymentHandler
 {
     /** @var StripeClient */
-    private $stripe;
+    private StripeClient $stripe;
     /** @var PDO */
-    private $pdo;
+    private PDO $pdo;
     /** @var Package */
-    private $packageModel;
+    private Package $packageModel;
     /** @var Purchase */
-    private $purchaseModel;
+    private Purchase $purchaseModel;
 
     /**
      * PaymentHandler constructor.
@@ -41,7 +41,7 @@ class PaymentHandler
      * @return string
      * @throws Exception
      */
-    public function createCheckoutSession($userId, $packageId, $successUrl, $cancelUrl)
+    public function createCheckoutSession(int $userId, int $packageId, string $successUrl, string $cancelUrl): string
     {
         $package = $this->packageModel->getById($packageId);
         if (!$package) {
@@ -86,7 +86,7 @@ class PaymentHandler
      * @param string $sigHeader
      * @param string $endpointSecret
      */
-    public function handleWebhook($payload, $sigHeader, $endpointSecret)
+    public function handleWebhook(string $payload, string $sigHeader, string $endpointSecret): void
     {
         $event = Webhook::constructEvent(
             $payload,
@@ -116,3 +116,4 @@ class PaymentHandler
         }
     }
 }
+

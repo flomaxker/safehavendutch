@@ -2,19 +2,20 @@
 
 require_once __DIR__ . '/../Database.php';
 
+
 /**
  * Model for lesson packages.
  */
 class Package
 {
     /** @var PDO */
-    private $pdo;
+    private PDO $pdo;
 
     /**
      * Package constructor.
      * @param PDO $pdo
      */
-    public function __construct($pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -23,7 +24,7 @@ class Package
      * Get all packages.
      * @return array
      */
-    public function getAll()
+    public function getAll(): array
     {
         $stmt = $this->pdo->query('SELECT * FROM packages');
         return $stmt->fetchAll();
@@ -34,7 +35,7 @@ class Package
      * @param int $id
      * @return array|null
      */
-    public function getById($id)
+    public function getById(int $id): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM packages WHERE id = :id');
         $stmt->execute(['id' => $id]);
@@ -51,7 +52,7 @@ class Package
      * @param bool $active
      * @return int Inserted package ID
      */
-    public function create($name, $description, $creditAmount, $priceCents, $active = true)
+    public function create(string $name, string $description, int $creditAmount, int $priceCents, bool $active = true): int
     {
         $stmt = $this->pdo->prepare(
             'INSERT INTO packages (name, description, credit_amount, price_cents, active)
@@ -77,7 +78,7 @@ class Package
      * @param bool $active
      * @return bool
      */
-    public function update($id, $name, $description, $creditAmount, $priceCents, $active)
+    public function update(int $id, string $name, string $description, int $creditAmount, int $priceCents, bool $active): bool
     {
         $stmt = $this->pdo->prepare(
             'UPDATE packages SET name = :name, description = :description,
@@ -99,7 +100,7 @@ class Package
      * @param int $id
      * @return bool
      */
-    public function delete($id)
+    public function delete(int $id): bool
     {
         $stmt = $this->pdo->prepare('DELETE FROM packages WHERE id = :id');
         return $stmt->execute(['id' => $id]);
@@ -111,7 +112,7 @@ class Package
      * @param bool $active
      * @return bool
      */
-    public function toggleActive($id, $active)
+    public function toggleActive(int $id, bool $active): bool
     {
         $stmt = $this->pdo->prepare('UPDATE packages SET active = :active WHERE id = :id');
         return $stmt->execute([
@@ -120,3 +121,4 @@ class Package
         ]);
     }
 }
+

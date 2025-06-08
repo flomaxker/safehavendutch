@@ -7,9 +7,11 @@ use Dotenv\Dotenv;
 class Database
 {
     /**
+     * PDO connection instance.
+     *
      * @var PDO
      */
-    private $connection;
+    private PDO $connection;
 
     /**
      * Database constructor.
@@ -44,7 +46,7 @@ class Database
      *
      * @return PDO
      */
-    public function getConnection()
+    public function getConnection(): PDO
     {
         return $this->connection;
     }
