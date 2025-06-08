@@ -1,5 +1,13 @@
 <?php
 
+namespace App;
+
+use PDO;
+use App\Database\Database;
+use App\Models\Package;
+use App\Models\Purchase;
+use App\Payment\PaymentHandler;
+
 class Container
 {
     private array $instances = [];

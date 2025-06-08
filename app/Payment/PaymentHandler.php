@@ -1,10 +1,13 @@
 <?php
 
-require_once __DIR__ . '/Models/Purchase.php';
-require_once __DIR__ . '/Models/Package.php';
+namespace App\Payment;
 
+use PDO;
+use Exception;
 use Stripe\StripeClient;
 use Stripe\Webhook;
+use App\Models\Purchase;
+use App\Models\Package;
 
 /**
  * Handles Stripe checkout session creation and webhook events.
