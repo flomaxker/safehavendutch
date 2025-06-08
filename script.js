@@ -1,16 +1,17 @@
 // Wait for the DOM to be fully loaded before running scripts
 document.addEventListener('DOMContentLoaded', () => {
-    loadFooter(); // Load the footer first
-
-    // --- Call initialization functions ---
-    initializeMobileNavigation();
-    initializeSmoothScrolling();
-    initializeScrollAnimations();
-    initializeActiveNavLinkHighlighting(); // For index.html
-    initializeTestimonialCarousel();
-    initializeContactForm();
-    initializeFeelingsFlags(); // For feelings-flags.html
-    initializeGroningenChecklist(); // For integration-checklist.html
+    loadHeader().then(() => {
+        // --- Call initialization functions that rely on header elements ---
+        initializeMobileNavigation();
+        initializeSmoothScrolling();
+        initializeScrollAnimations();
+        initializeActiveNavLinkHighlighting(); // For index.html
+        initializeTestimonialCarousel();
+        initializeContactForm();
+        initializeFeelingsFlags(); // For feelings-flags.html
+        initializeGroningenChecklist(); // For integration-checklist.html
+        loadFooter(); // Load the footer after header-dependent functions
+    });
 });
 
 // --- Reusable Footer Loader ---
@@ -34,6 +35,26 @@ async function loadFooter() {
             console.error("Could not load footer: ", error);
             if (footerElement) {
                 footerElement.innerHTML = "<div class='container'><p style='text-align:center; padding: 20px; color: #9ca3af;'>Footer could not be loaded.</p></div>";
+            }
+        }
+    }
+}
+
+// --- Reusable Header Loader ---
+async function loadHeader() {
+    const headerElement = document.querySelector('header.header');
+    if (headerElement) {
+        try {
+            const response = await fetch('header.html'); // Assumes header.html is in the root
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const headerHtml = await response.text();
+            headerElement.innerHTML = headerHtml;
+        } catch (error) {
+            console.error("Could not load header: ", error);
+            if (headerElement) {
+                headerElement.innerHTML = "<div class='container'><p style='text-align:center; padding: 20px; color: #9ca3af;'>Header could not be loaded.</p></div>";
             }
         }
     }
