@@ -1,7 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../../app/Database.php';
-require_once __DIR__ . '/../../app/Models/Package.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\Database;
+use App\Models\Package;
 
 $db = new Database();
 $pdo = $db->getConnection();

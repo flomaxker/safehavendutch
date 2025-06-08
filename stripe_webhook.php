@@ -1,10 +1,11 @@
 <?php
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/app/Database.php';
-require_once __DIR__ . '/app/Models/Purchase.php';
-require_once __DIR__ . '/app/Models/Package.php';
-require_once __DIR__ . '/app/PaymentHandler.php';
+
+use App\Database;
+use App\Models\Purchase;
+use App\Models\Package;
+use App\Payment\PaymentHandler;
 
 $payload = @file_get_contents('php://input');
 $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';

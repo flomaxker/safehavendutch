@@ -1,9 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/Models/Purchase.php';
-require_once __DIR__ . '/Models/Package.php';
+namespace App\Payment;
 
+use App\Models\Package;
+use App\Models\Purchase;
+use PDO;
 use Stripe\StripeClient;
 use Stripe\Webhook;
 

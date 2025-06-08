@@ -32,7 +32,9 @@ namespace Stripe {
 
 namespace {
 use PHPUnit\Framework\TestCase;
-require_once __DIR__ . '/../app/PaymentHandler.php';
+use App\Payment\PaymentHandler;
+use App\Models\Package;
+use App\Models\Purchase;
 
 class PaymentHandlerTest extends TestCase
 {
@@ -64,9 +66,9 @@ class PaymentHandlerTest extends TestCase
         $userId = (int)$pdo->lastInsertId();
 
         $stripeStub = new \Stripe\StripeClient('sk_test');
-        $packageModel = new \Package($pdo);
-        $purchaseModel = new \Purchase($pdo);
-        $handler = new \PaymentHandler($pdo, $packageModel, $purchaseModel, $stripeStub);
+        $packageModel = new Package($pdo);
+        $purchaseModel = new Purchase($pdo);
+        $handler = new PaymentHandler($pdo, $packageModel, $purchaseModel, $stripeStub);
 
         $url = $handler->createCheckoutSession($userId, $packageId, 'http://success', 'http://cancel');
 
@@ -89,9 +91,9 @@ class PaymentHandlerTest extends TestCase
         $purchaseId = (int)$pdo->lastInsertId();
 
         $stripeStub = new \Stripe\StripeClient('sk_test');
-        $packageModel = new \Package($pdo);
-        $purchaseModel = new \Purchase($pdo);
-        $handler = new \PaymentHandler($pdo, $packageModel, $purchaseModel, $stripeStub);
+        $packageModel = new Package($pdo);
+        $purchaseModel = new Purchase($pdo);
+        $handler = new PaymentHandler($pdo, $packageModel, $purchaseModel, $stripeStub);
 
         $event = [
             'type' => 'checkout.session.completed',
