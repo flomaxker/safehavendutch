@@ -2,19 +2,20 @@
 
 require_once __DIR__ . '/../Database.php';
 
+
 /**
  * Model for purchases records.
  */
 class Purchase
 {
     /** @var PDO */
-    private $pdo;
+    private PDO $pdo;
 
     /**
      * Purchase constructor.
      * @param PDO $pdo
      */
-    public function __construct($pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -28,7 +29,7 @@ class Purchase
      * @param string $status
      * @return int Inserted purchase ID
      */
-    public function create($userId, $packageId, $stripeSessionId, $amountCents, $status)
+    public function create(int $userId, int $packageId, string $stripeSessionId, int $amountCents, string $status): int
     {
         $stmt = $this->pdo->prepare(
             'INSERT INTO purchases (user_id, package_id, stripe_session_id, amount_cents, status)
@@ -50,7 +51,7 @@ class Purchase
      * @param string $stripeSessionId
      * @return bool
      */
-    public function updateSessionId($id, $stripeSessionId)
+    public function updateSessionId(int $id, string $stripeSessionId): bool
     {
         $stmt = $this->pdo->prepare(
             'UPDATE purchases SET stripe_session_id = :stripe_session_id WHERE id = :id'
@@ -67,7 +68,7 @@ class Purchase
      * @param string $status
      * @return bool
      */
-    public function updateStatusById($id, $status)
+    public function updateStatusById(int $id, string $status): bool
     {
         $stmt = $this->pdo->prepare(
             'UPDATE purchases SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
@@ -83,7 +84,7 @@ class Purchase
      * @param int $id
      * @return array|null
      */
-    public function getById($id)
+    public function getById(int $id): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM purchases WHERE id = :id');
         $stmt->execute(['id' => $id]);
