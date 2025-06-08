@@ -2,3 +2,9 @@
 /vendor
 .DS_Store
 .phpunit.result.cache
+
+# Dynamic content
+/uploads/
+!/uploads/.gitkeep
+content/blog/user/
+!content/blog/user/.gitkeep
