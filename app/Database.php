@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use Dotenv\Dotenv;
 
 class Database
 {
@@ -13,16 +10,12 @@ class Database
 
     /**
      * Database constructor.
-     *
-     * Loads environment variables and establishes the PDO connection.
+     * Establishes the PDO connection using environment variables.
      *
      * @throws PDOException If the connection fails.
      */
     public function __construct()
     {
-        $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/..');
-        $dotenv->safeLoad();
-
         $host = getenv('DB_HOST');
         $name = getenv('DB_NAME');
         $user = getenv('DB_USER');

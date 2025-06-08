@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/Models/Purchase.php';
 require_once __DIR__ . '/Models/Package.php';
 
