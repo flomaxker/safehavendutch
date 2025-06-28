@@ -108,7 +108,7 @@ include __DIR__ . '/../header.php';
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         <a href="?order_by=credit_balance&order_direction=<?= ($order_by === 'credit_balance' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
-                            Credit Balance
+                            Credits
                             <?php if ($order_by === 'credit_balance'): ?>
                                 <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
                             <?php endif; ?>

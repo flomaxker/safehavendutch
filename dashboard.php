@@ -25,7 +25,7 @@ include 'header.php'; // Assuming header.html contains the common header for use
                 <span class="material-icons text-blue-600">account_balance_wallet</span>
             </div>
             <div>
-                <p class="text-sm text-gray-500">Your Current Credits</p>
+                <p class="text-sm text-gray-500">Your Credits</p>
                 <p class="text-2xl font-bold text-gray-800"><?php echo htmlspecialchars($user_credits); ?></p>
             </div>
         </div>

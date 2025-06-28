@@ -131,7 +131,7 @@ require __DIR__ . '/../header.php';
                             Credits
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Price (cents)
+                            Price (€)
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Active
@@ -158,7 +158,7 @@ require __DIR__ . '/../header.php';
                                     <?= htmlspecialchars($package['credit_amount']) ?>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <?= htmlspecialchars($package['price_cents']) ?>
+                                    <td>€<?= number_format($package['price_cents'] / 100, 2) ?></td>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <?= $package['active'] ? 'Yes' : 'No' ?>
