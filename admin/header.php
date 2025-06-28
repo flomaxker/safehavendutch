@@ -11,6 +11,8 @@ $site_name = "Admin Panel";
 $site_logo = "/assets/images/default-logo.png"; // Generic logo for admin
 $nav_links = [
     ['title' => 'Dashboard', 'url' => '/admin/index.php', 'icon' => 'home'],
+    ['title' => 'Users', 'url' => '/admin/users/index.php', 'icon' => 'group'],
+    ['title' => 'Packages', 'url' => '/admin/packages/index.php', 'icon' => 'redeem'],
     ['title' => 'Pages', 'url' => '/admin/pages/index.php', 'icon' => 'description'],
     ['title' => 'Logout', 'url' => '/admin/logout.php', 'icon' => 'logout']
 ];
