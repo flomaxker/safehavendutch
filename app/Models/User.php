@@ -56,4 +56,10 @@ class User
         $stmt = $this->pdo->query("SELECT id, name, email, credit_balance, created_at FROM users ORDER BY created_at DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function delete(int $id): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
+        return $stmt->execute(['id' => $id]);
+    }
 }
