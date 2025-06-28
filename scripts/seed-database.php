@@ -42,12 +42,22 @@ $fakeUsers = [
 $createdUserIds = [];
 foreach ($fakeUsers as $userData) {
     $existingUser = $userModel->findByEmail($userData['email']);
-    if (!$existingUser) {
+    if ($existingUser) {
+        // User exists, update their name and ensure role/credits are consistent
+        $userModel->update(
+            $existingUser['id'],
+            $userData['name'],
+            $userData['email'],
+            $existingUser['credit_balance'], // Keep existing credit balance
+            $existingUser['role'] // Keep existing role
+        );
+        $createdUserIds[] = $existingUser['id']; // Add existing user ID to the list for package assignment
+        echo 'User updated: ' . $userData['name'] . ' (ID: ' . $existingUser['id'] . ')' . PHP_EOL;
+    } else {
+        // User does not exist, create new user
         $userId = $userModel->create($userData['name'], $userData['email'], password_hash($userData['password'], PASSWORD_DEFAULT), 'student');
         $createdUserIds[] = $userId;
         echo 'User created: ' . $userData['name'] . ' with ID: ' . $userId . PHP_EOL;
-    } else {
-        echo 'User already exists: ' . $userData['name'] . PHP_EOL;
     }
 }
 
