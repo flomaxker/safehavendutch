@@ -106,7 +106,7 @@ require __DIR__ . '/../header.php';
                                 <form method="post" style="display:inline;" class="inline-block">
                                     <input type="hidden" name="id" value="<?= $package['id'] ?>">
                                     <input type="hidden" name="action" value="delete">
-                                    <button type="submit" onclick="return confirm('Are you sure?');" class="text-red-600 hover:text-red-900 mr-3">Delete</button>
+                                    <button type="submit" onclick="return confirm('Are you sure?');" class="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"><i class="fas fa-times"></i></button>
                                 </form>
                                 <form method="post" style="display:inline;" class="inline-block">
                                     <input type="hidden" name="id" value="<?= $package['id'] ?>">

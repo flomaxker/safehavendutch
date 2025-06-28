@@ -103,7 +103,7 @@ include __DIR__ . '/../header.php';
                             <form method="post" style="display:inline;">
                                 <input type="hidden" name="id" value="<?= $user['id'] ?>">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" onclick="return confirm('Are you sure you want to delete this user?');" class="text-red-600 hover:text-red-900">Delete</button>
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete this user?');" class="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"><i class="fas fa-times"></i></button>
                             </form>
                         </td>
                     </tr>
