@@ -134,5 +134,26 @@ class Package
             'active' => $active ? 1 : 0,
         ]);
     }
+
+    public function deleteMany(array $ids): bool
+    {
+        if (empty($ids)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo->prepare("DELETE FROM packages WHERE id IN ($placeholders)");
+        return $stmt->execute($ids);
+    }
+
+    public function toggleActiveMany(array $ids, bool $active): bool
+    {
+        if (empty($ids)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo->prepare("UPDATE packages SET active = :active WHERE id IN ($placeholders)");
+        $params = array_merge(['active' => $active ? 1 : 0], $ids);
+        return $stmt->execute($params);
+    }
 }
 
