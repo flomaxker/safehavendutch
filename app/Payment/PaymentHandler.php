@@ -90,31 +90,82 @@ class PaymentHandler
      */
     public function handleWebhook(string $payload, string $sigHeader, string $endpointSecret): void
     {
-        $event = Webhook::constructEvent(
-            $payload,
-            $sigHeader,
-            $endpointSecret
-        );
+        error_log("Stripe Webhook: Received payload.");
 
-        if ($event->type === 'checkout.session.completed') {
-            $session = $event->data->object;
-            $purchaseId = isset($session->metadata->purchase_id)
-                ? (int)$session->metadata->purchase_id
-                : null;
-            if ($purchaseId) {
-                $this->purchaseModel->updateStatusById($purchaseId, 'completed');
+        try {
+            $event = Webhook::constructEvent(
+                $payload,
+                $sigHeader,
+                $endpointSecret
+            );
+        } catch (\UnexpectedValueException $e) {
+            // Invalid payload
+            error_log("Stripe Webhook Error: Invalid payload. " . $e->getMessage());
+            throw new Exception('Invalid payload');
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            error_log("Stripe Webhook Error: Invalid signature. " . $e->getMessage());
+            throw new Exception('Invalid signature');
+        }
 
-                $purchase = $this->purchaseModel->getById($purchaseId);
-                $package = $this->packageModel->getById($purchase['package_id']);
+        error_log("Stripe Webhook: Event type - " . $event->type);
 
-                $stmt = $this->pdo->prepare(
-                    'UPDATE users SET credit_balance = credit_balance + :credits WHERE id = :user_id'
-                );
-                $stmt->execute([
-                    'credits' => $package['credit_amount'],
-                    'user_id' => $purchase['user_id'],
-                ]);
-            }
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                $session = $event->data->object;
+                $purchaseId = isset($session->metadata->purchase_id)
+                    ? (int)$session->metadata->purchase_id
+                    : null;
+
+                if ($purchaseId) {
+                    error_log("Stripe Webhook: Processing checkout.session.completed for purchase ID: " . $purchaseId);
+                    try {
+                        $this->purchaseModel->updateStatusById($purchaseId, 'completed');
+                        error_log("Stripe Webhook: Purchase status updated to completed for ID: " . $purchaseId);
+
+                        $purchase = $this->purchaseModel->getById($purchaseId);
+                        if ($purchase) {
+                            $package = $this->packageModel->getById($purchase['package_id']);
+                            if ($package) {
+                                // This part will fail without DB connection
+                                $stmt = $this->pdo->prepare(
+                                    'UPDATE users SET credit_balance = credit_balance + :credits WHERE id = :user_id'
+                                );
+                                $stmt->execute([
+                                    'credits' => $package['credit_amount'],
+                                    'user_id' => $purchase['user_id'],
+                                ]);
+                                error_log("Stripe Webhook: Credits added to user " . $purchase['user_id'] . " for purchase ID: " . $purchaseId);
+                            } else {
+                                error_log("Stripe Webhook Error: Package not found for purchase ID: " . $purchaseId);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        error_log("Stripe Webhook Error: Database operation failed for purchase ID " . $purchaseId . ": " . $e->getMessage());
+                    }
+                } else {
+                    error_log("Stripe Webhook Error: purchase_id not found in session metadata for checkout.session.completed event.");
+                }
+                break;
+            case 'checkout.session.async_payment_succeeded':
+                error_log("Stripe Webhook: Async payment succeeded for session ID: " . $event->data->object->id);
+                // Handle post-payment fulfillment
+                break;
+            case 'checkout.session.async_payment_failed':
+                error_log("Stripe Webhook: Async payment failed for session ID: " . $event->data->object->id);
+                // Send email to user, etc.
+                break;
+            case 'charge.succeeded':
+                error_log("Stripe Webhook: Charge succeeded for charge ID: " . $event->data->object->id);
+                // Handle successful charge (e.g., update order status)
+                break;
+            case 'charge.failed':
+                error_log("Stripe Webhook: Charge failed for charge ID: " . $event->data->object->id);
+                // Handle failed charge (e.g., notify user, update order status)
+                break;
+            // ... handle other event types
+            default:
+                error_log("Stripe Webhook: Unhandled event type " . $event->type);
         }
     }
 }

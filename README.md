@@ -1,39 +1,46 @@
-# Safe Haven Dutch CMS
+# General Purpose PHP CMS
 
-This is a custom-built CMS for Safe Haven Dutch Coaching, a Dutch language and integration coaching service for children and families. The system is built using PHP, MySQL, and Stripe, and is gradually evolving into a flexible platform that may be used by other educational or community organizations.
+This is a custom-built Content Management System (CMS) designed to be a flexible platform for various organizations, such as educational institutions, community groups, or small businesses. It is built using PHP, MySQL, and integrates with Stripe for payment processing.
 
-Our goal is to create a safe, welcoming, and intuitive platform where parents can manage Dutch lessons for their children, and where administrators can coordinate bookings, credits, and content — all within a GDPR-compliant, lovingly designed space.
+Our goal is to create an intuitive and adaptable platform where administrators can manage content, users, and services. The system is being developed with a focus on reusability and compliance.
 
 ---
 
 ## 🧠 Project Overview for Codex (AI Assistant)
-This project is a PHP-based CMS for Safe Haven Dutch Coaching. It includes:
-- A dual-login system for parents and admins (in progress)
-- A credit-based lesson booking system
-- A Stripe integration for purchasing packages
-- A parent dashboard to view credits and eventually book lessons
+This project is a PHP-based CMS. It includes:
+- A dual-login system for general users and admins
+- A credit-based service booking/tracking system (can be adapted for lessons, appointments, etc.)
+- A Stripe integration for purchasing packages/services
+- A user dashboard to view credits/services and manage their account
 
 So far, we've built:
 - The database structure and migration scripts
 - Credit system & Stripe checkout
 - Admin login and basic dashboard
+- User registration and login
+- Basic user dashboard and package listing
 
-Next up: building `login.php` and the parent dashboard. Eventually, we’ll allow editable content and optional AI-assisted page generation.
+**Current Priority: Resolving Database Connection Issues.** The dynamic content pages (e.g., `index_dynamic.php`, `about.php`, `contact.php`, `privacy-policy.php`, `terms.php`) are currently blank due to database connection errors. This is the highest priority blocking further development of dynamic features.
 
 ---
 
 ## Features (MVP)
-- Dual-login system: separate accounts for parents and admins
-- Lesson booking system with lesson credit tracking
-- Stripe integration for purchasing packages of lessons
-- Admin dashboard for managing lesson packages
-- Parent dashboard for viewing and managing lesson credits
+- Dual-login system: separate accounts for general users and admins
+- Service booking/tracking system with credit tracking
+- Stripe integration for purchasing packages/services
+- Admin dashboard for managing services/packages
+- User dashboard for viewing and managing credits/services
+- User registration
 
 ## Current State
-- ✅ Stripe checkout is implemented and adds lesson credits correctly
+- ✅ Stripe checkout is implemented and adds credits correctly
 - ✅ Migration system and tests for database structure are complete
 - ✅ Admin login exists with basic dashboard functionality
-- 🚧 Login system for parents and user dashboard still in progress
+- ✅ User registration and login implemented
+- ✅ Basic user dashboard and package listing implemented
+- ✅ Centralized navigation links for easier management
+- ✅ Streamlined JavaScript to only include essential functionalities
+- 🚧 **Database connection issues are currently blocking dynamic content.**
 - 🚧 Front-end CMS for editable content (e.g., announcements, home page) is planned
 
 ## Directory Structure
@@ -42,7 +49,8 @@ Next up: building `login.php` and the parent dashboard. Eventually, we’ll allo
 ├── migrations/        # SQL files for the database schema
 ├── scripts/           # Helper scripts, e.g. run-migrations.php
 ├── tests/             # PHPUnit tests
-├── public_html/       # Static and public-facing pages (index, about, contact, etc.)
+├── index.html         # Static landing page (default)
+├── index_dynamic.php  # Dynamic content page (requires database)
 ├── src/               # Application classes and core PHP logic
 ├── content/           # CMS content (coming soon)
 ├── uploads/           # Uploaded files/media
@@ -85,11 +93,15 @@ Next up: building `login.php` and the parent dashboard. Eventually, we’ll allo
 
 Once your `.env` file is configured and migrations are applied, you can run the application via a local PHP server or integrate it with your web server. Stripe webhook handling is in `stripe_webhook.php`. Checkout sessions are created in `checkout.php`. The contact form submission logic lives in `contact-handler.php` and uses **PHPMailer** for sending HTML emails.
 
+**Admin Login Credentials (for MVP):**
+- **Username:** `admin`
+- **Password:** `password`
+
 Further details on the checkout flow and contact form can be found in `docs/USAGE_CONTACT_PAYMENT.md`.
 
 ## Customization roadmap
 
-The site currently uses static HTML files for pages like `index.html` and `announcement.html`. These provide the default layout for Safe Haven Dutch Coaching. The `content/` and `uploads/` directories serve as placeholders for a future CMS that will allow dynamic pages and user-generated content. Until that system is built, the static HTML remains in place.
+The site currently uses `index.html` as a static landing page. The `content/` and `uploads/` directories serve as placeholders for a future CMS that will allow dynamic pages and user-generated content.
 
 ---
 

@@ -1,0 +1,4 @@
+[27-Jun-2025 18:22:56 UTC] User::findByEmail - Searching for email: flori@test.debug
+[27-Jun-2025 18:22:56 UTC] User::findByEmail - User not found for email: flori@test.debug
+[27-Jun-2025 18:22:56 UTC] User::create - Creating user: Flori, Email: flori@test.debug, Hashed Password: $2y$12$MNvwSPBnO8B9eRwPy0dWGeR/WS.UVnSraqmrPwJDh/xINxyuZ3DZa, Role: student
+[27-Jun-2025 18:22:56 UTC] User::create - User created with ID: 8

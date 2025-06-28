@@ -45,6 +45,19 @@ class Package
     }
 
     /**
+     * Get a single package by name.
+     * @param string $name
+     * @return array|null
+     */
+    public function findByName(string $name): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM packages WHERE name = :name');
+        $stmt->execute(['name' => $name]);
+        $result = $stmt->fetch();
+        return $result ?: null;
+    }
+
+    /**
      * Create a new package.
      * @param string $name
      * @param string $description

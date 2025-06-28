@@ -5,6 +5,7 @@ require_once __DIR__ . '/../bootstrap.php';
 use App\Database\Database;
 use PDOException;
 
+
 try {
     $db = new Database();
     $pdo = $db->getConnection();
@@ -59,6 +60,12 @@ foreach ($migrations as $file) {
         $errorInfo = $e->errorInfo;
         if (isset($errorInfo[1]) && (int)$errorInfo[1] === 1050) {
             echo 'Skipping migration (table already exists): ' . $filename . PHP_EOL;
+            $insert = $pdo->prepare('INSERT INTO migrations (filename) VALUES (:filename)');
+            $insert->execute(['filename' => $filename]);
+            continue;
+        }
+        if (isset($errorInfo[1]) && (int)$errorInfo[1] === 1060) {
+            echo 'Skipping migration (column already exists): ' . $filename . PHP_EOL;
             $insert = $pdo->prepare('INSERT INTO migrations (filename) VALUES (:filename)');
             $insert->execute(['filename' => $filename]);
             continue;

@@ -35,7 +35,7 @@
     <p><strong>Message:</strong></p>
     <div class="message-content"><?= $message_for_html_body ?></div>
     <hr>
-    <p class="footer"><em>Sent via Safe Haven Dutch Coaching Website</em></p>
+    <p class="footer"><em>Sent via Website Contact Form</em></p>
 </div>
 </body>
 </html>

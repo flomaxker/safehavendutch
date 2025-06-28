@@ -1,12 +1,9 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 // --- Configuration ---
-$recipient_email = "hello@safehavendutch.nl";
-$server_mandated_from_email = "noreply@kersten.online";
-$from_display_name = "Safe Haven Dutch Coaching Contact Form";
+// These values should ideally come from a CMS configuration or database.
+$recipient_email = "info@yourcms.com";
+$server_mandated_from_email = "noreply@yourcms.com";
+$from_display_name = "Your CMS Contact Form";
 $email_subject_prefix = "New Contact Form Submission";
 
 // --- Initialize Response Array ---
@@ -15,13 +12,8 @@ $response = ['success' => false, 'errors' => []];
 // --- Check Request Method ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Optional: Keep logging for a bit if you like
-    // error_log("HTML_EMAIL_MAILER - POST DATA RECEIVED: " . print_r($_POST, true), 0);
-
     // --- Get and Trim Input ---
     $user_name = isset($_POST['name']) ? trim($_POST['name']) : '';
-    // Remove CRLF characters to prevent header injection
-    $user_name = str_replace(["\r", "\n"], '', $user_name);
     $user_email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $user_message = isset($_POST['message']) ? trim($_POST['message']) : ''; // Raw message
 
@@ -40,21 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!empty($response['errors'])) {
         http_response_code(400);
-        // error_log("HTML_EMAIL_MAILER - Validation errors: " . print_r($response['errors'], true), 0);
     } else {
         // --- Sanitize inputs appropriately ---
-        // For display in HTML (subject, body names, etc.), htmlspecialchars is good.
         $display_user_name = htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8');
-        $display_user_email = htmlspecialchars($user_email, ENT_QUOTES, 'UTF-8'); // For display in HTML body
-
-        // Prepare values for the Reply-To header. The email has already been validated.
-        // Use the sanitized name to avoid header injection.
-        $header_replyto_name = $user_name;
-        $header_replyto_email = $user_email;
-
-        // For the message content in an HTML email:
-        // 1. Escape HTML special characters to prevent XSS if this HTML is ever viewed in a browser.
-        // 2. Convert newlines (from textarea) to <br> tags for HTML display.
+        $display_user_email = htmlspecialchars($user_email, ENT_QUOTES, 'UTF-8');
         $message_for_html_body = nl2br(htmlspecialchars($user_message, ENT_QUOTES, 'UTF-8'));
 
         // --- Construct Email Content ---
@@ -63,37 +44,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $email_subject .= " from " . $display_user_name;
         }
 
-        // Construct HTML Email Body using external template
-        ob_start();
-        include __DIR__ . '/templates/contact_email.php';
-        $email_body = ob_get_clean();
+        // Construct HTML Email Body
+        $email_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>";
+        $email_body .= "<title>" . htmlspecialchars($email_subject, ENT_QUOTES, 'UTF-8') . "</title>";
+        $email_body .= "<style>";
+        $email_body .= "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }";
+        $email_body .= ".container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }";
+        $email_body .= "h2 { color: #2c3e50; margin-top:0; }";
+        $email_body .= "p { margin-bottom: 10px; }";
+        $email_body .= "strong { color: #34495e; }";
+        $email_body .= ".message-content { padding: 15px; background-color: #ffffff; border: 1px solid #eee; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word; }";
+        $email_body .= "hr { border: 0; height: 1px; background: #ddd; margin: 20px 0; }";
+        $email_body .= ".footer { font-size: 0.9em; color: #7f8c8d; text-align: center; margin-top: 20px;}";
+        $email_body .= "</style></head><body>";
+        $email_body .= "<div class='container'>";
+        $email_body .= "<h2>New Contact Form Submission</h2>";
+        $email_body .= "<p>You have received a new message from your website contact form:</p>";
+        $email_body .= "<hr>";
+        $email_body .= "<p><strong>Name:</strong> " . $display_user_name . "</p>";
+        $email_body .= "<p><strong>Email:</strong> <a href='mailto:" . rawurlencode($user_email) . "'>" . $display_user_email . "</a></p>";
+        $email_body .= "<p><strong>Message:</strong></p>";
+        $email_body .= "<div class='message-content'>" . $message_for_html_body . "</div>";
+        $email_body .= "<hr>";
+        $email_body .= "<p class='footer'><em>Sent via Website Contact Form</em></p>";
+        $email_body .= "</div>";
+        $email_body .= "</body></html>";
 
-
-        $mail = new PHPMailer(true);
+        // --- PHPMailer Setup ---
+        require_once __DIR__ . '/vendor/autoload.php'; // Adjust path if necessary
+        
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true); // Passing true enables exceptions
 
         try {
+            //Server settings
+            $mail->isSMTP();                                            // Send using SMTP
+            $mail->Host       = getenv('SMTP_HOST');                     // Set the SMTP server to send through
+            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+            $mail->Username   = getenv('SMTP_USERNAME');                 // SMTP username
+            $mail->Password   = getenv('SMTP_PASSWORD');                 // SMTP password
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
+            $mail->Port       = getenv('SMTP_PORT');                     // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
+
+            //Recipients
             $mail->setFrom($server_mandated_from_email, $from_display_name);
-            $mail->addAddress($recipient_email);
-            $mail->addReplyTo($header_replyto_email, $header_replyto_name);
-            $mail->isHTML(true);
+            $mail->addAddress($recipient_email);                        // Add a recipient
+            $mail->addReplyTo($user_email, $user_name);                 // Reply to the user's email
+
+            //Content
+            $mail->isHTML(true);                                        // Set email format to HTML
             $mail->Subject = $email_subject;
             $mail->Body    = $email_body;
-            $mail->AltBody = $user_message;
+            $mail->AltBody = strip_tags($user_message); // Plain text for non-HTML mail clients
 
             $mail->send();
             $response['success'] = true;
             http_response_code(200);
         } catch (Exception $e) {
-            error_log("HTML_EMAIL_MAILER - Mail sending FAILED. Reason: " . $mail->ErrorInfo, 0);
+            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}", 0);
             $response['errors'][] = "Message could not be sent due to a server issue. Please try again.";
-            $response['detailed_error_guess'] = $mail->ErrorInfo;
+            $response['detailed_error_guess'] = "Mailer Error: {$mail->ErrorInfo}";
             http_response_code(500);
         }
     }
 } else {
     $response['errors'][] = "Invalid request method.";
     http_response_code(405);
-    // error_log("HTML_EMAIL_MAILER - Invalid request method.", 0);
 }
 
 header('Content-Type: application/json');

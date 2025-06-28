@@ -22,10 +22,10 @@ class Database
      */
     public function __construct()
     {
-        $host = getenv('DB_HOST');
-        $name = getenv('DB_NAME');
-        $user = getenv('DB_USER');
-        $pass = getenv('DB_PASS');
+        $host = DB_HOST;
+        $name = DB_NAME;
+        $user = DB_USER;
+        $pass = DB_PASS;
 
         $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $host, $name);
 
