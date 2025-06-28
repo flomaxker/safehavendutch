@@ -1,5 +1,21 @@
 <?php
 $page_title = "Dashboard";
+
+require_once __DIR__ . '/../bootstrap.php';
+
+use App\Database\Database;
+use App\Models\User;
+use App\Models\Package;
+
+$db = new Database();
+$pdo = $db->getConnection();
+
+$userModel = new User($pdo);
+$packageModel = new Package($pdo);
+
+$totalUsers = $userModel->getTotalUsersCount();
+$activePackages = $packageModel->getTotalActivePackagesCount();
+
 include __DIR__ . '/header.php';
 ?>
 
@@ -21,7 +37,7 @@ include __DIR__ . '/header.php';
         </div>
         <div>
             <p class="text-sm text-gray-500">Total Users</p>
-            <p class="text-2xl font-bold text-gray-800">[Dynamic User Count]</p>
+            <p class="text-2xl font-bold text-gray-800"><?= $totalUsers ?></p>
         </div>
     </div>
     <div class="bg-gray-50 p-4 rounded-xl flex items-start">
@@ -30,7 +46,7 @@ include __DIR__ . '/header.php';
         </div>
         <div>
             <p class="text-sm text-gray-500">Active Packages</p>
-            <p class="text-2xl font-bold text-gray-800">[Dynamic Active Packages]</p>
+            <p class="text-2xl font-bold text-gray-800"><?= $activePackages ?></p>
         </div>
     </div>
     <div class="bg-gray-50 p-4 rounded-xl flex items-start">

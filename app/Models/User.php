@@ -72,4 +72,10 @@ class User
         $stmt = $this->pdo->prepare("DELETE FROM users WHERE id IN ($placeholders)");
         return $stmt->execute($ids);
     }
+
+    public function getTotalUsersCount(): int
+    {
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM users");
+        return (int)$stmt->fetchColumn();
+    }
 }

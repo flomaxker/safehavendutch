@@ -155,5 +155,11 @@ class Package
         $params = array_merge(['active' => $active ? 1 : 0], $ids);
         return $stmt->execute($params);
     }
+
+    public function getTotalActivePackagesCount(): int
+    {
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM packages WHERE active = 1");
+        return (int)$stmt->fetchColumn();
+    }
 }
 
