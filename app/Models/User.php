@@ -87,4 +87,18 @@ class User
             'userId' => $userId
         ]);
     }
+
+    public function update(int $id, string $name, string $email, int $creditBalance, string $role): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE users SET name = :name, email = :email, credit_balance = :credit_balance, role = :role WHERE id = :id'
+        );
+        return $stmt->execute([
+            'id' => $id,
+            'name' => $name,
+            'email' => $email,
+            'credit_balance' => $creditBalance,
+            'role' => $role,
+        ]);
+    }
 }

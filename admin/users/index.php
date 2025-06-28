@@ -91,6 +91,9 @@ include __DIR__ . '/../header.php';
                         Credit Balance
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Role
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Registered At
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -118,16 +121,20 @@ include __DIR__ . '/../header.php';
                                 <?php echo htmlspecialchars($user['credit_balance']); ?>
                             </td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <?php echo htmlspecialchars($user['role']); ?>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                 <?php echo htmlspecialchars($user['created_at']); ?>
                             </td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <a href="edit.php?id=<?= $user['id'] ?>" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
                                 <button type="submit" name="action" value="delete" onclick="return confirm('Are you sure you want to delete this user?');" class="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"><i class="fas fa-times"></i></button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                        <td colspan="8" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
                             No users found.
                         </td>
                     </tr>

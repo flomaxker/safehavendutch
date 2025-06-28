@@ -1,0 +1,101 @@
+<?php
+
+require_once __DIR__ . '/../../bootstrap.php';
+
+use App\Database\Database;
+use App\Models\User;
+
+$db = new Database();
+$pdo = $db->getConnection();
+$userModel = new User($pdo);
+
+$id = (int)($_GET['id'] ?? 0);
+$user = $userModel->findByEmail($id); // Assuming findByEmail can also take ID for simplicity or add getById
+
+// If user not found, try by ID if findByEmail doesn't work with ID
+if (!$user) {
+    $user = $userModel->getById($id); // Assuming getById exists or will be added
+}
+
+if (!$user) {
+    header('Location: index.php');
+    exit;
+}
+
+$errors = [];
+$success = '';
+
+// Initialize form fields with existing user data
+$name = $user['name'];
+$email = $user['email'];
+$creditBalance = $user['credit_balance'];
+$role = $user['role'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $creditBalance = (int)($_POST['credit_balance'] ?? 0);
+    $role = trim($_POST['role'] ?? '');
+
+    if (empty($name)) {
+        $errors[] = 'User name is required.';
+    }
+    if (empty($email)) {
+        $errors[] = 'Email is required.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid email format.';
+    }
+    if ($creditBalance < 0) {
+        $errors[] = 'Credit balance cannot be negative.';
+    }
+    if (!in_array($role, ['admin', 'student'])) {
+        $errors[] = 'Invalid user role.';
+    }
+
+    if (empty($errors)) {
+        $userModel->update($id, $name, $email, $creditBalance, $role);
+        $success = 'User updated successfully!';
+        // Re-fetch user data to reflect changes
+        $user = $userModel->findByEmail($id); // Or getById
+        $name = $user['name'];
+        $email = $user['email'];
+        $creditBalance = $user['credit_balance'];
+        $role = $user['role'];
+    }
+}
+
+$title = 'Edit User - Admin';
+require __DIR__ . '/../header.php';
+?>
+    <h1>Edit User</h1>
+
+    <?php if (!empty($errors)): ?>
+        <div style="color: red;">
+            <ul>
+                <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div style="color: green;">
+            <?= htmlspecialchars($success) ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="post">
+        <label>Name: <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required></label><br>
+        <label>Email: <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required></label><br>
+        <label>Credit Balance: <input type="number" name="credit_balance" value="<?= htmlspecialchars($creditBalance) ?>" required></label><br>
+        <label>Role:
+            <select name="role" required>
+                <option value="student" <?= ($role === 'student') ? 'selected' : '' ?>>Student</option>
+                <option value="admin" <?= ($role === 'admin') ? 'selected' : '' ?>>Admin</option>
+            </select>
+        </label><br>
+        <button type="submit">Update User</button>
+    </form>
+    <a href="index.php">Back to list</a>
+<?php require __DIR__ . '/../footer.php'; ?>
