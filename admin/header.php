@@ -42,8 +42,8 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
     </style>
 </head>
 <body>
-<div class="flex">
-<aside class="w-1/5 bg-white p-8 border-r border-gray-200 flex flex-col justify-between min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<aside class="w-1/5 bg-white p-8 border-r border-gray-200 flex flex-col justify-between h-screen overflow-y-auto">
 <div>
 <div class="flex items-center mb-12">
 <img alt="Site logo" class="h-8 mr-2" src="<?php echo $site_logo; ?>"/>
@@ -89,4 +89,4 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
 </nav>
 </div>
 </aside>
-<main class="w-4/5 p-8">
+<main class="w-4/5 p-8 h-screen overflow-y-auto">
