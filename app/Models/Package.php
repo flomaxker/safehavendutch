@@ -27,7 +27,7 @@ class Package
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM packages');
+        $stmt = $this->pdo->query('SELECT id, name, description, euro_value, price_cents, active FROM packages');
         return $stmt->fetchAll();
     }
 
@@ -66,16 +66,16 @@ class Package
      * @param bool $active
      * @return int Inserted package ID
      */
-    public function create(string $name, string $description, int $creditAmount, int $priceCents, bool $active = true): int
+    public function create(string $name, string $description, int $euroValue, int $priceCents, bool $active = true): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO packages (name, description, credit_amount, price_cents, active)
-             VALUES (:name, :description, :credit_amount, :price_cents, :active)'
+            'INSERT INTO packages (name, description, euro_value, price_cents, active)
+             VALUES (:name, :description, :euro_value, :price_cents, :active)'
         );
         $stmt->execute([
             'name' => $name,
             'description' => $description,
-            'credit_amount' => $creditAmount,
+            'euro_value' => $euroValue,
             'price_cents' => $priceCents,
             'active' => $active ? 1 : 0,
         ]);
@@ -92,18 +92,18 @@ class Package
      * @param bool $active
      * @return bool
      */
-    public function update(int $id, string $name, string $description, int $creditAmount, int $priceCents, bool $active): bool
+    public function update(int $id, string $name, string $description, int $euroValue, int $priceCents, bool $active): bool
     {
         $stmt = $this->pdo->prepare(
             'UPDATE packages SET name = :name, description = :description,
-             credit_amount = :credit_amount, price_cents = :price_cents,
+             euro_value = :euro_value, price_cents = :price_cents,
              active = :active WHERE id = :id'
         );
         return $stmt->execute([
             'id' => $id,
             'name' => $name,
             'description' => $description,
-            'credit_amount' => $creditAmount,
+            'euro_value' => $euroValue,
             'price_cents' => $priceCents,
             'active' => $active ? 1 : 0,
         ]);

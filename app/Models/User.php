@@ -29,31 +29,32 @@ class User
         return $user ?: null;
     }
 
-    public function getCredits(int $userId): int
+    public function getEuroBalance(int $userId): int
     {
-        $stmt = $this->pdo->prepare('SELECT credit_balance FROM users WHERE id = :id');
+        $stmt = $this->pdo->prepare('SELECT euro_balance FROM users WHERE id = :id');
         $stmt->execute(['id' => $userId]);
         $result = $stmt->fetchColumn();
         return (int)$result;
     }
 
-    public function create(string $name, string $email, string $password, string $role = 'student'): int
+    public function create(string $name, string $email, string $password, string $role = 'student', int $euroBalance = 0): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)'
+            'INSERT INTO users (name, email, password, role, euro_balance) VALUES (:name, :email, :password, :role, :euro_balance)'
         );
         $stmt->execute([
             'name' => $name,
             'email' => $email,
             'password' => $password,
             'role' => $role,
+            'euro_balance' => $euroBalance,
         ]);
         return (int)$this->pdo->lastInsertId();
     }
 
     public function getAll(string $orderBy = 'id', string $orderDirection = 'ASC'): array
     {
-        $allowedColumns = ['id', 'name', 'email', 'credit_balance', 'role', 'created_at'];
+        $allowedColumns = ['id', 'name', 'email', 'euro_balance', 'role', 'created_at'];
         if (!in_array($orderBy, $allowedColumns)) {
             $orderBy = 'id'; // Default to id if invalid column is provided
         }
@@ -63,7 +64,7 @@ class User
             $orderDirection = 'ASC'; // Default to ASC if invalid direction is provided
         }
 
-        $stmt = $this->pdo->query("SELECT id, name, email, credit_balance, role, created_at FROM users ORDER BY $orderBy $orderDirection");
+        $stmt = $this->pdo->query("SELECT id, name, email, euro_balance, role, created_at FROM users ORDER BY $orderBy $orderDirection");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -89,25 +90,25 @@ class User
         return (int)$stmt->fetchColumn();
     }
 
-    public function updateCreditBalance(int $userId, int $amount): bool
+    public function updateEuroBalance(int $userId, int $amount): bool
     {
-        $stmt = $this->pdo->prepare('UPDATE users SET credit_balance = credit_balance + :amount WHERE id = :userId');
+        $stmt = $this->pdo->prepare('UPDATE users SET euro_balance = euro_balance + :amount WHERE id = :userId');
         return $stmt->execute([
             'amount' => $amount,
             'userId' => $userId
         ]);
     }
 
-    public function update(int $id, string $name, string $email, int $creditBalance, string $role): bool
+    public function update(int $id, string $name, string $email, int $euroBalance, string $role): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE users SET name = :name, email = :email, credit_balance = :credit_balance, role = :role WHERE id = :id'
+            'UPDATE users SET name = :name, email = :email, euro_balance = :euro_balance, role = :role WHERE id = :id'
         );
         return $stmt->execute([
             'id' => $id,
             'name' => $name,
             'email' => $email,
-            'credit_balance' => $creditBalance,
+            'euro_balance' => $euroBalance,
             'role' => $role,
         ]);
     }
