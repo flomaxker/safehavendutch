@@ -12,6 +12,10 @@ $userModel = new User($pdo);
 $message = '';
 $messageType = '';
 
+// Initialize sorting parameters
+$order_by = $_GET['order_by'] ?? 'id';
+$order_direction = $_GET['order_direction'] ?? 'ASC';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
         $id = (int)$_POST['id'];
@@ -52,7 +56,7 @@ if (isset($_GET['message'], $_GET['type'])) {
     $messageType = htmlspecialchars($_GET['type']);
 }
 
-$users = $userModel->getAll();
+$users = $userModel->getAll($order_by, $order_direction);
 
 include __DIR__ . '/../header.php';
 ?>
