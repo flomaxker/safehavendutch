@@ -180,9 +180,9 @@ require __DIR__ . '/../header.php';
                 </tbody>
             </table>
             <div class="px-5 py-3 bg-gray-100 border-t border-gray-200 flex justify-end space-x-2">
-                <button type="submit" name="action" value="bulk_activate" id="bulkActivateBtn" class="text-green-600 border border-green-600 py-2 px-4 rounded-lg hover:bg-green-50 transition font-medium opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to activate selected packages?');">Bulk Activate</button>
-                <button type="submit" name="action" value="bulk_deactivate" id="bulkDeactivateBtn" class="text-yellow-600 border border-yellow-600 py-2 px-4 rounded-lg hover:bg-yellow-50 transition font-medium opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to deactivate selected packages?');">Bulk Deactivate</button>
-                <button type="submit" name="action" value="bulk_delete" id="bulkDeleteBtn" class="text-red-600 border border-red-600 py-2 px-4 rounded-lg hover:bg-red-50 transition font-medium opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to delete selected packages?');">Bulk Delete</button>
+                <button type="submit" name="action" value="bulk_activate" id="bulkActivateBtn" class="text-green-600 border border-green-600 py-1 px-2 rounded-md hover:bg-green-50 transition text-xs opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to activate selected packages?');">Bulk Activate</button>
+                <button type="submit" name="action" value="bulk_deactivate" id="bulkDeactivateBtn" class="text-yellow-600 border border-yellow-600 py-1 px-2 rounded-md hover:bg-yellow-50 transition text-xs opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to deactivate selected packages?');">Bulk Deactivate</button>
+                <button type="submit" name="action" value="bulk_delete" id="bulkDeleteBtn" class="text-red-600 border border-red-600 py-1 px-2 rounded-md hover:bg-red-50 transition text-xs opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to delete selected packages?');">Bulk Delete</button>
             </div>
         </form>
     </div>
