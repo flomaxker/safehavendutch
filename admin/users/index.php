@@ -121,7 +121,7 @@ include __DIR__ . '/../header.php';
                                 <?php echo htmlspecialchars($user['credit_balance']); ?>
                             </td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <?php echo htmlspecialchars($user['role']); ?>
+                                <?php echo htmlspecialchars($user['role'] ?? ''); ?>
                             </td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                 <?php echo htmlspecialchars($user['created_at']); ?>
@@ -134,7 +134,7 @@ include __DIR__ . '/../header.php';
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="8" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                        <td colspan="9" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
                             No users found.
                         </td>
                     </tr>

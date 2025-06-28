@@ -53,7 +53,7 @@ class User
 
     public function getAll(): array
     {
-        $stmt = $this->pdo->query("SELECT id, name, email, credit_balance, created_at FROM users ORDER BY created_at DESC");
+        $stmt = $this->pdo->query("SELECT id, name, email, credit_balance, role, created_at FROM users ORDER BY created_at DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
