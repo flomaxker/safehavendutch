@@ -20,7 +20,7 @@ $userModel = new User($pdo);
 // Check if admin user already exists
 $adminUser = $userModel->findByUsername('admin');
 if (!$adminUser) {
-    $adminUserId = $userModel->create('admin', 'admin@example.com', password_hash('password', PASSWORD_DEFAULT), 'admin');
+    $adminUserId = $userModel->create('admin', 'admin@example.com', password_hash('password', PASSWORD_DEFAULT), 'admin', 0);
     echo 'Admin user created with ID: ' . $adminUserId . PHP_EOL;
 } else {
     echo 'Admin user already exists.' . PHP_EOL;
@@ -48,14 +48,14 @@ foreach ($fakeUsers as $userData) {
             $existingUser['id'],
             $userData['name'],
             $userData['email'],
-            $existingUser['credit_balance'], // Keep existing credit balance
+            $existingUser['euro_balance'], // Keep existing euro balance
             $existingUser['role'] // Keep existing role
         );
         $createdUserIds[] = $existingUser['id']; // Add existing user ID to the list for package assignment
         echo 'User updated: ' . $userData['name'] . ' (ID: ' . $existingUser['id'] . ')' . PHP_EOL;
     } else {
         // User does not exist, create new user
-        $userId = $userModel->create($userData['name'], $userData['email'], password_hash($userData['password'], PASSWORD_DEFAULT), 'student');
+        $userId = $userModel->create($userData['name'], $userData['email'], password_hash($userData['password'], PASSWORD_DEFAULT), 'student', 0);
         $createdUserIds[] = $userId;
         echo 'User created: ' . $userData['name'] . ' with ID: ' . $userId . PHP_EOL;
     }
@@ -67,23 +67,23 @@ $packageModel = new Package($pdo);
 $packagesToSeed = [
     [
         'name' => 'Basic Package',
-        'description' => 'A basic package with 10 credits.',
+        'description' => 'A basic package with 10 Euros.',
         'price_cents' => 1000, // €10.00
-        'credit_amount' => 10,
+        'euro_value' => 10,
         'active' => true
     ],
     [
         'name' => 'Standard Package',
-        'description' => 'A standard package with 25 credits.',
+        'description' => 'A standard package with 25 Euros.',
         'price_cents' => 2000, // €20.00
-        'credit_amount' => 25,
+        'euro_value' => 25,
         'active' => true
     ],
     [
         'name' => 'Premium Package',
-        'description' => 'A premium package with 50 credits.',
+        'description' => 'A premium package with 50 Euros.',
         'price_cents' => 4000, // €40.00
-        'credit_amount' => 50,
+        'euro_value' => 50,
         'active' => true
     ],
 ];
@@ -95,7 +95,7 @@ foreach ($packagesToSeed as $packageData) {
         $packageId = $packageModel->create(
             $packageData['name'],
             $packageData['description'],
-            $packageData['credit_amount'],
+            $packageData['euro_value'],
             $packageData['price_cents'],
             $packageData['active']
         );
@@ -115,10 +115,10 @@ if (!empty($createdUserIds) && !empty($createdPackages)) {
 
     for ($i = 0; $i < $usersToAssignCount; $i++) {
         $userId = $createdUserIds[$i];
-        if ($userModel->updateCreditBalance($userId, $packageToAssign['credit_amount'])) {
-            echo 'Assigned ' . $packageToAssign['credit_amount'] . ' credits to user ID: ' . $userId . ' (' . $packageToAssign['name'] . ')' . PHP_EOL;
+        if ($userModel->updateEuroBalance($userId, $packageToAssign['euro_value'])) {
+            echo 'Assigned ' . $packageToAssign['euro_value'] . ' Euros to user ID: ' . $userId . ' (' . $packageToAssign['name'] . ')' . PHP_EOL;
         } else {
-            echo 'Failed to assign credits to user ID: ' . $userId . PHP_EOL;
+            echo 'Failed to assign Euros to user ID: ' . $userId . PHP_EOL;
         }
     }
 } else {
