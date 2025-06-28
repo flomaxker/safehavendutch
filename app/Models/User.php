@@ -51,9 +51,19 @@ class User
         return (int)$this->pdo->lastInsertId();
     }
 
-    public function getAll(): array
+    public function getAll(string $orderBy = 'id', string $orderDirection = 'ASC'): array
     {
-        $stmt = $this->pdo->query("SELECT id, name, email, credit_balance, role, created_at FROM users ORDER BY created_at DESC");
+        $allowedColumns = ['id', 'name', 'email', 'credit_balance', 'role', 'created_at'];
+        if (!in_array($orderBy, $allowedColumns)) {
+            $orderBy = 'id'; // Default to id if invalid column is provided
+        }
+
+        $orderDirection = strtoupper($orderDirection);
+        if (!in_array($orderDirection, ['ASC', 'DESC'])) {
+            $orderDirection = 'ASC'; // Default to ASC if invalid direction is provided
+        }
+
+        $stmt = $this->pdo->query("SELECT id, name, email, credit_balance, role, created_at FROM users ORDER BY $orderBy $orderDirection");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

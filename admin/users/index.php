@@ -79,22 +79,52 @@ include __DIR__ . '/../header.php';
                         <input type="checkbox" id="selectAllUsers" class="form-checkbox h-4 w-4 text-blue-600">
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        ID
+                        <a href="?order_by=id&order_direction=<?= ($order_by === 'id' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                            ID
+                            <?php if ($order_by === 'id'): ?>
+                                <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                            <?php endif; ?>
+                        </a>
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Name
+                        <a href="?order_by=name&order_direction=<?= ($order_by === 'name' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                            Name
+                            <?php if ($order_by === 'name'): ?>
+                                <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                            <?php endif; ?>
+                        </a>
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Email
+                        <a href="?order_by=email&order_direction=<?= ($order_by === 'email' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                            Email
+                            <?php if ($order_by === 'email'): ?>
+                                <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                            <?php endif; ?>
+                        </a>
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Credit Balance
+                        <a href="?order_by=credit_balance&order_direction=<?= ($order_by === 'credit_balance' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                            Credit Balance
+                            <?php if ($order_by === 'credit_balance'): ?>
+                                <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                            <?php endif; ?>
+                        </a>
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Role
+                        <a href="?order_by=role&order_direction=<?= ($order_by === 'role' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                            Role
+                            <?php if ($order_by === 'role'): ?>
+                                <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                            <?php endif; ?>
+                        </a>
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Registered At
+                        <a href="?order_by=created_at&order_direction=<?= ($order_by === 'created_at' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                            Registered At
+                            <?php if ($order_by === 'created_at'): ?>
+                                <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                            <?php endif; ?>
+                        </a>
                     </th>
                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Actions
