@@ -62,4 +62,14 @@ class User
         $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
         return $stmt->execute(['id' => $id]);
     }
+
+    public function deleteMany(array $ids): bool
+    {
+        if (empty($ids)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id IN ($placeholders)");
+        return $stmt->execute($ids);
+    }
 }
