@@ -45,7 +45,7 @@ include __DIR__ . '/header.php';
             <span class="material-icons text-yellow-600">redeem</span>
         </div>
         <div>
-            <p class="text-sm text-gray-500">Active Packages</p>
+            <p class="text-sm text-gray-500">Active Packages (Euros)</p>
             <p class="text-2xl font-bold text-gray-800"><?= $activePackages ?></p>
         </div>
     </div>

@@ -22,7 +22,7 @@ $packages = $packageModel->getAllActive();
                 <div class="p-6">
                     <h5 class="text-xl font-semibold text-gray-900 mb-2"><?php echo htmlspecialchars($package['name']); ?></h5>
                     <p class="text-gray-600 text-sm mb-4"><?php echo htmlspecialchars($package['description']); ?></p>
-                    <p class="text-gray-700 mb-2"><strong>Credits:</strong> <?php echo htmlspecialchars($package['credit_amount']); ?></p>
+                    <p class="text-gray-700 mb-2"><strong>Euros:</strong> <?php echo htmlspecialchars($package['euro_value']); ?></p>
                     <p class="text-gray-700 mb-4"><strong>Price:</strong> &euro;<?php echo htmlspecialchars(number_format($package['price_cents'] / 100, 2)); ?></p>
                     <a href="/checkout.php?package_id=<?php echo $package['id']; ?>" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Purchase</a>
                 </div>

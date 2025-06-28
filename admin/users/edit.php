@@ -34,7 +34,7 @@ $role = $user['role'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $creditBalance = (int)($_POST['credit_balance'] ?? 0);
+    $euroBalance = (int)($_POST['euro_balance'] ?? 0);
     $role = trim($_POST['role'] ?? '');
 
     if (empty($name)) {
@@ -45,21 +45,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Invalid email format.';
     }
-    if ($creditBalance < 0) {
-        $errors[] = 'Credit balance cannot be negative.';
+    if ($euroBalance < 0) {
+        $errors[] = 'Euro balance cannot be negative.';
     }
     if (!in_array($role, ['admin', 'student'])) {
         $errors[] = 'Invalid user role.';
     }
 
     if (empty($errors)) {
-        $userModel->update($id, $name, $email, $creditBalance, $role);
+        $userModel->update($id, $name, $email, $euroBalance, $role);
         $success = 'User updated successfully!';
         // Re-fetch user data to reflect changes
         $user = $userModel->findByEmail($id); // Or getById
         $name = $user['name'];
         $email = $user['email'];
-        $creditBalance = $user['credit_balance'];
+        $euroBalance = $user['euro_balance'];
         $role = $user['role'];
     }
 }
@@ -88,7 +88,7 @@ require __DIR__ . '/../header.php';
     <form method="post">
         <label>Name: <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required></label><br>
         <label>Email: <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required></label><br>
-        <label>Credit Balance: <input type="number" name="credit_balance" value="<?= htmlspecialchars($creditBalance) ?>" required></label><br>
+        <label>Euro Balance: <input type="number" name="euro_balance" value="<?= htmlspecialchars($euroBalance) ?>" required></label><br>
         <label>Role:
             <select name="role" required>
                 <option value="student" <?= ($role === 'student') ? 'selected' : '' ?>>Student</option>

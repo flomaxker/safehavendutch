@@ -129,13 +129,13 @@ class PaymentHandler
                             if ($package) {
                                 // This part will fail without DB connection
                                 $stmt = $this->pdo->prepare(
-                                    'UPDATE users SET credit_balance = credit_balance + :credits WHERE id = :user_id'
+                                    'UPDATE users SET euro_balance = euro_balance + :euros WHERE id = :user_id'
                                 );
                                 $stmt->execute([
-                                    'credits' => $package['credit_amount'],
+                                    'euros' => $package['euro_value'],
                                     'user_id' => $purchase['user_id'],
                                 ]);
-                                error_log("Stripe Webhook: Credits added to user " . $purchase['user_id'] . " for purchase ID: " . $purchaseId);
+                                error_log("Stripe Webhook: Euros added to user " . $purchase['user_id'] . " for purchase ID: " . $purchaseId);
                             } else {
                                 error_log("Stripe Webhook Error: Package not found for purchase ID: " . $purchaseId);
                             }

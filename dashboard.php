@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true)
 
 $user_email = $_SESSION['user_email'] ?? 'Guest';
 // Placeholder for user's credit balance - this would be fetched from the database
-$user_credits = $_SESSION['user_credits'] ?? 0;
+$user_euro_balance = $_SESSION['user_euro_balance'] ?? 0;
 
 $page_title = "Dashboard";
 include 'header.php'; // Assuming header.html contains the common header for user pages
@@ -25,8 +25,8 @@ include 'header.php'; // Assuming header.html contains the common header for use
                 <span class="material-icons text-blue-600">account_balance_wallet</span>
             </div>
             <div>
-                <p class="text-sm text-gray-500">Your Credits</p>
-                <p class="text-2xl font-bold text-gray-800"><?php echo htmlspecialchars($user_credits); ?></p>
+                <p class="text-sm text-gray-500">Your Euro Balance</p>
+                <p class="text-2xl font-bold text-gray-800">€<?php echo htmlspecialchars(number_format($user_euro_balance / 100, 2)); ?></p>
             </div>
         </div>
         <!-- More dashboard widgets can be added here -->
@@ -37,7 +37,7 @@ include 'header.php'; // Assuming header.html contains the common header for use
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a href="packages.php" class="bg-gray-100 p-6 rounded-xl flex items-center hover:bg-gray-200 transition">
                 <span class="material-icons text-gray-600 mr-4">shopping_cart</span>
-                <span class="text-lg font-medium text-gray-800">Purchase More Credits</span>
+                <span class="text-lg font-medium text-gray-800">Top Up Balance</span>
             </a>
             <a href="purchase_history.php" class="bg-gray-100 p-6 rounded-xl flex items-center hover:bg-gray-200 transition">
                 <span class="material-icons text-gray-600 mr-4">history</span>
