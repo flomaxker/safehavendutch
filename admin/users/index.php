@@ -1,18 +1,16 @@
 <?php
-session_start();
-
-// This is a protected area. User must be an admin to access it.
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: /login.php');
-    exit;
-}
 
 require_once __DIR__ . '/../../bootstrap.php';
 include __DIR__ . '/../header.php';
 
-$db = \App\Database\Database::getInstance();
-$stmt = $db->query("SELECT id, name, email, credit_balance, created_at FROM users ORDER BY created_at DESC");
-$users = $stmt->fetchAll();
+use App\Database\Database;
+use App\Models\User;
+
+$db = new Database();
+$pdo = $db->getConnection();
+$userModel = new User($pdo);
+
+$users = $userModel->getAll();
 
 ?>
 
