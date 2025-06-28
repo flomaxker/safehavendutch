@@ -78,4 +78,13 @@ class User
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM users");
         return (int)$stmt->fetchColumn();
     }
+
+    public function updateCreditBalance(int $userId, int $amount): bool
+    {
+        $stmt = $this->pdo->prepare('UPDATE users SET credit_balance = credit_balance + :amount WHERE id = :userId');
+        return $stmt->execute([
+            'amount' => $amount,
+            'userId' => $userId
+        ]);
+    }
 }
