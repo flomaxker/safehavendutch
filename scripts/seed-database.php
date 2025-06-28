@@ -27,16 +27,16 @@ if (!$adminUser) {
 }
 
 $fakeUsers = [
-    ['name' => 'The Jansen Family', 'email' => 'jansen@example.com', 'password' => 'password'],
-    ['name' => 'The Schmidt Family', 'email' => 'schmidt@example.com', 'password' => 'password'],
-    ['name' => 'The Rossi Family', 'email' => 'rossi@example.com', 'password' => 'password'],
-    ['name' => 'The Kim Family', 'email' => 'kim@example.com', 'password' => 'password'],
-    ['name' => 'The Dubois Family', 'email' => 'dubois@example.com', 'password' => 'password'],
-    ['name' => 'The Silva Family', 'email' => 'silva@example.com', 'password' => 'password'],
-    ['name' => 'The Müller Family', 'email' => 'muller@example.com', 'password' => 'password'],
-    ['name' => 'The Chen Family', 'email' => 'chen@example.com', 'password' => 'password'],
-    ['name' => 'The Garcia Family', 'email' => 'garcia@example.com', 'password' => 'password'],
-    ['name' => 'The Smith Family', 'email' => 'smith@example.com', 'password' => 'password'],
+    ['name' => 'Anna Jansen', 'email' => 'anna.jansen@example.com', 'password' => 'password'],
+    ['name' => 'Mark Schmidt', 'email' => 'mark.schmidt@example.com', 'password' => 'password'],
+    ['name' => 'Sofia Rossi', 'email' => 'sofia.rossi@example.com', 'password' => 'password'],
+    ['name' => 'Joon Kim', 'email' => 'joon.kim@example.com', 'password' => 'password'],
+    ['name' => 'Pierre Dubois', 'email' => 'pierre.dubois@example.com', 'password' => 'password'],
+    ['name' => 'Maria Silva', 'email' => 'maria.silva@example.com', 'password' => 'password'],
+    ['name' => 'Lukas Müller', 'email' => 'lukas.muller@example.com', 'password' => 'password'],
+    ['name' => 'Mei Chen', 'email' => 'mei.chen@example.com', 'password' => 'password'],
+    ['name' => 'Carlos Garcia', 'email' => 'carlos.garcia@example.com', 'password' => 'password'],
+    ['name' => 'Emily Smith', 'email' => 'emily.smith@example.com', 'password' => 'password'],
 ];
 
 $createdUserIds = [];
