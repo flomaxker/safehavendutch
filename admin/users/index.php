@@ -135,7 +135,7 @@ include __DIR__ . '/../header.php';
             </tbody>
         </table>
         <div class="px-5 py-3 bg-gray-100 border-t border-gray-200 flex justify-end">
-            <button type="submit" name="action" value="bulk_delete" id="bulkDeleteBtn" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition font-medium opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to delete selected users?');">Bulk Delete Selected</button>
+            <button type="submit" name="action" value="bulk_delete" id="bulkDeleteBtn" class="text-red-600 border border-red-600 py-2 px-4 rounded-lg hover:bg-red-50 transition font-medium opacity-50 cursor-not-allowed" disabled onclick="return confirm('Are you sure you want to delete selected users?');">Bulk Delete Selected</button>
         </div>
     </form>
 </div>
