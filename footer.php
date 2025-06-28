@@ -1,4 +1,3 @@
-<div class="container">
     <div class="footer-main-content">
         <div class="footer-section footer-contact">
             <h4>Contact</h4>
@@ -30,4 +29,3 @@
         <p>© <span id="current-year"></span> Your Company Name. All Rights Reserved.</p>
         <p class="disclaimer">This platform offers general content management services.</p>
     </div>
-</div>
