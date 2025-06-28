@@ -9,16 +9,35 @@ $db = new Database();
 $pdo = $db->getConnection();
 $packageModel = new Package($pdo);
 
+$message = '';
+$messageType = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'])) {
     $id = (int)$_POST['id'];
-    if ($_POST['action'] === 'delete') {
-        $packageModel->delete($id);
-    } elseif ($_POST['action'] === 'toggle' && isset($_POST['active'])) {
-        $active = $_POST['active'] === '1';
-        $packageModel->toggleActive($id, $active);
+    try {
+        if ($_POST['action'] === 'delete') {
+            $packageModel->delete($id);
+            $message = 'Package deleted successfully!';
+            $messageType = 'success';
+        } elseif ($_POST['action'] === 'toggle' && isset($_POST['active'])) {
+            $active = $_POST['active'] === '1';
+            $packageModel->toggleActive($id, $active);
+            $message = 'Package status updated successfully!';
+            $messageType = 'success';
+        }
+    } catch (Exception $e) {
+        $message = 'Error: ' . $e->getMessage();
+        $messageType = 'error';
     }
-    header('Location: index.php');
+    // Redirect to clear POST data and display message
+    header('Location: index.php?message=' . urlencode($message) . '&type=' . urlencode($messageType));
     exit;
+}
+
+// Check for messages from redirect
+if (isset($_GET['message'], $_GET['type'])) {
+    $message = htmlspecialchars($_GET['message']);
+    $messageType = htmlspecialchars($_GET['type']);
 }
 
 $packages = $packageModel->getAll();
@@ -27,6 +46,13 @@ require __DIR__ . '/../header.php';
 ?>
     <h1>Lesson Packages</h1>
     <a href="create.php">Add New Package</a>
+
+    <?php if ($message): ?>
+        <div style="color: <?= $messageType === 'success' ? 'green' : 'red' ?>;">
+            <?= $message ?>
+        </div>
+    <?php endif; ?>
+
     <table border="1" cellpadding="5" cellspacing="0">
         <thead>
             <tr>
