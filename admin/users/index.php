@@ -152,7 +152,7 @@ include __DIR__ . '/../header.php';
                                 <?php echo htmlspecialchars($user['email']); ?>
                             </td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <?php echo htmlspecialchars($user['credit_balance']); ?>
+                                €<?php echo htmlspecialchars(number_format(($user['euro_balance'] ?? 0) / 100, 2)); ?>
                             </td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                 <?php echo htmlspecialchars($user['role'] ?? ''); ?>
