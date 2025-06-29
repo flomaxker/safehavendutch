@@ -60,11 +60,7 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
                     <?php foreach ($nav_links as $link): ?>
                         <?php
                             $is_active = false;
-                            if ($current_page === basename($link['url'])) {
-                                $is_active = true;
-                            } elseif ($current_dir === 'pages' && basename($link['url']) === 'index.php' && strpos($link['url'], 'pages') !== false) {
-                                $is_active = true;
-                            }
+                            $is_active = (strpos($_SERVER['REQUEST_URI'], $link['url']) === 0);
                         ?>
                         <li class="mb-6">
         <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 <?php echo $is_active ? 'bg-gray-200 text-gray-900' : ''; ?>" href="<?php echo $link['url']; ?>">
