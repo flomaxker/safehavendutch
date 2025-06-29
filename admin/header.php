@@ -49,7 +49,7 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
         <i class="fas fa-bars text-gray-600 text-2xl"></i>
     </button>
 
-    <aside id="sidebar" class="w-full md:w-1/5 bg-white p-8 border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out z-50 md:flex">
+    <aside id="sidebar" class="w-full md:w-64 bg-white p-8 border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out z-50 md:flex">
         <div>
             <div class="flex items-center mb-12">
                 <img alt="Site logo" class="h-8 mr-2" src="<?php echo $site_logo; ?>"/>
@@ -99,4 +99,4 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
     <!-- Overlay for mobile menu -->
     <div id="mobile-menu-overlay" class="fixed inset-0 bg-black opacity-0 md:hidden z-40 pointer-events-none transition-opacity duration-200 ease-in-out"></div>
 
-    <main class="w-full md:w-4/5 p-8 h-screen overflow-y-auto">
+    <main class="w-full md:flex-1 p-8 h-screen overflow-y-auto">
