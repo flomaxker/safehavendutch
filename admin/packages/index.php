@@ -158,7 +158,7 @@ require __DIR__ . '/../header.php';
                                     <?= htmlspecialchars($package['euro_value'] ?? '') ?>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <td>€<?= number_format($package['price_cents'] / 100, 2) ?></td>
+                                    €<?= number_format($package['price_cents'] / 100, 2) ?>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <?= $package['active'] ? 'Yes' : 'No' ?>
