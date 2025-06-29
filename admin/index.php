@@ -155,7 +155,7 @@ include __DIR__ . '/header.php';
             new Sortable(quickActionsList, {
                 animation: 150,
                 ghostClass: 'sortable-ghost',
-                handle: '.cursor-grab',
+                // handle: '.cursor-grab', // Removed handle to make entire item draggable
                 onEnd: function (evt) {
                     const newOrder = Array.from(evt.to.children).map(item => item.getAttribute('href'));
                     
