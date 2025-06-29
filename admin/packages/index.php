@@ -155,7 +155,7 @@ require __DIR__ . '/../header.php';
                                     <?= htmlspecialchars($package['name']) ?>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <?= htmlspecialchars($package['euro_value'] ?? '') ?>
+                                    €<?= number_format($package['euro_value'] / 100, 2) ?>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     €<?= number_format($package['price_cents'] / 100, 2) ?>
