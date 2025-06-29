@@ -12,8 +12,18 @@ $site_logo = "/assets/images/default-logo.png"; // Generic logo for admin
 $nav_links = [
     ['title' => 'Dashboard', 'url' => '/admin/index.php', 'icon' => 'home'],
     ['title' => 'Users', 'url' => '/admin/users/index.php', 'icon' => 'group'],
+    ['title' => 'Children', 'url' => '/admin/children/index.php', 'icon' => 'child_care'],
     ['title' => 'Packages', 'url' => '/admin/packages/index.php', 'icon' => 'redeem'],
-    ['title' => 'Pages', 'url' => '/admin/pages/index.php', 'icon' => 'description']
+    ['title' => 'Bookings', 'url' => '/admin/bookings/index.php', 'icon' => 'event_note'],
+    ['title' => 'Blog Posts', 'url' => '/admin/blog/posts/index.php', 'icon' => 'article'],
+    ['title' => 'Blog Categories', 'url' => '/admin/blog/categories/index.php', 'icon' => 'label'],
+    ['title' => 'Email Templates', 'url' => '/admin/emails/index.php', 'icon' => 'email'],
+    ['title' => 'System Settings', 'url' => '/admin/settings/index.php', 'icon' => 'settings_applications'],
+    ['title' => 'File Management', 'url' => '/admin/files/index.php', 'icon' => 'folder'],
+    ['title' => 'GDPR Tools', 'url' => '/admin/gdpr/index.php', 'icon' => 'privacy_tip'],
+    ['title' => 'Reports', 'url' => '/admin/reports/index.php', 'icon' => 'bar_chart'],
+    ['title' => 'Teachers', 'url' => '/admin/teachers/index.php', 'icon' => 'person'],
+    ['title' => 'Rate Limiting', 'url' => '/admin/rate_limiting/index.php', 'icon' => 'speed']
 ];
 
 // Determine active link for styling
