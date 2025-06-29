@@ -15,7 +15,7 @@ class User
 
     public function findByEmail(string $email): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE email = :email');
+        $stmt = $this->pdo->prepare('SELECT *, quick_actions_order FROM users WHERE email = :email');
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
@@ -37,10 +37,10 @@ class User
         return (int)$result;
     }
 
-    public function create(string $name, string $email, string $password, string $role = 'student', int $euroBalance = 0): int
+    public function create(string $name, string $email, string $password, string $role = 'student', int $euroBalance = 0, string $quickActionsOrder = '[]'): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO users (name, email, password, role, euro_balance) VALUES (:name, :email, :password, :role, :euro_balance)'
+            'INSERT INTO users (name, email, password, role, euro_balance, quick_actions_order) VALUES (:name, :email, :password, :role, :euro_balance, :quick_actions_order)'
         );
         $stmt->execute([
             'name' => $name,
@@ -48,6 +48,7 @@ class User
             'password' => $password,
             'role' => $role,
             'euro_balance' => $euroBalance,
+            'quick_actions_order' => $quickActionsOrder,
         ]);
         return (int)$this->pdo->lastInsertId();
     }
@@ -99,10 +100,10 @@ class User
         ]);
     }
 
-    public function update(int $id, string $name, string $email, int $euroBalance, string $role): bool
+    public function update(int $id, string $name, string $email, int $euroBalance, string $role, string $quickActionsOrder): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE users SET name = :name, email = :email, euro_balance = :euro_balance, role = :role WHERE id = :id'
+            'UPDATE users SET name = :name, email = :email, euro_balance = :euro_balance, role = :role, quick_actions_order = :quick_actions_order WHERE id = :id'
         );
         return $stmt->execute([
             'id' => $id,
@@ -110,6 +111,16 @@ class User
             'email' => $email,
             'euro_balance' => $euroBalance,
             'role' => $role,
+            'quick_actions_order' => $quickActionsOrder,
+        ]);
+    }
+
+    public function updateQuickActionsOrder(int $userId, string $orderJson): bool
+    {
+        $stmt = $this->pdo->prepare('UPDATE users SET quick_actions_order = :orderJson WHERE id = :userId');
+        return $stmt->execute([
+            'orderJson' => $orderJson,
+            'userId' => $userId
         ]);
     }
 }
