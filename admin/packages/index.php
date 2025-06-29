@@ -113,7 +113,7 @@ require __DIR__ . '/../header.php';
         </div>
     <?php endif; ?>
 
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
         <form method="post" id="bulkActionsForm">
             <table class="min-w-full leading-normal">
                 <thead>
