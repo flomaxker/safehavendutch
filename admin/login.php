@@ -1,18 +1,26 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
+use App\Database\Database;
+use App\Models\User;
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // VERY BASIC AUTHENTICATION FOR MVP - REPLACE WITH SECURE AUTH IN PRODUCTION
-    $valid_username = 'admin';
-    $valid_password = 'password'; // In production, use password_verify() with hashed passwords
+    $db = new Database();
+    $pdo = $db->getConnection();
+    $userModel = new User($pdo);
 
-    if ($username === $valid_username && $password === $valid_password) {
+    // In production, retrieve hashed password from DB and use password_verify()
+    $adminUser = $userModel->findByUsername($username);
+
+    if ($adminUser && $adminUser['role'] === 'admin' && password_verify($password, $adminUser['password'])) {
         $_SESSION['admin_logged_in'] = true;
+        $_SESSION['user_id'] = $adminUser['id'];
+        $_SESSION['user_email'] = $adminUser['email'];
         header('Location: index.php');
         exit();
     } else {

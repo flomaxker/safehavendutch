@@ -17,9 +17,16 @@ $totalUsers = $userModel->getTotalUsersCount();
 $activePackages = $packageModel->getTotalActivePackagesCount();
 
 // Fetch quick actions order for the logged-in admin
-$adminUserId = $_SESSION['user_id']; // Assuming admin user ID is stored in session
-$adminUser = $userModel->findByEmail($_SESSION['user_email']); // Fetch full user data including quick_actions_order
-$quickActionsOrder = json_decode($adminUser['quick_actions_order'] ?? '[]', true); // Decode JSON, default to empty array
+$adminUserId = $_SESSION['user_id'] ?? null; // Safely get user ID from session
+$adminUserEmail = $_SESSION['user_email'] ?? null; // Safely get user email from session
+
+$quickActionsOrder = [];
+if ($adminUserId && $adminUserEmail) {
+    $adminUser = $userModel->findByEmail($adminUserEmail);
+    if ($adminUser) {
+        $quickActionsOrder = json_decode($adminUser['quick_actions_order'] ?? '[]', true);
+    }
+}
 
 // Define all possible quick actions with their properties
 $allQuickActions = [
