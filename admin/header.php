@@ -43,51 +43,60 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
     </style>
 </head>
 <body>
-<div class="flex h-screen overflow-hidden">
-<aside class="w-1/5 bg-white p-8 border-r border-gray-200 flex flex-col justify-between h-screen overflow-y-auto">
-<div>
-<div class="flex items-center mb-12">
-<img alt="Site logo" class="h-8 mr-2" src="<?php echo $site_logo; ?>"/>
-<span class="text-2xl font-bold text-gray-800">Admin Panel</span>
-</div>
-<nav>
-<ul>
-<?php foreach ($nav_links as $link): ?>
-    <?php
-        $is_active = false;
-        if ($current_page === basename($link['url'])) {
-            $is_active = true;
-        } elseif ($current_dir === 'pages' && basename($link['url']) === 'index.php' && strpos($link['url'], 'pages') !== false) {
-            $is_active = true;
-        }
-    ?>
-    <li class="mb-6">
-        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium <?php echo $is_active ? 'bg-gray-100 rounded-lg p-2 text-gray-900' : ''; ?>" href="<?php echo $link['url']; ?>">
-            <span class="material-icons mr-3"><?php echo $link['icon']; ?></span>
-            <?php echo $link['title']; ?>
-        </a>
-    </li>
-<?php endforeach; ?>
-</ul>
-</nav>
-</div>
-<div>
-<nav>
-<ul>
-<li class="mb-4">
-<a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm" href="#">
-<span class="material-icons mr-3">help_outline</span>
-                                Help &amp; information
+<div class="flex flex-col md:flex-row h-screen">
+    <!-- Mobile menu button -->
+    <button id="mobile-menu-button" class="md:hidden p-4 focus:outline-none focus:bg-gray-200">
+        <i class="fas fa-bars text-gray-600 text-2xl"></i>
+    </button>
+
+    <aside id="sidebar" class="w-full md:w-1/5 bg-white p-8 border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out z-50 md:flex">
+        <div>
+            <div class="flex items-center mb-12">
+                <img alt="Site logo" class="h-8 mr-2" src="<?php echo $site_logo; ?>"/>
+                <span class="text-2xl font-bold text-gray-800">Admin Panel</span>
+            </div>
+            <nav>
+                <ul>
+                    <?php foreach ($nav_links as $link): ?>
+                        <?php
+                            $is_active = false;
+                            if ($current_page === basename($link['url'])) {
+                                $is_active = true;
+                            } elseif ($current_dir === 'pages' && basename($link['url']) === 'index.php' && strpos($link['url'], 'pages') !== false) {
+                                $is_active = true;
+                            }
+                        ?>
+                        <li class="mb-6">
+                            <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium <?php echo $is_active ? 'bg-gray-100 rounded-lg p-2 text-gray-900' : ''; ?>" href="<?php echo $link['url']; ?>">
+                                <span class="material-icons mr-3"><?php echo $link['icon']; ?></span>
+                                <?php echo $link['title']; ?>
                             </a>
-</li>
-<li>
-<a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm" href="logout.php">
-<span class="material-icons mr-3">logout</span>
-                                Log out
-                            </a>
-</li>
-</ul>
-</nav>
-</div>
-</aside>
-<main class="w-4/5 p-8 h-screen overflow-y-auto">
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </nav>
+        </div>
+        <div>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm" href="#">
+                            <span class="material-icons mr-3">help_outline</span>
+                            Help &amp; information
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm" href="logout.php">
+                            <span class="material-icons mr-3">logout</span>
+                            Log out
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Overlay for mobile menu -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black opacity-0 md:hidden z-40 pointer-events-none transition-opacity duration-200 ease-in-out"></div>
+
+    <main class="w-full md:w-4/5 p-8 h-screen overflow-y-auto">
