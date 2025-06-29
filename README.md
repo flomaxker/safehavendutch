@@ -29,9 +29,9 @@ This project is a PHP-based CMS with a focus on managing lesson packages, bookin
 ### Core Modules
 
 *   **Authentication:** Secure email & password login with roles, CSRF protection, session security, rate-limiting, and GDPR consent tracking.
-*   **Lesson Packages:** Admin CRUD for managing packages, tracking user credit balances, and handling optional expirations or subscriptions.
-*   **Booking Engine:** Supports 1-on-1 and group lessons, waitlists, availability via iCal feeds, .ics calendar downloads for users, and cancellation rules.
-*   **Payments:** Stripe Checkout integration with webhook handling for automatic credit updates.
+*   **Lesson Packages:** Admin CRUD for managing packages, tracking user Euro balances, and handling optional expirations or subscriptions.
+*   **Booking Engine:** Supports 1-on-1 and group lessons, waitlists, iCal integration, .ics calendar downloads for users, and cancellation rules.
+*   **Payments:** Stripe Checkout integration with webhook handling for automatic Euro balance updates.
 *   **Dashboards:** Admin (KPI charts and comprehensive CRUD views), Parent (view upcoming/past lessons, notes, attachments, messages).
 *   **Blog CMS:** TinyMCE-powered editor for blog posts, with categories, tags, and AI-assisted drafting.
 *   **File Uploads:** Secure file storage outside the web root, with MIME type validation and access control via a PHP proxy.
@@ -45,11 +45,11 @@ This project is a PHP-based CMS with a focus on managing lesson packages, bookin
 The MVP for this project is defined by a 6-week sprint plan, focusing on delivering core functionality for user management, package purchasing, and a foundational booking system. The full MVP encompasses:
 
 *   **Dual-login system:** Separate accounts for general users (Parents) and Admins.
-*   **Service booking/tracking system:** Credit-based system for lessons/appointments.
-*   **Stripe integration:** For purchasing packages/services, with automatic credit updates.
-*   **Admin dashboard:** For managing services/packages, users, and bookings.
-*   **User dashboard:** For viewing and managing credits/services, child profiles, and lesson bookings.
-*   **User registration.**
+*   **Euro-based balance system:** Transparent pricing and balance tracking in Euros.
+*   **Stripe integration:** For purchasing packages/services, with automatic Euro balance updates.
+*   **Admin dashboard:** For managing services/packages, users, and bookings, with responsive design, sortable columns, and bulk actions.
+*   **User dashboard:** For viewing and managing Euro balances, child profiles, and lesson bookings.
+*   **User registration and editing.**
 *   **Booking Engine:** Basic lesson and booking management, iCal integration for availability.
 *   **Blog CMS:** Basic content creation and display.
 
@@ -59,14 +59,21 @@ The MVP for this project is defined by a 6-week sprint plan, focusing on deliver
 
 We have completed the foundational work and are progressing through the sprint plan:
 
+*   ✅ **Full transition to Euro-based pricing and balances.**
 *   ✅ **Week 1: Environment & Configuration** - `.env` loader, PDO wrapper, migrations runner, initial schema, PHPUnit tests.
 *   ✅ **Week 2: Packages & Stripe** - Packages & purchases migrations, `PackageModel` CRUD, Stripe Checkout & webhooks.
 *   ✅ **Admin login** exists with basic dashboard functionality.
-*   ✅ **User registration and login** implemented.
+*   ✅ **User registration and editing** implemented.
 *   ✅ **Basic user dashboard** and package listing implemented.
 *   ✅ **Centralized navigation links** for easier management.
 *   ✅ **Streamlined JavaScript** to only include essential functionalities.
-*   🚧 **Current Priority: Resolving Database Connection Issues.** The dynamic content pages (e.g., `index_dynamic.php`, `about.php`, `contact.php`, `privacy-policy.php`, `terms.php`) are currently blank due to database connection errors. This is the highest priority blocking further development of dynamic features.
+*   ✅ **Enhanced admin panel responsiveness:** Fixed sidebar, mobile menu, horizontal table scrolling.
+*   ✅ **Sortable columns** in user list.
+*   ✅ **Bulk user deletion.**
+*   ✅ **Bulk package deletion, activation, and deactivation.**
+*   ✅ **Improved database seeding** with realistic user names.
+*   🚧 **Current Priority: Database connection issues for dynamic content.** The dynamic content pages (e.g., `index_dynamic.php`, `about.php`, `contact.php`, `privacy-policy.php`, `terms.php`) are currently blank due to database connection errors. This is the highest priority blocking further development of dynamic features.
+*   🚧 Front-end CMS for editable content (e.g., announcements, home page) is planned.
 
 ---
 
