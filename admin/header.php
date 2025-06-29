@@ -67,11 +67,11 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
                             }
                         ?>
                         <li class="mb-6">
-                            <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium <?php echo $is_active ? 'bg-gray-100 rounded-lg p-2 text-gray-900' : ''; ?>" href="<?php echo $link['url']; ?>">
-                                <span class="material-icons mr-3"><?php echo $link['icon']; ?></span>
-                                <?php echo $link['title']; ?>
-                            </a>
-                        </li>
+        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 <?php echo $is_active ? 'bg-gray-200 text-gray-900' : ''; ?>" href="<?php echo $link['url']; ?>">
+            <span class="material-icons mr-3"><?php echo $link['icon']; ?></span>
+            <?php echo $link['title']; ?>
+        </a>
+    </li>
                     <?php endforeach; ?>
                 </ul>
             </nav>
@@ -80,13 +80,13 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
             <nav>
                 <ul>
                     <li class="mb-4">
-                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm" href="#">
+                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm p-2 rounded-lg transition-colors duration-200" href="#">
                             <span class="material-icons mr-3">help_outline</span>
                             Help &amp; information
                         </a>
                     </li>
                     <li>
-                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm" href="logout.php">
+                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm p-2 rounded-lg transition-colors duration-200" href="logout.php">
                             <span class="material-icons mr-3">logout</span>
                             Log out
                         </a>
