@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Load Composer autoloader if present, otherwise fallback to a simple autoloader
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
@@ -45,7 +47,7 @@ $container = new Container();
 $nav_links = [
     ['title' => 'Home', 'url' => 'index.php'],
     ['title' => 'About', 'url' => 'about.php'],
-    ['title' => 'Contact', 'url' => 'contact.php'],
-    ['title' => 'Privacy Policy', 'url' => 'privacy-policy.php'],
-    ['title' => 'Terms', 'url' => 'terms.php']
+    ['title' => 'Packages', 'url' => 'packages.php'],
+    ['title' => 'Blog', 'url' => 'blog.php'],
+    ['title' => 'Contact', 'url' => 'contact.php']
 ];

@@ -1,31 +1,36 @@
-    <div class="footer-main-content">
-        <div class="footer-section footer-contact">
-            <h4>Contact</h4>
-            <p>Your Company Name<br>
-               Your Address/Location</p>
-            <p>E-Mail: <a href="mailto:info@yourcompany.com">info@yourcompany.com</a><br>
-               Phone: <a href="tel:+1234567890">+1 (234) 567-890</a></p>
+<footer class="bg-gray-50 border-t border-gray-200">
+    <div class="container mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="col-span-1 md:col-span-2 lg:col-span-1">
+                <h4 class="text-2xl font-bold text-primary-600 mb-2">Safe Haven Dutch</h4>
+                <p class="text-gray-600">Your partner in mastering Dutch language and culture.</p>
+            </div>
+            <div class="col-span-1">
+                <h5 class="font-semibold text-gray-800 mb-3">Sitemap</h5>
+                <ul class="space-y-2">
+                    <li><a href="/index.php" class="text-gray-600 hover:text-primary-600">Home</a></li>
+                    <li><a href="/about.php" class="text-gray-600 hover:text-primary-600">About</a></li>
+                    <li><a href="/packages.php" class="text-gray-600 hover:text-primary-600">Packages</a></li>
+                    <li><a href="/blog.php" class="text-gray-600 hover:text-primary-600">Blog</a></li>
+                    <li><a href="/contact.php" class="text-gray-600 hover:text-primary-600">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-span-1">
+                <h5 class="font-semibold text-gray-800 mb-3">Legal</h5>
+                <ul class="space-y-2">
+                    <li><a href="/privacy-policy.php" class="text-gray-600 hover:text-primary-600">Privacy Policy</a></li>
+                    <li><a href="/terms.php" class="text-gray-600 hover:text-primary-600">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="col-span-1">
+                 <h5 class="font-semibold text-gray-800 mb-3">Contact Us</h5>
+                <ul class="space-y-2">
+                    <li><a href="mailto:info@safehavendutch.com" class="text-gray-600 hover:text-primary-600">info@safehavendutch.com</a></li>
+                </ul>
+            </div>
         </div>
-
-        <div class="footer-section footer-business">
-            <h4>Business Info</h4>
-            <p>Your Business Registration Info<br>
-               Your Tax ID</p>
-        </div>
-
-        <div class="footer-section footer-reviews">
-            <h4>Feedback</h4>
-            <p>We appreciate your feedback!<br>
-               <a href="#" target="_blank" rel="noopener noreferrer">Provide Feedback Here</a></p>
+        <div class="mt-12 border-t border-gray-200 pt-8 text-center text-gray-500">
+            <p>© <?php echo date('Y'); ?> Safe Haven Dutch. All Rights Reserved.</p>
         </div>
     </div>
-
-    <div class="footer-bottom">
-        <p>
-            <a href="tos.html" style="color: #9ca3af; text-decoration: underline;">Terms of Service</a> |
-            <a href="privacy-policy.html" style="color: #9ca3af; text-decoration: underline;">Privacy Policy</a>
-            <!-- Add other legal links here if needed, e.g., Cookie Policy -->
-        </p>
-        <p>© <span id="current-year"></span> Your Company Name. All Rights Reserved.</p>
-        <p class="disclaimer">This platform offers general content management services.</p>
-    </div>
+</footer>

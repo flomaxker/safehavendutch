@@ -1,187 +1,214 @@
 <?php
 $page_title = "Dashboard";
+require_once __DIR__ . '/header.php';
 
-require_once __DIR__ . '/../bootstrap.php';
+// --- Data Fetching ---
+$pdo = $container->getPdo();
 
-use App\Database\Database;
-use App\Models\User;
-use App\Models\Package;
+// 1. New Users Today
+$stmt_users = $pdo->prepare("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = CURDATE()");
+$stmt_users->execute();
+$new_users_today = $stmt_users->fetchColumn();
 
-$db = new Database();
-$pdo = $db->getConnection();
+// 2. Sales Revenue Today
+$stmt_sales = $pdo->prepare("SELECT SUM(amount_cents) as total_sales FROM purchases WHERE DATE(purchased_at) = CURDATE()");
+$stmt_sales->execute();
+$sales_today = $stmt_sales->fetchColumn() ?: 0;
 
-$userModel = new User($pdo);
-$packageModel = new Package($pdo);
+// 3. Total Packages Sold
+$stmt_packages = $pdo->prepare("SELECT COUNT(*) as count FROM purchases");
+$stmt_packages->execute();
+$total_packages_sold = $stmt_packages->fetchColumn();
 
-$totalUsers = $userModel->getTotalUsersCount();
-$activePackages = $packageModel->getTotalActivePackagesCount();
+// 4. Recent User Registrations
+$stmt_recent_users = $pdo->prepare("SELECT name, email, created_at FROM users ORDER BY created_at DESC LIMIT 5");
+$stmt_recent_users->execute();
+$recent_users = $stmt_recent_users->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch quick actions order for the logged-in admin
-$adminUserId = $_SESSION['user_id'] ?? null; // Safely get user ID from session
-$adminUserEmail = $_SESSION['user_email'] ?? null; // Safely get user email from session
+// 5. Recent Purchases
+$stmt_recent_purchases = $pdo->prepare("SELECT u.name as user_name, p.amount_cents, p.purchased_at FROM purchases p JOIN users u ON p.user_id = u.id ORDER BY p.purchased_at DESC LIMIT 5");
+$stmt_recent_purchases->execute();
+$recent_purchases = $stmt_recent_purchases->fetchAll(PDO::FETCH_ASSOC);
 
-$quickActionsOrder = [];
-if ($adminUserId && $adminUserEmail) {
-    $adminUser = $userModel->findByEmail($adminUserEmail);
-    if ($adminUser) {
-        $quickActionsOrder = json_decode($adminUser['quick_actions_order'] ?? '[]', true);
+// 6. Recent Bookings
+$stmt_recent_bookings = $pdo->prepare("
+    SELECT b.id, u.name as user_name, l.title as lesson_title, b.created_at 
+    FROM bookings b
+    JOIN users u ON b.user_id = u.id
+    JOIN lessons l ON b.lesson_id = l.id
+    ORDER BY b.created_at DESC 
+    LIMIT 5
+");
+$stmt_recent_bookings->execute();
+$recent_bookings = $stmt_recent_bookings->fetchAll(PDO::FETCH_ASSOC);
+
+// Quick Actions
+$user_id = $_SESSION['user_id'] ?? null;
+$quick_actions_order = [];
+
+if ($user_id) {
+    $user_model = new \App\Models\User($container->getPdo());
+    $user = $user_model->find($user_id);
+    if ($user && !empty($user['quick_actions_order'])) {
+        $quick_actions_order = json_decode($user['quick_actions_order'], true);
     }
 }
 
-// Define all possible quick actions with their properties
-$allQuickActions = [
-    '/admin/users/index.php' => ['title' => 'Manage Users', 'icon' => 'group_add', 'description' => 'View, edit, or delete user accounts.'],
-    '/admin/packages/index.php' => ['title' => 'Manage Packages', 'icon' => 'card_giftcard', 'description' => 'Add, edit, or activate lesson packages.'],
-    '/admin/pages/index.php' => ['title' => 'Manage Pages', 'icon' => 'description', 'description' => 'Edit website content pages.'],
-    '/admin/children/index.php' => ['title' => 'Manage Children', 'icon' => 'child_care', 'description' => 'Manage child profiles.'],
-    '/admin/bookings/index.php' => ['title' => 'Manage Bookings', 'icon' => 'event_note', 'description' => 'View and manage lesson bookings.'],
-    '/admin/blog/posts/index.php' => ['title' => 'Manage Blog Posts', 'icon' => 'article', 'description' => 'Create and edit blog posts.'],
-    '/admin/blog/categories/index.php' => ['title' => 'Manage Blog Categories', 'icon' => 'label', 'description' => 'Organize blog content with categories.'],
-    '/admin/emails/index.php' => ['title' => 'Manage Email Templates', 'icon' => 'email', 'description' => 'Edit system email templates.'],
-    '/admin/settings/index.php' => ['title' => 'System Settings', 'icon' => 'settings_applications', 'description' => 'Configure system-wide settings.'],
-    '/admin/files/index.php' => ['title' => 'File Management', 'icon' => 'folder', 'description' => 'Manage uploaded files.'],
-    '/admin/gdpr/index.php' => ['title' => 'GDPR Tools', 'icon' => 'privacy_tip', 'description' => 'Tools for GDPR compliance.'],
-    '/admin/reports/index.php' => ['title' => 'View Reports', 'icon' => 'bar_chart', 'description' => 'Access system reports and analytics.'],
-    '/admin/teachers/index.php' => ['title' => 'Manage Teachers', 'icon' => 'person', 'description' => 'Manage teacher profiles and availability.'],
-    '/admin/rate_limiting/index.php' => ['title' => 'Rate Limiting', 'icon' => 'speed', 'description' => 'Configure rate limiting settings.'],
+// Define all possible quick actions
+$all_quick_actions = [
+    'add_user' => ['icon' => 'person_add', 'text' => 'Add New User', 'url' => '/admin/users/edit.php'],
+    'add_post' => ['icon' => 'post_add', 'text' => 'Add New Post', 'url' => '/admin/blog/posts/edit.php'],
+    'add_page' => ['icon' => 'note_add', 'text' => 'Add New Page', 'url' => '/admin/pages/edit.php'],
+    'add_package' => ['icon' => 'card_giftcard', 'text' => 'Add New Package', 'url' => '/admin/packages/create.php'],
+    'view_users' => ['icon' => 'group', 'text' => 'View All Users', 'url' => '/admin/users/index.php'],
+    'view_posts' => ['icon' => 'article', 'text' => 'View All Posts', 'url' => '/admin/blog/posts/index.php'],
+    'view_pages' => ['icon' => 'description', 'text' => 'View All Pages', 'url' => '/admin/pages/index.php'],
+    'view_packages' => ['icon' => 'redeem', 'text' => 'View All Packages', 'url' => '/admin/packages/index.php'],
+    'view_bookings' => ['icon' => 'event', 'text' => 'View All Bookings', 'url' => '/admin/bookings/index.php'],
+    'system_settings' => ['icon' => 'settings', 'text' => 'System Settings', 'url' => '/admin/settings/index.php'],
+    'file_manager' => ['icon' => 'folder_open', 'text' => 'File Manager', 'url' => '/admin/files/index.php'],
 ];
 
-// If quick_actions_order is empty, use a default set
-if (empty($quickActionsOrder)) {
-    $quickActionsOrder = [
-        '/admin/users/index.php',
-        '/admin/packages/index.php',
-        '/admin/pages/index.php',
-        '/admin/bookings/index.php',
-        '/admin/blog/posts/index.php',
-    ];
-}
-
-// Filter and order quick actions based on $quickActionsOrder
-$displayQuickActions = [];
-foreach ($quickActionsOrder as $url) {
-    if (isset($allQuickActions[$url])) {
-        $displayQuickActions[$url] = $allQuickActions[$url];
+// Filter and sort quick actions based on user's saved order
+$quick_actions = [];
+if (!empty($quick_actions_order)) {
+    foreach ($quick_actions_order as $ordered_url) {
+        foreach ($all_quick_actions as $key => $action) {
+            if ($action['url'] === $ordered_url) {
+                $quick_actions[$key] = $action;
+                break; // Found a match, move to the next ordered URL
+            }
+        }
     }
+} else {
+    // Default quick actions if none are saved
+    $quick_actions = array_slice($all_quick_actions, 0, 4, true);
 }
 
-include __DIR__ . '/header.php';
+// --- UI Display ---
 ?>
 
-<header class="flex justify-between items-center mb-8">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-800">Hello, Admin</h1>
-        <p class="text-gray-500">Welcome to your Safe Haven Dutch Coaching CMS Dashboard.</p>
-    </div>
-    <div class="flex items-center text-gray-500">
-        <span class="text-sm mr-2"><?= date('d M, Y') ?></span>
-        <span class="material-icons">calendar_today</span>
-    </div>
-</header>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
-<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <div class="bg-gray-50 p-4 rounded-xl flex items-start">
-        <div class="bg-green-100 p-2 rounded-lg mr-4">
-            <span class="material-icons text-green-600">group</span>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500">Total Users</p>
-            <p class="text-2xl font-bold text-gray-800"><?= $totalUsers ?></p>
-        </div>
-    </div>
-    <div class="bg-gray-50 p-4 rounded-xl flex items-start">
-        <div class="bg-yellow-100 p-2 rounded-lg mr-4">
-            <span class="material-icons text-yellow-600">redeem</span>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500">Active Packages (Euros)</p>
-            <p class="text-2xl font-bold text-gray-800"><?= $activePackages ?></p>
-        </div>
-    </div>
-    <div class="bg-gray-50 p-4 rounded-xl flex items-start">
-        <div class="bg-purple-100 p-2 rounded-lg mr-4">
-            <span class="material-icons text-purple-600">shopping_cart</span>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500">Recent Purchases</p>
-            <p class="text-2xl font-bold text-gray-800">[Dynamic Recent Purchases]</p>
-        </div>
-    </div>
-</section>
-
-<section class="mb-8">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">System Overview</h2>
-        <button class="flex items-center text-sm text-gray-600 border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-100">
-            Last 30 Days
-            <span class="material-icons ml-1 text-sm">expand_more</span>
-        </button>
-    </div>
-    <div class="relative h-64 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
-        <!-- Placeholder for a chart or more detailed system metrics -->
-        <p>Chart Placeholder: User Registrations vs. Package Purchases</p>
-    </div>
-</section>
-
-<section>
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
-    </div>
-    <div id="quick-actions-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <?php foreach ($displayQuickActions as $url => $action): ?>
-            <a href="<?= $url ?>" class="bg-gray-50 p-4 rounded-xl flex items-center justify-between hover:bg-gray-100 transition">
-                <div class="flex items-center">
-                    <div class="bg-blue-100 p-2 rounded-lg mr-4">
-                        <span class="material-icons text-blue-500"><?= $action['icon'] ?></span>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-800"><?= $action['title'] ?></p>
-                        <p class="text-xs text-gray-500"><?= $action['description'] ?></p>
-                    </div>
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <div class="flex items-center">
+                <div class="bg-blue-100 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                    <span class="material-icons text-3xl">person_add</span>
                 </div>
-                <span class="material-icons cursor-grab">drag_indicator</span>
-            </a>
-        <?php endforeach; ?>
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">New Users (Today)</p>
+                    <p class="text-3xl font-bold text-gray-900"><?php echo $new_users_today; ?></p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <div class="flex items-center">
+                <div class="bg-green-100 text-green-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                    <span class="material-icons text-3xl">attach_money</span>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Sales Revenue (Today)</p>
+                    <p class="text-3xl font-bold text-gray-900">€<?php echo number_format($sales_today / 100, 2); ?></p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <div class="flex items-center">
+                <div class="bg-purple-100 text-purple-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                    <span class="material-icons text-3xl">redeem</span>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Total Packages Sold</p>
+                    <p class="text-3xl font-bold text-gray-900"><?php echo $total_packages_sold; ?></p>
+                </div>
+            </div>
+        </div>
     </div>
-</section>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const quickActionsList = document.getElementById('quick-actions-list');
-        const adminUserId = <?= $_SESSION['user_id'] ?>;
+    <!-- Quick Actions -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <?php foreach ($quick_actions as $action): ?>
+                <a href="<?php echo $action['url']; ?>" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors duration-200">
+                    <span class="material-icons text-3xl text-gray-600 mb-2"><?php echo $action['icon']; ?></span>
+                    <span class="text-sm font-medium text-center text-gray-700"><?php echo $action['text']; ?></span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
-        if (quickActionsList) {
-            new Sortable(quickActionsList, {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                // handle: '.cursor-grab', // Removed handle to make entire item draggable
-                onEnd: function (evt) {
-                    const newOrder = Array.from(evt.to.children).map(item => item.getAttribute('href'));
-                    
-                    // Send the new order to the server
-                    fetch('save_quick_actions.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ order: newOrder, userId: adminUserId }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            console.log('Quick actions order saved successfully!');
-                        } else {
-                            console.error('Error saving quick actions order:', data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Network error saving quick actions order:', error);
-                    });
-                },
-            });
-        }
-    });
-</script>
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent User Registrations</h2>
+            <?php if (!empty($recent_users)): ?>
+                <ul class="divide-y divide-gray-200">
+                    <?php foreach ($recent_users as $user): ?>
+                        <li class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-medium"><?php echo htmlspecialchars($user['name']); ?></p>
+                                <p class="text-gray-600 text-sm"><?php echo htmlspecialchars($user['email']); ?></p>
+                            </div>
+                            <span class="text-gray-500 text-sm"><?php echo date('M d, Y H:i', strtotime($user['created_at'])); ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="text-gray-600">No recent user registrations.</p>
+            <?php endif; ?>
+        </div>
 
-<?php include __DIR__ . '/footer.php'; ?>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Purchases</h2>
+            <?php if (!empty($recent_purchases)): ?>
+                <ul class="divide-y divide-gray-200">
+                    <?php foreach ($recent_purchases as $purchase): ?>
+                        <li class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-medium">Purchase by <?php echo htmlspecialchars($purchase['user_name']); ?></p>
+                                <p class="text-gray-600 text-sm">€<?php echo number_format($purchase['amount_cents'] / 100, 2); ?></p>
+                            </div>
+                            <span class="text-gray-500 text-sm"><?php echo date('M d, Y H:i', strtotime($purchase['purchased_at'])); ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="text-gray-600">No recent purchases.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="grid grid-cols-1 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Bookings</h2>
+            <?php if (!empty($recent_bookings)): ?>
+                <ul class="divide-y divide-gray-200">
+                    <?php foreach ($recent_bookings as $booking): ?>
+                        <li class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-medium">
+                                    <a href="/admin/bookings/index.php?highlight=<?= $booking['id'] ?>" class="text-blue-600 hover:underline">
+                                        Booking #<?= $booking['id'] ?>
+                                    </a>
+                                    for "<?= htmlspecialchars($booking['lesson_title']) ?>"
+                                </p>
+                                <p class="text-gray-600 text-sm">
+                                    Booked by <?= htmlspecialchars($booking['user_name']) ?>
+                                </p>
+                            </div>
+                            <span class="text-gray-500 text-sm"><?php echo date('M d, Y H:i', strtotime($booking['created_at'])); ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="text-gray-600">No recent bookings.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
+</div>

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/bootstrap.php';
 
 // Check if the user is logged in
-if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true) {
+if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }

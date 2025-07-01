@@ -2,7 +2,7 @@
 require_once __DIR__ . '/bootstrap.php';
 use App\Models\Page;
 
-$pageModel = new Page();
+$pageModel = $container->getPageModel();
 $page = $pageModel->findBySlug('terms');
 
 if ($page) {

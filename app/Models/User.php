@@ -13,6 +13,14 @@ class User
         $this->pdo = $pdo;
     }
 
+    public function find(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT *, quick_actions_order FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user ?: null;
+    }
+
     public function findByEmail(string $email): ?array
     {
         $stmt = $this->pdo->prepare('SELECT *, quick_actions_order FROM users WHERE email = :email');
@@ -69,6 +77,12 @@ class User
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllUserIds(): array
+    {
+        $stmt = $this->pdo->query("SELECT id FROM users");
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     public function delete(int $id): bool
     {
         $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
@@ -122,5 +136,46 @@ class User
             'orderJson' => $orderJson,
             'userId' => $userId
         ]);
+    }
+
+    public function anonymize(int $userId): bool
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            // Anonymize user's children first
+            $childModel = new Child($this->pdo);
+            $children = $childModel->findByUserId($userId);
+            foreach ($children as $child) {
+                $childModel->update($child['id'], [
+                    'name' => 'Anonymized Child',
+                    'date_of_birth' => '1970-01-01',
+                    'avatar' => null,
+                    'notes' => 'User data anonymized.'
+                ]);
+            }
+
+            // Anonymize the user
+            $anonymizedEmail = 'anonymized_' . uniqid() . '@example.com';
+            $stmt = $this->pdo->prepare(
+                "UPDATE users SET 
+                    name = 'Anonymized User', 
+                    email = :email, 
+                    password = '', 
+                    quick_actions_order = '[]'
+                WHERE id = :id"
+            );
+            $stmt->execute([
+                'email' => $anonymizedEmail,
+                'id' => $userId
+            ]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            // Optionally log the error: error_log($e->getMessage());
+            return false;
+        }
     }
 }

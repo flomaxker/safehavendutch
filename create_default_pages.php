@@ -20,6 +20,16 @@ try {    $database = new Database();    $pdo = $database->getConnection();    ec
 
     $pages_to_create = [
         [
+            'slug' => 'home',
+            'title' => 'Welcome to Safe Haven Dutch',
+            'meta_description' => 'Your home for Dutch language and culture coaching.',
+            'og_title' => 'Safe Haven Dutch - Home',
+            'og_description' => 'Discover our services and start your journey with us.',
+            'og_url' => '/',
+            'og_image' => '/assets/images/default-hero.jpg',
+            'content' => '<h1>Welcome to Safe Haven Dutch</h1><p>This is your dynamic homepage. You can edit this content in the admin panel.</p>',
+        ],
+        [
             'slug' => 'about',
             'title' => 'About Us',
             'meta_description' => 'Learn more about our CMS.',

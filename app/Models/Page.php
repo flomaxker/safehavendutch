@@ -9,10 +9,9 @@ class Page
 {
     private PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $database = new Database();
-        $this->pdo = $database->getConnection();
+        $this->pdo = $pdo;
     }
 
     public function findBySlug(string $slug): ?array

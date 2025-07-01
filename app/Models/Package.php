@@ -25,10 +25,10 @@ class Package
      * Get all packages.
      * @return array
      */
-    public function getAll(): array
+    public function getAll(string $orderBy = 'id', string $orderDirection = 'ASC'): array
     {
-        $stmt = $this->pdo->query('SELECT id, name, description, euro_value, price_cents, active FROM packages');
-        return $stmt->fetchAll();
+        $stmt = $this->pdo->query("SELECT * FROM packages ORDER BY $orderBy $orderDirection");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

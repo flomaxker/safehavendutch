@@ -12,6 +12,10 @@ $packageModel = new Package($pdo);
 $message = '';
 $messageType = '';
 
+// Initialize sorting parameters
+$order_by = $_GET['order_by'] ?? 'id';
+$order_direction = $_GET['order_direction'] ?? 'ASC';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
         $id = (int)$_POST['id'];
@@ -95,7 +99,7 @@ if (isset($_GET['message'], $_GET['type'])) {
     $messageType = htmlspecialchars($_GET['type']);
 }
 
-$packages = $packageModel->getAll();
+$packages = $packageModel->getAll($order_by, $order_direction);
 $title = 'Packages - Admin';
 require __DIR__ . '/../header.php';
 ?>
@@ -122,19 +126,44 @@ require __DIR__ . '/../header.php';
                             <input type="checkbox" id="selectAllPackages" class="form-checkbox h-4 w-4 text-blue-600">
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            ID
+                            <a href="?order_by=id&order_direction=<?= ($order_by === 'id' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                                ID
+                                <?php if ($order_by === 'id'): ?>
+                                    <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                                <?php endif; ?>
+                            </a>
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Name
+                            <a href="?order_by=name&order_direction=<?= ($order_by === 'name' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                                Name
+                                <?php if ($order_by === 'name'): ?>
+                                    <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                                <?php endif; ?>
+                            </a>
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Value (€)
+                            <a href="?order_by=euro_value&order_direction=<?= ($order_by === 'euro_value' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                                Value (€)
+                                <?php if ($order_by === 'euro_value'): ?>
+                                    <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                                <?php endif; ?>
+                            </a>
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Price (€)
+                            <a href="?order_by=price_cents&order_direction=<?= ($order_by === 'price_cents' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                                Price (€)
+                                <?php if ($order_by === 'price_cents'): ?>
+                                    <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                                <?php endif; ?>
+                            </a>
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Active
+                            <a href="?order_by=active&order_direction=<?= ($order_by === 'active' && $order_direction === 'ASC') ? 'DESC' : 'ASC' ?>" class="flex items-center">
+                                Active
+                                <?php if ($order_by === 'active'): ?>
+                                    <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down' ?> ml-1"></i>
+                                <?php endif; ?>
+                            </a>
                         </th>
                         <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             Actions

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../bootstrap.php';
 use App\Database\Database;
 use App\Models\User;
 use App\Models\Package;
+use App\Models\Child;
 
 try {
     $db = new Database();
@@ -49,7 +50,8 @@ foreach ($fakeUsers as $userData) {
             $userData['name'],
             $userData['email'],
             $existingUser['euro_balance'], // Keep existing euro balance
-            $existingUser['role'] // Keep existing role
+            $existingUser['role'], // Keep existing role
+            $existingUser['quick_actions_order'] ?? '[]' // Pass existing quick_actions_order or empty array
         );
         $createdUserIds[] = $existingUser['id']; // Add existing user ID to the list for package assignment
         echo 'User updated: ' . $userData['name'] . ' (ID: ' . $existingUser['id'] . ')' . PHP_EOL;
@@ -125,4 +127,45 @@ if (!empty($createdUserIds) && !empty($createdPackages)) {
     echo 'No users or packages to assign.' . PHP_EOL;
 }
 
+
+// Seed Children
+$childModel = new App\Models\Child($pdo);
+
+$fakeChildren = [
+    ['name' => 'Max', 'date_of_birth' => '2015-03-10', 'notes' => 'Loves drawing.'],
+    ['name' => 'Sophie', 'date_of_birth' => '2017-07-22', 'notes' => 'Enjoys reading.'],
+    ['name' => 'Liam', 'date_of_birth' => '2016-01-05', 'notes' => 'Very energetic.'],
+    ['name' => 'Olivia', 'date_of_birth' => '2018-11-30', 'notes' => 'Quiet and observant.'],
+    ['name' => 'Noah', 'date_of_birth' => '2014-09-18', 'notes' => 'Plays soccer.'],
+    ['name' => 'Emma', 'date_of_birth' => '2019-04-01', 'notes' => 'Always smiling.'],
+    ['name' => 'Lucas', 'date_of_birth' => '2013-06-25', 'notes' => 'Good at math.'],
+    ['name' => 'Ava', 'date_of_birth' => '2017-02-14', 'notes' => 'Creative and artistic.'],
+    ['name' => 'Elijah', 'date_of_birth' => '2015-10-03', 'notes' => 'Loves animals.'],
+    ['name' => 'Mia', 'date_of_birth' => '2018-08-08', 'notes' => 'Curious and adventurous.'],
+];
+
+$allUserIds = $userModel->getAllUserIds(); // Assuming a method to get all user IDs
+
+if (!empty($allUserIds)) {
+    foreach ($fakeChildren as $childData) {
+        // Assign a random user_id to each child
+        $randomUserId = $allUserIds[array_rand($allUserIds)];
+        $childData['user_id'] = $randomUserId;
+
+        // Check if child already exists for this user to prevent duplicates on re-seeding
+        // This is a simple check, more robust would be to check name + user_id
+        $existingChild = null; // You might need to add a findByNameAndUserId method to ChildModel
+        // For now, we'll just create them. If re-seeding is frequent, consider a more robust check.
+
+        if ($childModel->create($childData)) {
+            echo 'Child created: ' . $childData['name'] . ' for user ID: ' . $childData['user_id'] . PHP_EOL;
+        } else {
+            echo 'Failed to create child: ' . $childData['name'] . PHP_EOL;
+        }
+    }
+} else {
+    echo 'No users found to associate children with.' . PHP_EOL;
+}
+
 echo 'Database seeding complete.' . PHP_EOL;
+

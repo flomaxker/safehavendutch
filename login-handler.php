@@ -14,24 +14,15 @@ if (!$email || !$password) {
 }
 
 try {
-    $database = new Database();
-    $pdo = $database->getConnection();
-    $userModel = new User($pdo);
-
+    $userModel = new User($container->getPdo());
+    $userModel = new User($container->getPdo());
     $user = $userModel->findByEmail($email);
 
-    // In production, use password_verify() with hashed passwords
-    // For MVP, assuming plain text password for now based on admin/login.php
-    // You should replace this with password_verify($password, $user['password'])
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_credits'] = $userModel->getCredits($user['id']);
-        $_SESSION['user_logged_in'] = true;
+        $_SESSION['user_role'] = $user['role'];
 
-        // Redirect based on user role if applicable, otherwise to dashboard
-        // Assuming 'role' column exists in 'users' table
-        if (isset($user['role']) && $user['role'] === 'admin') {
+        if ($user['role'] === 'admin') {
             header('Location: /admin/index.php');
         } else {
             header('Location: /dashboard.php');
