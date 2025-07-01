@@ -1,6 +1,9 @@
 <?php
+// Generate a unique nonce for each request
+$nonce = base64_encode(random_bytes(16));
+
 $csp_policy = "default-src 'self'; ";
-$csp_policy .= "script-src 'self' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js; ";
+$csp_policy .= "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js; ";
 $csp_policy .= "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css https://fonts.googleapis.com https://cdnjs.cloudflare.com; ";
 $csp_policy .= "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ";
 $csp_policy .= "img-src 'self' data: https:; ";
@@ -125,10 +128,13 @@ function is_active_parent($children, $current_uri) {
             </div>
             <nav>
                 <ul class="space-y-2">
-                    <?php foreach ($nav_links as $link): ?>
+                    <?php foreach ($nav_links as $index => $link): ?>
                         <?php if (isset($link['children']) && !empty($link['children'])): ?>
-                            <?php $is_parent_active = is_active_parent($link['children'], $current_uri); ?>
-                            <li x-data="{ open: <?php echo $is_parent_active ? 'true' : 'false'; ?> }">
+                            <?php 
+                                $is_parent_active = is_active_parent($link['children'], $current_uri);
+                                $menu_id = 'menu_item_' . $index;
+                            ?>
+                            <li x-data="{ open: JSON.parse(localStorage.getItem('<?php echo $menu_id; ?>')) ?? <?php echo $is_parent_active ? 'true' : 'false'; ?> }" x-init="$watch('open', val => localStorage.setItem('<?php echo $menu_id; ?>', val))">
                                 <a href="#" @click.prevent="open = !open" class="flex items-center justify-between text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 <?php echo $is_parent_active ? 'bg-gray-100 text-gray-900' : ''; ?>">
                                     <div class="flex items-center">
                                         <span class="material-icons mr-3"><?php echo $link['icon']; ?></span>
@@ -136,7 +142,7 @@ function is_active_parent($children, $current_uri) {
                                     </div>
                                     <span class="material-icons transition-transform" :class="{ 'rotate-180': open }">expand_more</span>
                                 </a>
-                                <ul x-show="open" class="pl-4 mt-2 space-y-2">
+                                <ul x-show="open" x-transition class="pl-4 mt-2 space-y-2">
                                     <?php foreach ($link['children'] as $child): ?>
                                         <?php $is_child_active = is_active_link($child['url'], $current_uri); ?>
                                         <li>
@@ -186,22 +192,26 @@ function is_active_parent($children, $current_uri) {
 
     <main class="w-full md:flex-1 p-8 h-screen overflow-y-auto">
 
-<script>
+<script nonce="<?php echo $nonce; ?>">
     document.addEventListener('DOMContentLoaded', function () {
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const sidebar = document.getElementById('sidebar');
         const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
 
-        mobileMenuButton.addEventListener('click', function () {
-            sidebar.classList.toggle('-translate-x-full');
-            mobileMenuOverlay.classList.toggle('opacity-0');
-            mobileMenuOverlay.classList.toggle('pointer-events-none');
-        });
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function () {
+                sidebar.classList.toggle('-translate-x-full');
+                mobileMenuOverlay.classList.toggle('opacity-0');
+                mobileMenuOverlay.classList.toggle('pointer-events-none');
+            });
+        }
 
-        mobileMenuOverlay.addEventListener('click', function () {
-            sidebar.classList.add('-translate-x-full');
-            mobileMenuOverlay.classList.add('opacity-0');
-            mobileMenuOverlay.classList.add('pointer-events-none');
-        });
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', function () {
+                sidebar.classList.add('-translate-x-full');
+                mobileMenuOverlay.classList.add('opacity-0');
+                mobileMenuOverlay.classList.add('pointer-events-none');
+            });
+        }
     });
 </script>

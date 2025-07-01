@@ -10,6 +10,7 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
 *   **Dynamic Page Management:** The homepage, about page, and other key pages are fully editable from within the admin panel.
 *   **Blog CMS:** A complete blog system with posts and categories, powered by a TinyMCE WYSIWYG editor.
 *   **User & Admin Roles:** A unified login system that intelligently redirects users and admins to their respective dashboards.
+*   **Persistent Admin Menu:** The collapsible sidebar menu in the admin panel remembers its open/closed state across page loads for a smoother user experience.
 *   **Dynamic Site Branding:** The site logo and homepage hero image can be easily updated from a dedicated settings page in the admin panel.
 *   **Rate Limiting:** Protects against brute-force login attacks by temporarily locking accounts after multiple failed attempts.
 *   **GDPR Compliance Tools:** Includes a tool for anonymizing user data upon request and automated reminders for reviewing inactive accounts.
