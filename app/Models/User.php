@@ -178,4 +178,50 @@ class User
             return false;
         }
     }
+
+    public function recordLoginAttempt(int $userId, bool $successful): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO login_attempts (user_id, ip_address, successful) VALUES (:user_id, :ip_address, :successful)'
+        );
+        $stmt->execute([
+            'user_id' => $userId,
+            'ip_address' => $_SERVER['REMOTE_ADDR'],
+            'successful' => (int)$successful,
+        ]);
+    }
+
+    public function getFailedLoginAttempts(int $userId): int
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) FROM login_attempts WHERE user_id = :user_id AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL 5 MINUTE)'
+        );
+        $stmt->execute(['user_id' => $userId]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public function getLastFailedLoginAttemptTime(int $userId): ?string
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT attempted_at FROM login_attempts WHERE user_id = :user_id AND successful = 0 ORDER BY attempted_at DESC LIMIT 1'
+        );
+        $stmt->execute(['user_id' => $userId]);
+        $result = $stmt->fetchColumn();
+        return $result ?: null;
+    }
+
+    public function updateLastLogin(int $userId): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id');
+        $stmt->execute(['id' => $userId]);
+    }
+
+    public function findInactiveUsers(int $months): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, email, last_login_at FROM users WHERE last_login_at < DATE_SUB(NOW(), INTERVAL :months MONTH) OR (last_login_at IS NULL AND created_at < DATE_SUB(NOW(), INTERVAL :months MONTH))'
+        );
+        $stmt->execute(['months' => $months]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

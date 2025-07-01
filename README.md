@@ -11,6 +11,8 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
 *   **Blog CMS:** A complete blog system with posts and categories, powered by a TinyMCE WYSIWYG editor.
 *   **User & Admin Roles:** A unified login system that intelligently redirects users and admins to their respective dashboards.
 *   **Dynamic Site Branding:** The site logo and homepage hero image can be easily updated from a dedicated settings page in the admin panel.
+*   **Rate Limiting:** Protects against brute-force login attacks by temporarily locking accounts after multiple failed attempts.
+*   **GDPR Compliance Tools:** Includes a tool for anonymizing user data upon request and automated reminders for reviewing inactive accounts.
 *   **Secure & Modern Backend:** Built with PHP 8.1, a robust database migration system, and a focus on security best practices like Content Security Policy (CSP).
 
 ---

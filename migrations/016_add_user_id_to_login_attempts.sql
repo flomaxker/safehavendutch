@@ -1,0 +1,1 @@
+ALTER TABLE login_attempts ADD COLUMN user_id INT NULL, ADD INDEX (user_id);

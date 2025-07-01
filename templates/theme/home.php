@@ -58,11 +58,11 @@ include 'header.php'; // We still need the header for nav, etc.
                             Get practical support for housing, healthcare, and navigating Dutch culture.
                         </p>
                     </div>
-                    <div class="feature-card bg-yellow-100 text-center">
-                         <div class="feature-icon mx-auto" style="background-color: #fef9c3;">
-                            <span class="material-icons text-yellow-600">groups</span>
+                    <div class="feature-card bg-white text-center">
+                         <div class="feature-icon mx-auto">
+                            <span class="material-icons">groups</span>
                         </div>
-                        <h3 class="text-2xl font-semibold text-yellow-800 mb-2">Community Events</h3>
+                        <h3 class="text-2xl font-semibold text-primary-800 mb-2">Community Events</h3>
                         <p class="text-gray-600">
                             Connect with other expats and practice your Dutch in a fun, relaxed setting.
                         </p>

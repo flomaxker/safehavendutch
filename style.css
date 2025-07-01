@@ -559,7 +559,7 @@ ul:not(.nav-menu):not(.contact-links):not(.flags-container ul):not(.coach-type u
 .scribble::after {
     content: '';
     position: absolute;
-    bottom: -10px;
+    bottom: -5px;
     left: -5px;
     right: -5px;
     height: 10px;
