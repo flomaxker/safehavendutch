@@ -1,9 +1,8 @@
 <?php
-// Generate a unique nonce for each request
-$nonce = base64_encode(random_bytes(16));
+require_once __DIR__ . '/bootstrap.php';
 
 $csp_policy = "default-src 'self'; ";
-$csp_policy .= "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js; ";
+$csp_policy .= "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js https://cdnjs.cloudflare.com; ";
 $csp_policy .= "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css https://fonts.googleapis.com https://cdnjs.cloudflare.com; ";
 $csp_policy .= "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ";
 $csp_policy .= "img-src 'self' data: https:; ";
@@ -11,9 +10,6 @@ $csp_policy .= "connect-src 'self' https://*.tinymce.com https://sp.tinymce.com;
 $csp_policy .= "frame-src 'self' https://*.tinymce.com; ";
 $csp_policy .= "worker-src 'self' blob:;";
 header("Content-Security-Policy: " . $csp_policy);
-?>
-<?php
-require_once __DIR__ . '/bootstrap.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     // Redirect to the main login page if not an admin
@@ -85,6 +81,8 @@ function is_active_parent($children, $current_uri) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -110,6 +108,12 @@ function is_active_parent($children, $current_uri) {
         .quick-action-list.sortable-empty {
             border: 2px dashed #D1D5DB; /* Dashed border for empty list */
             background-color: #F9FAFB; /* Light background for empty list */
+        }
+        #cropping-modal .cropper-container {
+            max-width: 100%;
+        }
+        #cropping-modal #image-to-crop {
+            max-height: 60vh;
         }
     </style>
 </head>

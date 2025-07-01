@@ -3,6 +3,8 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+define('PROJECT_ROOT', __DIR__);
+
 // Load Composer autoloader if present, otherwise fallback to a simple autoloader
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -24,21 +26,13 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 use Dotenv\Dotenv;
 use App\Container;
 
-if (file_exists(__DIR__ . '/.env')) {
-    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) {
-            continue;
-        }
-        list($name, $value) = explode('=', $line, 2);
-        $name = trim($name);
-        $value = trim($value);
-        if (!empty($name)) {
-            if (!defined($name)) {
-                define($name, $value);
-            }
-        }
-    }
+// Generate a nonce for CSP
+$nonce = bin2hex(random_bytes(16));
+
+// Load environment variables from .env file
+if (file_exists(PROJECT_ROOT . '/.env')) {
+    $dotenv = Dotenv::createUnsafeImmutable(PROJECT_ROOT);
+    $dotenv->load();
 }
 
 $container = new Container();
@@ -49,5 +43,5 @@ $nav_links = [
     ['title' => 'About', 'url' => 'about.php'],
     ['title' => 'Packages', 'url' => 'packages.php'],
     ['title' => 'Blog', 'url' => 'blog.php'],
-    ['title' => 'Contact', 'url' => 'contact.php']
+    ['title' => 'Contact', 'url' => 'page.php?slug=contact']
 ];
