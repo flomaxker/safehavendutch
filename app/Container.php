@@ -16,6 +16,7 @@ use App\Models\Purchase;
 use App\Models\Post;
 use App\Models\User;
 use App\Payment\PaymentHandler;
+use App\Models\Setting;
 
 class Container
 {
