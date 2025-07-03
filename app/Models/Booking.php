@@ -15,16 +15,47 @@ class Booking
 
     public function create(int $lessonId, int $userId, string $status = 'pending'): int
     {
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO bookings (lesson_id, user_id, status)
-             VALUES (:lesson_id, :user_id, :status)'
-        );
-        $stmt->execute([
-            'lesson_id' => $lessonId,
-            'user_id' => $userId,
-            'status' => $status,
-        ]);
-        return (int)$this->pdo->lastInsertId();
+        $this->pdo->beginTransaction();
+
+        try {
+            // 1. Check lesson capacity and user's credit balance
+            $lessonModel = new Lesson($this->pdo);
+            $lesson = $lessonModel->getById($lessonId);
+
+            if ($lesson['capacity'] <= 0) {
+                throw new \Exception('This lesson is full.');
+            }
+
+            $userModel = new User($this->pdo);
+            $user = $userModel->find($userId);
+
+            if ($user['euro_balance'] < $lesson['credit_cost']) {
+                throw new \Exception('Insufficient credits.');
+            }
+
+            // 2. Create the booking
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO bookings (lesson_id, user_id, status)
+                 VALUES (:lesson_id, :user_id, :status)'
+            );
+            $stmt->execute([
+                'lesson_id' => $lessonId,
+                'user_id' => $userId,
+                'status' => $status,
+            ]);
+            $bookingId = (int)$this->pdo->lastInsertId();
+
+            // 3. Deduct credits and decrease lesson capacity
+            $userModel->updateEuroBalance($userId, -$lesson['credit_cost']);
+            $lessonModel->decreaseCapacity($lessonId);
+
+            $this->pdo->commit();
+
+            return $bookingId;
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            throw $e; // Re-throw the exception to be handled by the caller
+        }
     }
 
     public function getById(int $id): ?array
@@ -78,5 +109,16 @@ class Booking
         );
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findByUserAndLesson(int $userId, int $lessonId): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM bookings WHERE user_id = :user_id AND lesson_id = :lesson_id');
+        $stmt->execute([
+            'user_id' => $userId,
+            'lesson_id' => $lessonId,
+        ]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null;
     }
 }

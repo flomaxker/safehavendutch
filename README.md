@@ -72,4 +72,14 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
 
 ---
 
+## 🧪 Testing
+
+To run the test suite, use the following command:
+
+```bash
+vendor/bin/phpunit
+```
+
+---
+
 This project is under active development, with a focus on creating a beautiful, functional, and secure platform.
