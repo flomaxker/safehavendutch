@@ -3,6 +3,23 @@ define('USER_DASHBOARD_ACTIVE', true);
 
 require_once __DIR__ . '/bootstrap.php';
 
+use App\Models\User;
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login.php?error=unauthorized');
+    exit();
+}
+
+$userModel = $container->getUserModel();
+
+// Get the user's role and redirect if admin
+$loggedInUser = $userModel->find($_SESSION['user_id']);
+if ($loggedInUser && $loggedInUser['role'] === 'admin') {
+    header('Location: /admin/index.php');
+    exit();
+}
+
 $csp_policy = "default-src 'self'; ";
 $csp_policy .= "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdn.tiny.cloud https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js https://cdnjs.cloudflare.com; ";
 $csp_policy .= "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css https://fonts.googleapis.com https://cdnjs.cloudflare.com; ";

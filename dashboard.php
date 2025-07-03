@@ -2,20 +2,16 @@
 $page_title = "Dashboard";
 require_once __DIR__ . '/user_header.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
 $userModel = $container->getUserModel();
 $bookingModel = $container->getBookingModel();
+$childModel = $container->getChildModel();
 
 $user_id = $_SESSION['user_id'];
 $user_euro_balance = $userModel->getEuroBalance($user_id);
 $user_email = $_SESSION['user_email'] ?? 'Guest';
 
 $upcomingBookings = $bookingModel->getBookingsByUserId($user_id);
+$children = $childModel->findByUserId($user_id);
 
 $page_title = "Dashboard";
 
@@ -38,6 +34,36 @@ $page_title = "Dashboard";
             </div>
         </div>
         <!-- More dashboard widgets can be added here -->
+    </div>
+
+    <!-- My Children -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">My Children</h2>
+        <?php if (empty($children)): ?>
+            <p class="text-gray-600">You have not added any children yet.</p>
+            <a href="my_children.php" class="text-primary-600 hover:underline">Add a child</a>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date of Birth</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($children as $child): ?>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($child['name']); ?></td>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($child['date_of_birth']); ?></td>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($child['notes']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Upcoming Lessons -->
@@ -73,19 +99,4 @@ $page_title = "Dashboard";
         <?php endif; ?>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <a href="packages.php" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors duration-200">
-                <span class="material-icons text-3xl text-gray-600 mb-2">shopping_cart</span>
-                <span class="text-sm font-medium text-center text-gray-700">Top Up Balance</span>
-            </a>
-            <a href="purchase_history.php" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors duration-200">
-                <span class="material-icons text-3xl text-gray-600 mb-2">history</span>
-                <span class="text-sm font-medium text-center text-gray-700">View Purchase History</span>
-            </a>
-        </div>
-    </div>
-</div>
-
+    

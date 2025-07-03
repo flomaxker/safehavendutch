@@ -7,6 +7,15 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$userModel = $container->getUserModel();
+
+// Get the user's role
+$loggedInUser = $userModel->find($_SESSION['user_id']);
+if ($loggedInUser && $loggedInUser['role'] === 'admin') {
+    header('Location: /admin/index.php');
+    exit();
+}
+
 $userId = $_SESSION['user_id'];
 $bookingModel = $container->getBookingModel();
 $bookings = $bookingModel->getBookingsByUserId($userId);
