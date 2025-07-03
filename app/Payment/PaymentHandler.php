@@ -8,6 +8,7 @@ use Stripe\StripeClient;
 use Stripe\Webhook;
 use App\Models\Purchase;
 use App\Models\Package;
+use App\Models\User;
 
 /**
  * Handles Stripe checkout session creation and webhook events.
@@ -22,16 +23,19 @@ class PaymentHandler
     private Package $packageModel;
     /** @var Purchase */
     private Purchase $purchaseModel;
+    /** @var User */
+    private User $userModel;
 
     /**
      * PaymentHandler constructor.
      */
-    public function __construct(PDO $pdo, Package $packageModel, Purchase $purchaseModel, StripeClient $stripe)
+    public function __construct(PDO $pdo, Package $packageModel, Purchase $purchaseModel, StripeClient $stripe, User $userModel)
     {
         $this->pdo = $pdo;
         $this->packageModel = $packageModel;
         $this->purchaseModel = $purchaseModel;
         $this->stripe = $stripe;
+        $this->userModel = $userModel;
     }
 
     /**
@@ -87,25 +91,28 @@ class PaymentHandler
      * @param string $payload
      * @param string $sigHeader
      * @param string $endpointSecret
+     * @param ?\Stripe\Event $event Optional: For testing purposes, allows injecting a mocked Stripe Event.
      */
-    public function handleWebhook(string $payload, string $sigHeader, string $endpointSecret): void
+    public function handleWebhook(string $payload, string $sigHeader, string $endpointSecret, ?\Stripe\Event $event = null): void
     {
         error_log("Stripe Webhook: Received payload.");
 
-        try {
-            $event = Webhook::constructEvent(
-                $payload,
-                $sigHeader,
-                $endpointSecret
-            );
-        } catch (\UnexpectedValueException $e) {
-            // Invalid payload
-            error_log("Stripe Webhook Error: Invalid payload. " . $e->getMessage());
-            throw new Exception('Invalid payload');
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            error_log("Stripe Webhook Error: Invalid signature. " . $e->getMessage());
-            throw new Exception('Invalid signature');
+        if ($event === null) {
+            try {
+                $event = Webhook::constructEvent(
+                    $payload,
+                    $sigHeader,
+                    $endpointSecret
+                );
+            } catch (\UnexpectedValueException $e) {
+                // Invalid payload
+                error_log("Stripe Webhook Error: Invalid payload. " . $e->getMessage());
+                throw $e;
+            } catch (\Stripe\Exception\SignatureVerificationException $e) {
+                // Invalid signature
+                error_log("Stripe Webhook Error: Invalid signature. " . $e->getMessage());
+                throw $e;
+            }
         }
 
         error_log("Stripe Webhook: Event type - " . $event->type);
@@ -127,14 +134,7 @@ class PaymentHandler
                         if ($purchase) {
                             $package = $this->packageModel->getById($purchase['package_id']);
                             if ($package) {
-                                // This part will fail without DB connection
-                                $stmt = $this->pdo->prepare(
-                                    'UPDATE users SET euro_balance = euro_balance + :euros WHERE id = :user_id'
-                                );
-                                $stmt->execute([
-                                    'euros' => $package['euro_value'],
-                                    'user_id' => $purchase['user_id'],
-                                ]);
+                                $this->userModel->updateEuroBalance($purchase['user_id'], $package['euro_value']);
                                 error_log("Stripe Webhook: Euros added to user " . $purchase['user_id'] . " for purchase ID: " . $purchaseId);
                             } else {
                                 error_log("Stripe Webhook Error: Package not found for purchase ID: " . $purchaseId);
@@ -169,4 +169,3 @@ class PaymentHandler
         }
     }
 }
-

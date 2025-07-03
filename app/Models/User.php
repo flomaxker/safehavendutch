@@ -15,7 +15,7 @@ class User
 
     public function find(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT *, quick_actions_order FROM users WHERE id = :id');
+        $stmt = $this->pdo->prepare('SELECT *, quick_actions_order, ical_url FROM users WHERE id = :id');
         $stmt->execute(['id' => $id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
@@ -45,10 +45,10 @@ class User
         return (int)$result;
     }
 
-    public function create(string $name, string $email, string $password, string $role = 'student', int $euroBalance = 0, string $quickActionsOrder = '[]'): int
+    public function create(string $name, string $email, string $password, string $role = 'member', int $euroBalance = 0, string $quickActionsOrder = '[]', ?string $icalUrl = null): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO users (name, email, password, role, euro_balance, quick_actions_order) VALUES (:name, :email, :password, :role, :euro_balance, :quick_actions_order)'
+            'INSERT INTO users (name, email, password, role, euro_balance, quick_actions_order, ical_url) VALUES (:name, :email, :password, :role, :euro_balance, :quick_actions_order, :ical_url)'
         );
         $stmt->execute([
             'name' => $name,
@@ -57,13 +57,14 @@ class User
             'role' => $role,
             'euro_balance' => $euroBalance,
             'quick_actions_order' => $quickActionsOrder,
+            'ical_url' => $icalUrl,
         ]);
         return (int)$this->pdo->lastInsertId();
     }
 
     public function getAll(string $orderBy = 'id', string $orderDirection = 'ASC'): array
     {
-        $allowedColumns = ['id', 'name', 'email', 'euro_balance', 'role', 'created_at'];
+        $allowedColumns = ['id', 'name', 'email', 'euro_balance', 'role', 'created_at', 'ical_url'];
         if (!in_array($orderBy, $allowedColumns)) {
             $orderBy = 'id'; // Default to id if invalid column is provided
         }
@@ -73,7 +74,14 @@ class User
             $orderDirection = 'ASC'; // Default to ASC if invalid direction is provided
         }
 
-        $stmt = $this->pdo->query("SELECT id, name, email, euro_balance, role, created_at FROM users ORDER BY $orderBy $orderDirection");
+        $stmt = $this->pdo->query("SELECT id, name, email, euro_balance, role, ical_url, created_at FROM users ORDER BY $orderBy $orderDirection");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getTeachers(): array
+    {
+        $stmt = $this->pdo->prepare('SELECT id, name, email, ical_url FROM users WHERE role = :role');
+        $stmt->execute(['role' => 'teacher']);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -114,10 +122,10 @@ class User
         ]);
     }
 
-    public function update(int $id, string $name, string $email, int $euroBalance, string $role, string $quickActionsOrder): bool
+    public function update(int $id, string $name, string $email, int $euroBalance, string $role, string $quickActionsOrder, ?string $icalUrl = null): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE users SET name = :name, email = :email, euro_balance = :euro_balance, role = :role, quick_actions_order = :quick_actions_order WHERE id = :id'
+            'UPDATE users SET name = :name, email = :email, euro_balance = :euro_balance, role = :role, quick_actions_order = :quick_actions_order, ical_url = :ical_url WHERE id = :id'
         );
         return $stmt->execute([
             'id' => $id,
@@ -126,6 +134,7 @@ class User
             'euro_balance' => $euroBalance,
             'role' => $role,
             'quick_actions_order' => $quickActionsOrder,
+            'ical_url' => $icalUrl,
         ]);
     }
 

@@ -19,7 +19,7 @@ class PackageModelTest extends TestCase
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 description TEXT,
-                credit_amount INTEGER,
+                euro_value INTEGER,
                 price_cents INTEGER,
                 active INTEGER
             )'
@@ -28,8 +28,8 @@ class PackageModelTest extends TestCase
 
     public function testGetAll(): void
     {
-        $this->pdo->exec("INSERT INTO packages (name, description, credit_amount, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
-        $this->pdo->exec("INSERT INTO packages (name, description, credit_amount, price_cents, active) VALUES ('B', 'desc', 2, 200, 1)");
+        $this->pdo->exec("INSERT INTO packages (name, description, euro_value, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
+        $this->pdo->exec("INSERT INTO packages (name, description, euro_value, price_cents, active) VALUES ('B', 'desc', 2, 200, 1)");
 
         $model = new Package($this->pdo);
         $all = $model->getAll();
@@ -40,7 +40,7 @@ class PackageModelTest extends TestCase
 
     public function testGetById(): void
     {
-        $this->pdo->exec("INSERT INTO packages (name, description, credit_amount, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
+        $this->pdo->exec("INSERT INTO packages (name, description, euro_value, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
         $id = (int)$this->pdo->lastInsertId();
 
         $model = new Package($this->pdo);
@@ -59,12 +59,12 @@ class PackageModelTest extends TestCase
         $data = $stmt->fetch();
 
         $this->assertEquals('A', $data['name']);
-        $this->assertEquals(1, $data['credit_amount']);
+        $this->assertEquals(1, $data['euro_value']);
     }
 
     public function testUpdate(): void
     {
-        $this->pdo->exec("INSERT INTO packages (name, description, credit_amount, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
+        $this->pdo->exec("INSERT INTO packages (name, description, euro_value, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
         $id = (int)$this->pdo->lastInsertId();
 
         $model = new Package($this->pdo);
@@ -79,7 +79,7 @@ class PackageModelTest extends TestCase
 
     public function testDelete(): void
     {
-        $this->pdo->exec("INSERT INTO packages (name, description, credit_amount, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
+        $this->pdo->exec("INSERT INTO packages (name, description, euro_value, price_cents, active) VALUES ('A', 'desc', 1, 100, 1)");
         $id = (int)$this->pdo->lastInsertId();
 
         $model = new Package($this->pdo);

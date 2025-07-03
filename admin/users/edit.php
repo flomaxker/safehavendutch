@@ -30,6 +30,7 @@ $name = $user['name'];
 $email = $user['email'];
 $creditBalance = $user['credit_balance'];
 $role = $user['role'];
+$icalUrl = $user['ical_url'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
@@ -48,19 +49,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($euroBalance < 0) {
         $errors[] = 'Euro balance cannot be negative.';
     }
-    if (!in_array($role, ['admin', 'student'])) {
+    if (!in_array($role, ['admin', 'member'])) {
         $errors[] = 'Invalid user role.';
     }
 
     if (empty($errors)) {
-        $userModel->update($id, $name, $email, $euroBalance, $role);
+        $icalUrl = trim($_POST['ical_url'] ?? '');
+        $userModel->update($id, $name, $email, $euroBalance, $role, $user['quick_actions_order'], $icalUrl);
         $success = 'User updated successfully!';
         // Re-fetch user data to reflect changes
-        $user = $userModel->findByEmail($id); // Or getById
+        $user = $userModel->find($id); // Use find by ID
         $name = $user['name'];
         $email = $user['email'];
         $euroBalance = $user['euro_balance'];
         $role = $user['role'];
+        $icalUrl = $user['ical_url'] ?? '';
     }
 }
 
@@ -91,10 +94,11 @@ require __DIR__ . '/../header.php';
         <label>Euro Balance: <input type="number" name="euro_balance" value="<?= htmlspecialchars($euroBalance) ?>" required></label><br>
         <label>Role:
             <select name="role" required>
-                <option value="student" <?= ($role === 'student') ? 'selected' : '' ?>>Student</option>
+                <option value="member" <?= ($role === 'member') ? 'selected' : '' ?>>Member</option>
                 <option value="admin" <?= ($role === 'admin') ? 'selected' : '' ?>>Admin</option>
             </select>
         </label><br>
+        <label>iCal URL: <input type="url" name="ical_url" value="<?= htmlspecialchars($icalUrl) ?>"></label><br>
         <button type="submit">Update User</button>
     </form>
     <a href="index.php">Back to list</a>

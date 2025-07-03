@@ -1,13 +1,23 @@
 <?php
-$csp_policy = "default-src 'self'; ";
-$csp_policy .= "script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdn.tiny.cloud; ";
-$csp_policy .= "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; ";
-$csp_policy .= "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; ";
-$csp_policy .= "img-src 'self' data: https:; ";
-$csp_policy .= "connect-src 'self' https://*.tinymce.com https://sp.tinymce.com; ";
-$csp_policy .= "frame-src 'self' https://*.tinymce.com; ";
-$csp_policy .= "worker-src 'self' blob:;";
-header("Content-Security-Policy: " . $csp_policy);
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (defined('USER_DASHBOARD_ACTIVE')) {
+    return; // Stop execution if user dashboard is active
+}
+
+if (!headers_sent()) {
+    $csp_policy = "default-src 'self'; ";
+    $csp_policy .= "script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdn.tiny.cloud; ";
+    $csp_policy .= "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; ";
+    $csp_policy .= "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; ";
+    $csp_policy .= "img-src 'self' data: https:; ";
+    $csp_policy .= "connect-src 'self' https://*.tinymce.com https://sp.tinymce.com; ";
+    $csp_policy .= "frame-src 'self' https://*.tinymce.com; ";
+    $csp_policy .= "worker-src 'self' blob:;";
+    header("Content-Security-Policy: " . $csp_policy);
+}
 
 use App\Models\Setting;
 $settingModel = new Setting($container->getPdo());
@@ -50,7 +60,7 @@ if (!isset($nav_links)) {
         <div class="hidden md:flex items-center space-x-4">
             <?php if (isset($_SESSION['user_id'])): ?>
                 <?php
-                $dashboard_url = ($_SESSION['user_role'] === 'admin') ? '/admin/index.php' : '/dashboard.php';
+                $dashboard_url = (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/admin/index.php' : '/dashboard.php';
                 ?>
                 <a href="<?= $dashboard_url ?>" class="text-gray-600 font-medium hover:text-primary-600">Dashboard</a>
                 <a href="logout.php" class="text-gray-600 font-medium hover:text-primary-600">Logout</a>

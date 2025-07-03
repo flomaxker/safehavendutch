@@ -4,7 +4,7 @@ include __DIR__ . '/../header.php';
 
 use App\Models\Page;
 
-$pageModel = new Page();
+$pageModel = $container->getPageModel();
 $page = null;
 $errors = [];
 $success_message = '';
@@ -26,7 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['page_id'])) {
         'og_description' => $_POST['og_description'] ?? '',
         'og_url' => $_POST['og_url'] ?? '',
         'og_image' => $_POST['og_image'] ?? '',
-        'content' => $_POST['content'] ?? '',
+        'hero_title' => $_POST['hero_title'] ?? '',
+        'hero_subtitle' => $_POST['hero_subtitle'] ?? '',
+        'main_content' => $_POST['main_content'] ?? '',
+        'show_contact_form' => isset($_POST['show_contact_form']) ? 1 : 0,
+        'show_packages' => isset($_POST['show_packages']) ? 1 : 0,
     ];
 
     // Basic validation
@@ -51,6 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['page_id'])) {
 }
 
 ?>
+
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#main_content',
+        plugins: 'autolink lists link image charmap print preview hr anchor pagebreak',
+        toolbar_mode: 'floating',
+        height: '500px',
+        // The following options are to ensure that the editor renders the HTML visually
+        // and does not strip out any tags or attributes.
+        verify_html: false,
+        cleanup: false,
+        forced_root_block: '',
+    });
+</script>
 
 <header class="flex justify-between items-center mb-8">
     <div>
@@ -78,47 +97,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['page_id'])) {
         <form method="POST" action="edit.php?id=<?php echo $page['id']; ?>">
             <input type="hidden" name="page_id" value="<?php echo htmlspecialchars($page['id']); ?>">
 
-            <div class="mb-4">
-                <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
-                <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($page['title']); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Page Title:</label>
+                    <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($page['title']); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label for="slug" class="block text-gray-700 text-sm font-bold mb-2">Slug:</label>
+                    <input type="text" id="slug" name="slug" value="<?php echo htmlspecialchars($page['slug']); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="slug" class="block text-gray-700 text-sm font-bold mb-2">Slug:</label>
-                <input type="text" id="slug" name="slug" value="<?php echo htmlspecialchars($page['slug']); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            <div class="mt-6 border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Hero Section</h2>
+                <div class="mb-4">
+                    <label for="hero_title" class="block text-gray-700 text-sm font-bold mb-2">Hero Title:</label>
+                    <input type="text" id="hero_title" name="hero_title" value="<?php echo htmlspecialchars($page['hero_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label for="hero_subtitle" class="block text-gray-700 text-sm font-bold mb-2">Hero Subtitle:</label>
+                    <textarea id="hero_subtitle" name="hero_subtitle" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24"><?php echo htmlspecialchars($page['hero_subtitle'] ?? ''); ?></textarea>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="meta_description" class="block text-gray-700 text-sm font-bold mb-2">Meta Description:</label>
-                <textarea id="meta_description" name="meta_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24"><?php echo htmlspecialchars($page['meta_description'] ?? ''); ?></textarea>
+            <div class="mt-6 border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Main Content</h2>
+                <textarea id="main_content" name="main_content" class="h-64"><?php echo $page['main_content'] ?? ''; ?></textarea>
             </div>
 
-            <div class="mb-4">
-                <label for="og_title" class="block text-gray-700 text-sm font-bold mb-2">OG Title:</label>
-                <input type="text" id="og_title" name="og_title" value="<?php echo htmlspecialchars($page['og_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <div class="mt-6 border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Page Components</h2>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="show_contact_form" name="show_contact_form" value="1" <?php echo !empty($page['show_contact_form']) ? 'checked' : ''; ?>>
+                    <label for="show_contact_form" class="ml-2 text-gray-700">Show Contact Form</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="show_packages" name="show_packages" value="1" <?php echo !empty($page['show_packages']) ? 'checked' : ''; ?>>
+                    <label for="show_packages" class="ml-2 text-gray-700">Show Packages/Pricing Grid</label>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="og_description" class="block text-gray-700 text-sm font-bold mb-2">OG Description:</label>
-                <textarea id="og_description" name="og_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24"><?php echo htmlspecialchars($page['og_description'] ?? ''); ?></textarea>
+            <div class="mt-6 border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">SEO & Metadata</h2>
+                <div class="mb-4">
+                    <label for="meta_description" class="block text-gray-700 text-sm font-bold mb-2">Meta Description:</label>
+                    <textarea id="meta_description" name="meta_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24"><?php echo htmlspecialchars($page['meta_description'] ?? ''); ?></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="og_title" class="block text-gray-700 text-sm font-bold mb-2">OG Title:</label>
+                        <input type="text" id="og_title" name="og_title" value="<?php echo htmlspecialchars($page['og_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div>
+                        <label for="og_url" class="block text-gray-700 text-sm font-bold mb-2">OG URL:</label>
+                        <input type="text" id="og_url" name="og_url" value="<?php echo htmlspecialchars($page['og_url'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                </div>
+                <div class="mb-4 mt-4">
+                    <label for="og_description" class="block text-gray-700 text-sm font-bold mb-2">OG Description:</label>
+                    <textarea id="og_description" name="og_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24"><?php echo htmlspecialchars($page['og_description'] ?? ''); ?></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="og_image" class="block text-gray-700 text-sm font-bold mb-2">OG Image URL:</label>
+                    <input type="text" id="og_image" name="og_image" value="<?php echo htmlspecialchars($page['og_image'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="og_url" class="block text-gray-700 text-sm font-bold mb-2">OG URL:</label>
-                <input type="text" id="og_url" name="og_url" value="<?php echo htmlspecialchars($page['og_url'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-
-            <div class="mb-4">
-                <label for="og_image" class="block text-gray-700 text-sm font-bold mb-2">OG Image URL:</label>
-                <input type="text" id="og_image" name="og_image" value="<?php echo htmlspecialchars($page['og_image'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-
-            <div class="mb-6">
-                <label for="content" class="block text-gray-700 text-sm font-bold mb-2">Content (HTML allowed):</label>
-                <textarea id="content" name="content" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-64"><?php echo htmlspecialchars($page['content'] ?? ''); ?></textarea>
-            </div>
-
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mt-8">
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Update Page
                 </button>

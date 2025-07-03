@@ -1,0 +1,29 @@
+{
+  "name": "safehavendutch",
+  "version": "1.0.0",
+  "description": "This is a custom-built Content Management System (CMS) for \"Safe Haven Dutch,\" a coaching service for expats and internationals in the Netherlands. It is built with a modern tech stack and features a user-friendly front-end and a powerful admin panel.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "tailwindcss -i css/input.css -o style.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flomaxker/safehavendutch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/flomaxker/safehavendutch/issues"
+  },
+  "homepage": "https://github.com/flomaxker/safehavendutch#readme",
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
+    "tailwindcss": "^4.1.11"
+  }
+}

@@ -13,14 +13,25 @@ class Booking
         $this->pdo = $pdo;
     }
 
-    public function create(array $data): bool
+    public function create(int $lessonId, int $userId): int
     {
         $sql = "INSERT INTO bookings (lesson_id, user_id) VALUES (:lesson_id, :user_id)";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            'lesson_id' => $data['lesson_id'],
-            'user_id' => $data['user_id'],
+        $stmt->execute([
+            'lesson_id' => $lessonId,
+            'user_id' => $userId,
         ]);
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    public function hasUserBookedLesson(int $userId, int $lessonId): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM bookings WHERE user_id = :user_id AND lesson_id = :lesson_id");
+        $stmt->execute([
+            'user_id' => $userId,
+            'lesson_id' => $lessonId
+        ]);
+        return (bool)$stmt->fetchColumn();
     }
 
     public function findById(int $id): ?array

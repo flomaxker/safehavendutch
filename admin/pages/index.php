@@ -4,7 +4,7 @@ include __DIR__ . '/../header.php';
 
 use App\Models\Page;
 
-$pageModel = new Page();
+$pageModel = $container->getPageModel();
 $pages = $pageModel->getAll();
 
 ?>
@@ -48,9 +48,13 @@ $pages = $pageModel->getAll();
                             <?php echo htmlspecialchars($page['slug']); ?>
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <a href="edit.php?id=<?php echo $page['id']; ?>" class="text-blue-600 hover:text-blue-900">
-                                Edit
-                            </a>
+                            <?php 
+                                        $edit_url = 'edit.php?id=' . $page['id'];
+                                        if ($page['slug'] === 'about') {
+                                            $edit_url = 'edit_about.php';
+                                        }
+                                    ?>
+                                    <a href="<?php echo $edit_url; ?>" class="text-blue-500 hover:text-blue-700">Edit</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

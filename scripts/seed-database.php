@@ -57,7 +57,7 @@ foreach ($fakeUsers as $userData) {
         echo 'User updated: ' . $userData['name'] . ' (ID: ' . $existingUser['id'] . ')' . PHP_EOL;
     } else {
         // User does not exist, create new user
-        $userId = $userModel->create($userData['name'], $userData['email'], password_hash($userData['password'], PASSWORD_DEFAULT), 'student', 0);
+        $userId = $userModel->create($userData['name'], $userData['email'], password_hash($userData['password'], PASSWORD_DEFAULT), 'member', 0);
         $createdUserIds[] = $userId;
         echo 'User created: ' . $userData['name'] . ' with ID: ' . $userId . PHP_EOL;
     }

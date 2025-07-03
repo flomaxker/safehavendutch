@@ -24,7 +24,7 @@ class Page
 
     public function create(array $data): bool
     {
-        $sql = "INSERT INTO pages (slug, title, meta_description, og_title, og_description, og_url, og_image, content) VALUES (:slug, :title, :meta_description, :og_title, :og_description, :og_url, :og_image, :content)";
+        $sql = "INSERT INTO pages (slug, title, meta_description, og_title, og_description, og_url, og_image, hero_title, hero_subtitle, main_content, show_contact_form, show_packages) VALUES (:slug, :title, :meta_description, :og_title, :og_description, :og_url, :og_image, :hero_title, :hero_subtitle, :main_content, :show_contact_form, :show_packages)";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
             'slug' => $data['slug'],
@@ -34,7 +34,11 @@ class Page
             'og_description' => $data['og_description'] ?? null,
             'og_url' => $data['og_url'] ?? null,
             'og_image' => $data['og_image'] ?? null,
-            'content' => $data['content'] ?? null,
+            'hero_title' => $data['hero_title'] ?? null,
+            'hero_subtitle' => $data['hero_subtitle'] ?? null,
+            'main_content' => $data['main_content'] ?? null,
+            'show_contact_form' => $data['show_contact_form'] ?? 0,
+            'show_packages' => $data['show_packages'] ?? 0,
         ]);
     }
 
@@ -54,18 +58,15 @@ class Page
 
     public function update(int $id, array $data): bool
     {
-        $sql = "UPDATE pages SET title = :title, meta_description = :meta_description, og_title = :og_title, og_description = :og_description, og_url = :og_url, og_image = :og_image, content = :content, slug = :slug WHERE id = :id";
+        // Build the SQL query dynamically based on the provided data
+        $set_clauses = [];
+        foreach ($data as $key => $value) {
+            $set_clauses[] = "$key = :$key";
+        }
+        $sql = "UPDATE pages SET " . implode(', ', $set_clauses) . " WHERE id = :id";
+        
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            'id' => $id,
-            'title' => $data['title'],
-            'meta_description' => $data['meta_description'] ?? null,
-            'og_title' => $data['og_title'] ?? null,
-            'og_description' => $data['og_description'] ?? null,
-            'og_url' => $data['og_url'] ?? null,
-            'og_image' => $data['og_image'] ?? null,
-            'content' => $data['content'] ?? null,
-            'slug' => $data['slug'],
-        ]);
+        $data['id'] = $id;
+        return $stmt->execute($data);
     }
 }

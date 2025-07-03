@@ -14,6 +14,7 @@ use App\Models\Lesson;
 use App\Models\Page;
 use App\Models\Purchase;
 use App\Models\Post;
+use App\Models\User;
 use App\Payment\PaymentHandler;
 
 class Container
@@ -109,6 +110,14 @@ class Container
         return $this->instances['postModel'];
     }
 
+    public function getUserModel(): User
+    {
+        if (!isset($this->instances['userModel'])) {
+            $this->instances['userModel'] = new User($this->getPdo());
+        }
+        return $this->instances['userModel'];
+    }
+
     public function getStripeClient(): \Stripe\StripeClient
     {
         if (!isset($this->instances['stripeClient'])) {
@@ -124,7 +133,8 @@ class Container
                 $this->getPdo(),
                 $this->getPackageModel(),
                 $this->getPurchaseModel(),
-                $this->getStripeClient()
+                $this->getStripeClient(),
+                $this->getUserModel()
             );
         }
         return $this->instances['paymentHandler'];

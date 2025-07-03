@@ -38,11 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Create the user (assuming a create method in User model)
         // You'll need to add a create method to your User model if it doesn't exist
-        $userId = $userModel->create($name, $email, $hashed_password, 'student');
+        $userId = $userModel->create($name, $email, $hashed_password, 'member');
 
         if ($userId) {
             $_SESSION['user_id'] = $userId;
             $_SESSION['user_email'] = $email;
+            $_SESSION['user_role'] = 'member'; // Set user role in session
             $_SESSION['user_credits'] = 0; // New users start with 0 credits
             header('Location: /dashboard.php');
             exit();

@@ -100,7 +100,7 @@ class Purchase
      */
     public function getByUserId(int $userId): array
     {
-        $stmt = $this->pdo->prepare('SELECT p.*, pk.name as package_name, pk.credit_amount FROM purchases p JOIN packages pk ON p.package_id = pk.id WHERE p.user_id = :user_id ORDER BY p.created_at DESC');
+        $stmt = $this->pdo->prepare('SELECT p.*, pk.name as package_name, pk.euro_value FROM purchases p JOIN packages pk ON p.package_id = pk.id WHERE p.user_id = :user_id ORDER BY p.created_at DESC');
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll();
     }

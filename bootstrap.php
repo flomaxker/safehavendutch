@@ -33,6 +33,14 @@ $nonce = bin2hex(random_bytes(16));
 if (file_exists(PROJECT_ROOT . '/.env')) {
     $dotenv = Dotenv::createUnsafeImmutable(PROJECT_ROOT);
     $dotenv->load();
+
+    // Define mail constants from environment variables
+    define('MAIL_HOST', getenv('MAIL_HOST'));
+    define('MAIL_USERNAME', getenv('MAIL_USERNAME'));
+    define('MAIL_PASSWORD', getenv('MAIL_PASSWORD'));
+    define('MAIL_PORT', getenv('MAIL_PORT'));
+    define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS'));
+    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME'));
 }
 
 $container = new Container();
