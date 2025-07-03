@@ -47,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $teacherId,
         $startTime,
         $endTime,
-        1 // Default capacity for iCal bookings
+        1, // Default capacity for iCal bookings
+        100 // Default credit cost for iCal bookings (adjust as needed)
     );
 
     if (!$lesson) {
@@ -57,9 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $lessonId = $lesson['id'];
+    $lessonCreditCost = $lesson['credit_cost'];
 
-    if (!$lesson) {
-        $_SESSION['error_message'] = 'Lesson not found.';
+    // Get user's current balance
+    $userEuroBalance = $userModel->getEuroBalance($userId);
+
+    // Check if user has enough credits
+    if ($userEuroBalance < $lessonCreditCost) {
+        $_SESSION['error_message'] = 'Insufficient credits to book this lesson.';
         header('Location: slot_picker.php');
         exit;
     }
@@ -80,6 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $pdo->beginTransaction();
+
+        // Deduct credits from user's balance
+        $userModel->updateEuroBalance($userId, -$lessonCreditCost);
 
         // Create booking
         $bookingId = $bookingModel->create($lessonId, $userId);

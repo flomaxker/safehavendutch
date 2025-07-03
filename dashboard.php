@@ -9,9 +9,13 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userModel = $container->getUserModel();
+$bookingModel = $container->getBookingModel();
+
 $user_id = $_SESSION['user_id'];
 $user_euro_balance = $userModel->getEuroBalance($user_id);
 $user_email = $_SESSION['user_email'] ?? 'Guest';
+
+$upcomingBookings = $bookingModel->getBookingsByUserId($user_id);
 
 $page_title = "Dashboard";
 
@@ -34,6 +38,39 @@ $page_title = "Dashboard";
             </div>
         </div>
         <!-- More dashboard widgets can be added here -->
+    </div>
+
+    <!-- Upcoming Lessons -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Upcoming Lessons</h2>
+        <?php if (empty($upcomingBookings)): ?>
+            <p class="text-gray-600">You have no upcoming lessons.</p>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Lesson</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teacher</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Time</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($upcomingBookings as $booking): ?>
+                            <tr>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($booking['lesson_title']); ?></td>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($booking['teacher_name']); ?></td>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(date('Y-m-d', strtotime($booking['start_time']))); ?></td>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(date('H:i', strtotime($booking['start_time']))) . ' - ' . htmlspecialchars(date('H:i', strtotime($booking['end_time']))); ?></td>
+                                <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(ucfirst($booking['status'])); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Quick Actions -->

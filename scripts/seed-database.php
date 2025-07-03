@@ -38,6 +38,7 @@ $fakeUsers = [
     ['name' => 'Mei Chen', 'email' => 'mei.chen@example.com', 'password' => 'password'],
     ['name' => 'Carlos Garcia', 'email' => 'carlos.garcia@example.com', 'password' => 'password'],
     ['name' => 'Emily Smith', 'email' => 'emily.smith@example.com', 'password' => 'password'],
+    ['name' => 'Teacher Bob', 'email' => 'teacher.bob@example.com', 'password' => 'password', 'role' => 'teacher', 'ical_url' => 'https://example.com/teacher_bob_calendar.ics'],
 ];
 
 $createdUserIds = [];

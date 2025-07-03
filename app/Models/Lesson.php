@@ -13,11 +13,11 @@ class Lesson
         $this->pdo = $pdo;
     }
 
-    public function create(string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity): int
+    public function create(string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity, int $creditCost): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO lessons (title, description, teacher_id, start_time, end_time, capacity)
-             VALUES (:title, :description, :teacher_id, :start_time, :end_time, :capacity)'
+            'INSERT INTO lessons (title, description, teacher_id, start_time, end_time, capacity, credit_cost)
+             VALUES (:title, :description, :teacher_id, :start_time, :end_time, :capacity, :credit_cost)'
         );
         $stmt->execute([
             'title' => $title,
@@ -26,13 +26,14 @@ class Lesson
             'start_time' => $startTime,
             'end_time' => $endTime,
             'capacity' => $capacity,
+            'credit_cost' => $creditCost,
         ]);
         return (int)$this->pdo->lastInsertId();
     }
 
     public function getById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM lessons WHERE id = :id');
+        $stmt = $this->pdo->prepare('SELECT *, credit_cost FROM lessons WHERE id = :id');
         $stmt->execute(['id' => $id]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ?: null;
@@ -44,10 +45,10 @@ class Lesson
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function update(int $id, string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity): bool
+    public function update(int $id, string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity, int $creditCost): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE lessons SET title = :title, description = :description, teacher_id = :teacher_id, start_time = :start_time, end_time = :end_time, capacity = :capacity WHERE id = :id'
+            'UPDATE lessons SET title = :title, description = :description, teacher_id = :teacher_id, start_time = :start_time, end_time = :end_time, capacity = :capacity, credit_cost = :credit_cost WHERE id = :id'
         );
         return $stmt->execute([
             'id' => $id,
@@ -57,6 +58,7 @@ class Lesson
             'start_time' => $startTime,
             'end_time' => $endTime,
             'capacity' => $capacity,
+            'credit_cost' => $creditCost,
         ]);
     }
 
@@ -72,7 +74,7 @@ class Lesson
         return $stmt->execute(['lesson_id' => $lessonId]);
     }
 
-    public function findOrCreate(string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity): ?array
+    public function findOrCreate(string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity, int $creditCost): ?array
     {
         // Try to find an existing lesson first
         $stmt = $this->pdo->prepare(
@@ -90,7 +92,7 @@ class Lesson
             return $lesson;
         } else {
             // If not found, create a new one
-            $id = $this->create($title, $description, $teacherId, $startTime, $endTime, $capacity);
+            $id = $this->create($title, $description, $teacherId, $startTime, $endTime, $capacity, $creditCost);
             return $this->getById($id);
         }
     }

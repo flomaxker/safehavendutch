@@ -17,7 +17,11 @@ class iCalParser
 
     public function parseString(string $iCalString): array
     {
-        $vcalendar = VObject\Reader::read($iCalString);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, $iCalString);
+        rewind($stream);
+        $vcalendar = VObject\Reader::read($stream);
+        fclose($stream);
         return $this->extractEvents($vcalendar);
     }
 

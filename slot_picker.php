@@ -48,6 +48,20 @@ $page_title = 'Select a Lesson Slot';
                         <h2 class="text-xl font-semibold text-gray-800 mb-2"><?= htmlspecialchars($event['summary']) ?></h2>
                         <p class="text-gray-600 mb-1"><strong>Teacher:</strong> <?= htmlspecialchars($event['teacher_name']) ?></p>
                         <p class="text-gray-600"><strong>Time:</strong> <?= htmlspecialchars($event['dtstart']) ?> - <?= htmlspecialchars($event['dtend']) ?></p>
+                        <?php
+                            // Fetch lesson details to get credit_cost
+                            $lesson = $lessonModel->findOrCreate(
+                                $event['summary'],
+                                'Booking from iCal', // Default description
+                                $teacherId,
+                                $event['dtstart'],
+                                $event['dtend'],
+                                1, // Default capacity
+                                100 // Default credit cost (adjust as needed)
+                            );
+                            $creditCost = $lesson['credit_cost'] ?? 0;
+                        ?>
+                        <p class="text-gray-600 mb-4"><strong>Cost:</strong> &euro;<?= htmlspecialchars($creditCost) ?> credits</p>
                         <form action="book_lesson.php" method="post">
                         <input type="hidden" name="summary" value="<?= htmlspecialchars($event['summary']) ?>">
                         <input type="hidden" name="dtstart" value="<?= htmlspecialchars($event['dtstart']) ?>">
