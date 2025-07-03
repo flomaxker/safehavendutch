@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Fetch the current user to get existing data for update method
-        $user = $userModel->findByEmail($_SESSION['user_email']); // Assuming user_email is reliable for fetching current admin
+        $user = $userModel->find($userId); // Use find by ID directly
 
         if ($user && $user['id'] == $userId) {
             // Update only the quick_actions_order column

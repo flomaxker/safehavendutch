@@ -54,34 +54,39 @@ if ($user_id) {
     }
 }
 
-// Define all possible quick actions
-$all_quick_actions = [
-    'add_user' => ['icon' => 'person_add', 'text' => 'Add New User', 'url' => '/admin/users/edit.php'],
-    'add_post' => ['icon' => 'post_add', 'text' => 'Add New Post', 'url' => '/admin/blog/posts/edit.php'],
-    'add_page' => ['icon' => 'note_add', 'text' => 'Add New Page', 'url' => '/admin/pages/edit.php'],
-    'add_package' => ['icon' => 'card_giftcard', 'text' => 'Add New Package', 'url' => '/admin/packages/create.php'],
-    'view_users' => ['icon' => 'group', 'text' => 'View All Users', 'url' => '/admin/users/index.php'],
-    'view_posts' => ['icon' => 'article', 'text' => 'View All Posts', 'url' => '/admin/blog/posts/index.php'],
-    'view_pages' => ['icon' => 'description', 'text' => 'View All Pages', 'url' => '/admin/pages/index.php'],
-    'view_packages' => ['icon' => 'redeem', 'text' => 'View All Packages', 'url' => '/admin/packages/index.php'],
-    'view_bookings' => ['icon' => 'event', 'text' => 'View All Bookings', 'url' => '/admin/bookings/index.php'],
-    'system_settings' => ['icon' => 'settings', 'text' => 'System Settings', 'url' => '/admin/settings/index.php'],
-    'file_manager' => ['icon' => 'folder_open', 'text' => 'File Manager', 'url' => '/admin/files/index.php'],
-];
+// Define all possible quick actions from admin navigation
+$all_quick_actions = [];
+foreach ($nav_links as $link) {
+    if (isset($link['children'])) {
+        foreach ($link['children'] as $child) {
+            $all_quick_actions[$child['url']] = [
+                'icon' => $child['icon'],
+                'text' => $child['title'],
+                'url' => $child['url'],
+            ];
+        }
+    } else {
+        // Only include top-level links that are not the dashboard itself
+        if ($link['url'] !== '/admin/index.php') {
+            $all_quick_actions[$link['url']] = [
+                'icon' => $link['icon'],
+                'text' => $link['title'],
+                'url' => $link['url'],
+            ];
+        }
+    }
+}
 
 // Filter and sort quick actions based on user's saved order
 $quick_actions = [];
 if (!empty($quick_actions_order)) {
     foreach ($quick_actions_order as $ordered_url) {
-        foreach ($all_quick_actions as $key => $action) {
-            if ($action['url'] === $ordered_url) {
-                $quick_actions[$key] = $action;
-                break; // Found a match, move to the next ordered URL
-            }
+        if (isset($all_quick_actions[$ordered_url])) {
+            $quick_actions[$ordered_url] = $all_quick_actions[$ordered_url];
         }
     }
 } else {
-    // Default quick actions if none are saved
+    // Default quick actions if none are saved (e.g., first 4 from all_quick_actions)
     $quick_actions = array_slice($all_quick_actions, 0, 4, true);
 }
 
@@ -132,7 +137,7 @@ if (!empty($quick_actions_order)) {
     <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-800">Quick Actions</h2>
-            <button id="openQuickActionsModalBtn" class="text-blue-600 hover:underline text-sm">Rearrange</button>
+            <button id="openQuickActionsModalBtn" class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition text-sm">Rearrange</button>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <?php foreach ($quick_actions as $action): ?>
@@ -146,25 +151,49 @@ if (!empty($quick_actions_order)) {
 
     <!-- Quick Actions Modal -->
     <div id="quickActionsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div class="flex justify-between items-center pb-3">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Rearrange Quick Actions</h3>
                 <button class="close-modal-btn text-gray-400 hover:text-gray-500">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-            <div class="mt-2">
-                <ul id="sortableQuickActions" class="space-y-2">
-                    <?php foreach ($all_quick_actions as $key => $action): ?>
-                        <li class="bg-gray-100 p-3 rounded-md flex items-center justify-between cursor-grab" data-url="<?= $action['url'] ?>">
-                            <div class="flex items-center">
-                                <span class="material-icons mr-3"><?= $action['icon'] ?></span>
-                                <span><?= $action['text'] ?></span>
-                            </div>
-                            <span class="material-icons text-gray-400">drag_indicator</span>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
+            <div class="mt-2 grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-md font-semibold text-gray-700 mb-2">Available Actions</h4>
+                    <ul id="availableQuickActions" class="space-y-2 min-h-[100px] border border-gray-300 p-2 rounded-md bg-gray-50">
+                        <?php
+                        $selectedUrls = array_column($quick_actions, 'url');
+                        foreach ($all_quick_actions as $key => $action) :
+                            if (!in_array($action['url'], $selectedUrls)) :
+                        ?>
+                                <li class="bg-gray-100 p-3 rounded-md flex items-center justify-between cursor-grab" data-url="<?= $action['url'] ?>">
+                                    <div class="flex items-center">
+                                        <span class="material-icons mr-3"><?= $action['icon'] ?></span>
+                                        <span><?= $action['text'] ?></span>
+                                    </div>
+                                    <span class="material-icons text-gray-400">drag_indicator</span>
+                                </li>
+                        <?php
+                            endif;
+                        endforeach;
+                        ?>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold text-gray-700 mb-2">Selected Actions</h4>
+                    <ul id="selectedQuickActions" class="space-y-2 min-h-[100px] border border-gray-300 p-2 rounded-md bg-gray-50">
+                        <?php foreach ($quick_actions as $action) : ?>
+                            <li class="bg-gray-100 p-3 rounded-md flex items-center justify-between cursor-grab" data-url="<?= $action['url'] ?>">
+                                <div class="flex items-center">
+                                    <span class="material-icons mr-3"><?= $action['icon'] ?></span>
+                                    <span><?= $action['text'] ?></span>
+                                </div>
+                                <span class="material-icons text-gray-400">drag_indicator</span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
             </div>
             <div class="mt-4 flex justify-end">
                 <button id="saveQuickActionsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Save Order</button>
@@ -173,33 +202,52 @@ if (!empty($quick_actions_order)) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-    <script>
+    <script nonce="<?php echo $nonce; ?>">
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded in admin/index.php');
             const quickActionsModal = document.getElementById('quickActionsModal');
             const openModalBtn = document.getElementById('openQuickActionsModalBtn');
             const closeModalBtns = document.querySelectorAll('.close-modal-btn');
-            const sortableList = document.getElementById('sortableQuickActions');
+            const availableList = document.getElementById('availableQuickActions');
+            const selectedList = document.getElementById('selectedQuickActions');
             const saveQuickActionsBtn = document.getElementById('saveQuickActionsBtn');
 
-            // Initialize Sortable.js
-            if (sortableList) {
-                new Sortable(sortableList, {
+            console.log('quickActionsModal:', quickActionsModal);
+            console.log('openModalBtn:', openModalBtn);
+            console.log('availableList:', availableList);
+            console.log('selectedList:', selectedList);
+
+            // Initialize Sortable.js for both lists
+            if (availableList && selectedList) {
+                new Sortable(availableList, {
+                    group: 'quickActions', // set both lists to same group
                     animation: 150,
                     ghostClass: 'sortable-ghost'
                 });
+
+                new Sortable(selectedList, {
+                    group: 'quickActions',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost'
+                });
+                console.log('Sortable.js initialized for both lists.');
             }
 
             // Open modal
             if (openModalBtn) {
                 openModalBtn.addEventListener('click', function() {
+                    console.log('Open modal button clicked.');
                     quickActionsModal.classList.remove('hidden');
+                    console.log('Modal hidden class removed.', quickActionsModal.classList.contains('hidden'));
                 });
             }
 
             // Close modal
             closeModalBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
+                    console.log('Close modal button clicked.');
                     quickActionsModal.classList.add('hidden');
+                    console.log('Modal hidden class added.', quickActionsModal.classList.contains('hidden'));
                 });
             });
 
@@ -207,6 +255,7 @@ if (!empty($quick_actions_order)) {
             if (quickActionsModal) {
                 quickActionsModal.addEventListener('click', function(event) {
                     if (event.target === quickActionsModal) {
+                        console.log('Clicked outside modal.');
                         quickActionsModal.classList.add('hidden');
                     }
                 });
@@ -215,8 +264,11 @@ if (!empty($quick_actions_order)) {
             // Save quick actions order
             if (saveQuickActionsBtn) {
                 saveQuickActionsBtn.addEventListener('click', async function() {
-                    const orderedUrls = Array.from(sortableList.children).map(item => item.dataset.url);
+                    console.log('Save button clicked.');
+                    const orderedUrls = Array.from(selectedList.children).map(item => item.dataset.url); // Get URLs from selected list only
                     const userId = <?php echo json_encode($user_id); ?>; // Pass admin user ID from PHP
+                    console.log('Ordered URLs (selected):', orderedUrls);
+                    console.log('User ID:', userId);
 
                     try {
                         const response = await fetch('save_quick_actions.php', {
@@ -229,7 +281,6 @@ if (!empty($quick_actions_order)) {
                         const data = await response.json();
 
                         if (data.status === 'success') {
-                            alert('Quick actions order saved successfully!');
                             quickActionsModal.classList.add('hidden');
                             location.reload(); // Reload page to reflect new order
                         } else {
