@@ -1,6 +1,15 @@
 <?php
 $page_title = "My Profile";
 require_once __DIR__ . '/user_header.php';
+
+$userModel = $container->getUserModel();
+
+// Get the user's role
+$loggedInUser = $userModel->find($_SESSION['user_id']);
+if ($loggedInUser && $loggedInUser['role'] === 'admin') {
+    header('Location: /admin/index.php');
+    exit();
+}
 ?>
 
 <div class="container mx-auto px-4 py-8">

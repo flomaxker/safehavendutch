@@ -64,4 +64,11 @@ class Child
         $stmt = $this->pdo->prepare("DELETE FROM children WHERE id IN ($placeholders)");
         return $stmt->execute($ids);
     }
+
+    public function findByUserId(int $userId): array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM children WHERE user_id = :user_id");
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
