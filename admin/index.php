@@ -7,34 +7,96 @@ $pdo = $container->getPdo();
 
 
 
-// 1. New Users Today
-$stmt_users = $pdo->prepare("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = CURDATE()");
-$stmt_users->execute();
-$new_users_today = $stmt_users->fetchColumn();
+// 1. New Users Today vs Yesterday
+$stmt_users_today = $pdo->prepare("SELECT COUNT(*) FROM users WHERE DATE(created_at) = CURDATE()");
+$stmt_users_today->execute();
+$new_users_today = $stmt_users_today->fetchColumn();
 
-// 2. Sales Revenue Today
-$stmt_sales = $pdo->prepare("SELECT SUM(amount_cents) as total_sales FROM purchases WHERE DATE(purchased_at) = CURDATE()");
-$stmt_sales->execute();
-$sales_today = $stmt_sales->fetchColumn() ?: 0;
+$stmt_users_yesterday = $pdo->prepare("SELECT COUNT(*) FROM users WHERE DATE(created_at) = CURDATE() - INTERVAL 1 DAY");
+$stmt_users_yesterday->execute();
+$new_users_yesterday = $stmt_users_yesterday->fetchColumn();
 
-// 3. Total Packages Sold
+// 2. Sales Revenue Today vs Yesterday
+$stmt_sales_today = $pdo->prepare("SELECT SUM(amount_cents) FROM purchases WHERE DATE(purchased_at) = CURDATE()");
+$stmt_sales_today->execute();
+$sales_today = $stmt_sales_today->fetchColumn() ?: 0;
+
+$stmt_sales_yesterday = $pdo->prepare("SELECT SUM(amount_cents) FROM purchases WHERE DATE(purchased_at) = CURDATE() - INTERVAL 1 DAY");
+$stmt_sales_yesterday->execute();
+$sales_yesterday = $stmt_sales_yesterday->fetchColumn() ?: 0;
+
+// 3. Total Packages Sold (This remains a total, no comparison needed)
 $stmt_packages = $pdo->prepare("SELECT COUNT(*) as count FROM purchases");
 $stmt_packages->execute();
 $total_packages_sold = $stmt_packages->fetchColumn();
 
+// Helper function to calculate percentage change
+function calculate_percentage_change($current, $previous) {
+    if ($previous == 0) {
+        return $current > 0 ? 100 : 0; // Avoid division by zero
+    }
+    return (($current - $previous) / $previous) * 100;
+}
+
+$user_change = calculate_percentage_change($new_users_today, $new_users_yesterday);
+$sales_change = calculate_percentage_change($sales_today, $sales_yesterday);
+
+// Helper function for relative time
+function time_ago($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    $weeks = floor($diff->d / 7);
+    $days = $diff->d % 7;
+
+    $string = [
+        'y' => 'year',
+        'm' => 'month',
+        'w' => 'week',
+        'd' => 'day',
+        'h' => 'hour',
+        'i' => 'minute',
+        's' => 'second',
+    ];
+
+    $parts = [
+        'y' => $diff->y,
+        'm' => $diff->m,
+        'w' => $weeks,
+        'd' => $days,
+        'h' => $diff->h,
+        'i' => $diff->i,
+        's' => $diff->s,
+    ];
+
+    $result = [];
+    foreach ($string as $key => $value) {
+        if ($parts[$key] > 0) {
+            $result[] = $parts[$key] . ' ' . $value . ($parts[$key] > 1 ? 's' : '');
+        }
+    }
+
+    if (!$full) {
+        $result = array_slice($result, 0, 1);
+    }
+
+    return $result ? implode(', ', $result) . ' ago' : 'just now';
+}
+
 // Fetch Recent User Registrations
-$stmt_recent_users = $pdo->prepare("SELECT name, email, created_at FROM users ORDER BY created_at DESC LIMIT 5");
+$stmt_recent_users = $pdo->prepare("SELECT id, name, email, created_at FROM users ORDER BY created_at DESC LIMIT 5");
 $stmt_recent_users->execute();
 $recent_users = $stmt_recent_users->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch Recent Purchases
-$stmt_recent_purchases = $pdo->prepare("SELECT u.name as user_name, p.amount_cents, p.purchased_at FROM purchases p JOIN users u ON p.user_id = u.id JOIN packages pk ON p.package_id = pk.id ORDER BY p.purchased_at DESC LIMIT 5");
+$stmt_recent_purchases = $pdo->prepare("SELECT p.id, u.name as user_name, u.id as user_id, p.amount_cents, p.purchased_at FROM purchases p JOIN users u ON p.user_id = u.id JOIN packages pk ON p.package_id = pk.id ORDER BY p.purchased_at DESC LIMIT 5");
 $stmt_recent_purchases->execute();
 $recent_purchases = $stmt_recent_purchases->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch Recent Bookings
 $stmt_recent_bookings = $pdo->prepare("
-    SELECT b.id, u.name as user_name, l.title as lesson_title, b.created_at 
+    SELECT b.id, u.name as user_name, u.id as user_id, l.title as lesson_title, b.created_at 
     FROM bookings b
     JOIN users u ON b.user_id = u.id
     JOIN lessons l ON b.lesson_id = l.id
@@ -52,6 +114,7 @@ foreach ($recent_users as $user) {
         'type' => 'user_registration',
         'timestamp' => $user['created_at'],
         'details' => [
+            'id' => $user['id'],
             'name' => $user['name'],
             'email' => $user['email'],
         ]
@@ -63,6 +126,8 @@ foreach ($recent_purchases as $purchase) {
         'type' => 'purchase',
         'timestamp' => $purchase['purchased_at'],
         'details' => [
+            'id' => $purchase['id'],
+            'user_id' => $purchase['user_id'],
             'user_name' => $purchase['user_name'],
             'amount_cents' => $purchase['amount_cents'],
         ]
@@ -75,11 +140,13 @@ foreach ($recent_bookings as $booking) {
         'timestamp' => $booking['created_at'],
         'details' => [
             'id' => $booking['id'],
+            'user_id' => $booking['user_id'],
             'user_name' => $booking['user_name'],
             'lesson_title' => $booking['lesson_title'],
         ]
     ];
 }
+
 
 // Sort all activities by timestamp in descending order
 usort($all_activities, function($a, $b) {
@@ -152,7 +219,12 @@ if (!empty($quick_actions_order)) {
                 </div>
                 <div>
                     <p class="text-gray-600 text-sm font-medium">New Users (Today)</p>
-                    <p class="text-3xl font-bold text-gray-900"><?php echo $new_users_today; ?></p>
+                    <div class="flex items-baseline">
+                        <p class="text-3xl font-bold text-gray-900"><?php echo $new_users_today; ?></p>
+                        <span class="text-sm font-semibold ml-2 <?php echo $user_change >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+                            <?php echo ($user_change >= 0 ? '+' : '') . number_format($user_change, 1); ?>%
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -163,7 +235,12 @@ if (!empty($quick_actions_order)) {
                 </div>
                 <div>
                     <p class="text-gray-600 text-sm font-medium">Sales Revenue (Today)</p>
-                    <p class="text-3xl font-bold text-gray-900">€<?php echo number_format($sales_today / 100, 2); ?></p>
+                    <div class="flex items-baseline">
+                        <p class="text-3xl font-bold text-gray-900">€<?php echo number_format($sales_today / 100, 2); ?></p>
+                        <span class="text-sm font-semibold ml-2 <?php echo $sales_change >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+                            <?php echo ($sales_change >= 0 ? '+' : '') . number_format($sales_change, 1); ?>%
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,6 +269,86 @@ if (!empty($quick_actions_order)) {
                     <span class="text-sm font-medium text-center text-gray-700"><?php echo $action['text']; ?></span>
                 </a>
             <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- Chart and Recent Activity Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Business Overview Chart (takes 2/3 width on large screens) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800 mb-2 md:mb-0">Business Overview</h2>
+                <div class="flex items-center space-x-2">
+                    <select id="chartDataType" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <option value="revenue" selected>Sales Volume</option>
+                        <option value="users">New User Signups</option>
+                        <option value="bookings">Lessons Booked</option>
+                        <option value="packages_sold">Packages Sold</option>
+                    </select>
+                    <select id="chartTimePeriod" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="60">Last 60 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="relative h-96">
+                <div id="chartLoader" class="chart-loader" style="display: none;"></div>
+                <canvas id="businessChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity (takes 1/3 width on large screens) -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
+            <?php if (!empty($all_activities)): ?>
+                <div class="relative border-l-2 border-gray-200 ml-3">
+                    <div class="space-y-8">
+                        <?php foreach ($all_activities as $activity): ?>
+                            <div class="relative">
+                                <div class="absolute -left-4 top-1 flex items-center justify-center w-6 h-6 rounded-full
+                                    <?php if ($activity['type'] === 'user_registration'): ?> bg-blue-500
+                                    <?php elseif ($activity['type'] === 'purchase'): ?> bg-green-500
+                                    <?php elseif ($activity['type'] === 'booking'): ?> bg-purple-500
+                                    <?php endif; ?>
+                                ">
+                                    <span class="material-icons text-white text-sm">
+                                        <?php if ($activity['type'] === 'user_registration'): ?>person_add
+                                        <?php elseif ($activity['type'] === 'purchase'): ?>shopping_cart
+                                        <?php elseif ($activity['type'] === 'booking'): ?>event_available
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
+                                <div class="ml-10">
+                                    <div class="flex justify-between items-center">
+                                        <p class="font-medium text-gray-800 text-sm">
+                                            <?php if ($activity['type'] === 'user_registration'): ?>
+                                                New User: <a href="/admin/users/edit.php?id=<?php echo $activity['details']['id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['name']); ?></a>
+                                            <?php elseif ($activity['type'] === 'purchase'): ?>
+                                                Purchase by <a href="/admin/users/edit.php?id=<?php echo $activity['details']['user_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['user_name']); ?></a>
+                                            <?php elseif ($activity['type'] === 'booking'): ?>
+                                                <a href="/admin/bookings/index.php?highlight=<?php echo $activity['details']['id']; ?>" class="text-blue-600 hover:underline">New Booking</a> by <a href="/admin/users/edit.php?id=<?php echo $activity['details']['user_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['user_name']); ?></a>
+                                            <?php endif; ?>
+                                        </p>
+                                        <span class="text-xs text-gray-500 whitespace-nowrap pl-2"><?php echo time_ago($activity['timestamp']); ?></span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <?php if ($activity['type'] === 'user_registration'): ?>
+                                            <?php echo htmlspecialchars($activity['details']['email']); ?>
+                                        <?php elseif ($activity['type'] === 'purchase'): ?>
+                                            Amount: €<?php echo number_format($activity['details']['amount_cents'] / 100, 2); ?>
+                                        <?php elseif ($activity['type'] === 'booking'): ?>
+                                            <?php echo htmlspecialchars($activity['details']['lesson_title']); ?>
+                                        <?php endif; ?>
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <p class="text-gray-600">No recent activity.</p>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -414,50 +571,5 @@ if (!empty($quick_actions_order)) {
             }
         });
     </script>
-    <div class="grid grid-cols-1 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-            <?php if (!empty($all_activities)): ?>
-                <div class="space-y-3">
-                    <?php foreach ($all_activities as $activity): ?>
-                        <div class="bg-gray-50 p-4 rounded-xl flex items-center justify-between">
-                            <div class="flex items-center">
-                                <?php if ($activity['type'] === 'user_registration'): ?>
-                                    <div class="bg-blue-100 p-2 rounded-lg mr-4">
-                                        <span class="material-icons text-blue-500">person_add</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-800">New User: <?php echo htmlspecialchars($activity['details']['name']); ?></p>
-                                        <p class="text-xs text-gray-600"><?php echo htmlspecialchars($activity['details']['email']); ?></p>
-                                    </div>
-                                <?php elseif ($activity['type'] === 'purchase'): ?>
-                                    <div class="bg-green-100 p-2 rounded-lg mr-4">
-                                        <span class="material-icons text-green-500">shopping_cart</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-800">Purchase by <?php echo htmlspecialchars($activity['details']['user_name']); ?></p>
-                                        <p class="text-xs text-gray-600">€<?php echo number_format($activity['details']['amount_cents'] / 100, 2); ?></p>
-                                    </div>
-                                <?php elseif ($activity['type'] === 'booking'): ?>
-                                    <div class="bg-purple-100 p-2 rounded-lg mr-4">
-                                        <span class="material-icons text-purple-500">event_available</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-800">Booking #<?php echo htmlspecialchars($activity['details']['id']); ?>: <?php echo htmlspecialchars($activity['details']['lesson_title']); ?></p>
-                                        <p class="text-xs text-gray-600">Booked by <?php echo htmlspecialchars($activity['details']['user_name']); ?></p>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="flex items-center text-sm text-gray-500">
-                                <span class="mr-2"><?php echo date('M d, Y H:i', strtotime($activity['timestamp'])); ?></span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p class="text-gray-600">No recent activity.</p>
-            <?php endif; ?>
-        </div>
-    </div>
-
 </div>
+<?php require_once __DIR__ . '/footer.php'; ?>
