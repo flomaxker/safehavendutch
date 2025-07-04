@@ -18,7 +18,7 @@ if ($loggedInUser && $loggedInUser['role'] === 'admin') {
 
 $userId = $_SESSION['user_id'];
 $bookingModel = $container->getBookingModel();
-$bookings = $bookingModel->getBookingsByUserId($userId);
+$bookings = $bookingModel->findByUser($userId);
 ?>
 
 <div class="container mx-auto px-4 py-8">

@@ -17,6 +17,10 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION[
     exit();
 }
 
+$userModel = $container->getUserModel();
+$loggedInAdmin = $userModel->find($_SESSION['user_id']);
+$admin_name = $loggedInAdmin['name'] ?? 'Admin';
+
 // Admin specific site settings
 $site_name = "Admin Panel";
 $site_logo = "/assets/images/default-logo.png"; // Generic logo for admin
@@ -188,30 +192,25 @@ function is_active_parent($children, $current_uri) {
                 </ul>
             </nav>
         </div>
-        <div>
-            <nav>
-                <ul>
-                    <li class="mb-4">
-                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm p-2 rounded-lg transition-colors duration-200" href="#">
-                            <span class="material-icons mr-3">help_outline</span>
-                            Help &amp; information
-                        </a>
-                    </li>
-                    <li>
-                        <a class="flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm p-2 rounded-lg transition-colors duration-200" href="logout.php">
-                            <span class="material-icons mr-3">logout</span>
-                            Log out
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
     </aside>
 
     <!-- Overlay for mobile menu -->
     <div id="mobile-menu-overlay" class="fixed inset-0 bg-black opacity-0 md:hidden z-40 pointer-events-none transition-opacity duration-200 ease-in-out"></div>
 
     <main class="w-full md:flex-1 p-8 h-screen overflow-y-auto">
+        <div class="flex justify-end mb-6">
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($admin_name); ?>&background=random&color=fff" alt="Admin Avatar" class="w-8 h-8 rounded-full">
+                    <span><?php echo htmlspecialchars($admin_name); ?></span>
+                    <span class="material-icons text-sm" x-bind:class="{ 'rotate-180': open }">expand_more</span>
+                </button>
+
+                <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <a href="/admin/logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log out</a>
+                </div>
+            </div>
+        </div>
 
 <script nonce="<?php echo $nonce; ?>">
     document.addEventListener('DOMContentLoaded', function () {

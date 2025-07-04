@@ -1,0 +1,7 @@
+feat: Implement initial lesson and booking models
+
+- Adds `Lesson` and `Booking` models with basic CRUD functionality.
+- Consolidates lesson and booking-related database migrations into a single, unified script.
+- Removes obsolete migration files and temporary development artifacts.
+
+This commit establishes the foundational data structures and accessors for the lesson booking feature, paving the way for building out the corresponding user interface and business logic.

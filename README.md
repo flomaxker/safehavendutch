@@ -24,7 +24,13 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
 *   **User Registration and Login:** Implemented a secure system for users to register and log in, with role-based redirection.
 *   **Lesson Packages Listing:** A dedicated page to display available lesson packages to users.
 *   **Package Purchase Flow:** Integrated Stripe Checkout for seamless package purchases, including webhook handling for automatic credit updates.
-*   **User Dashboard:** Revamped user dashboard with a consistent UI/UX, including a left-hand navigation menu and dedicated sections for user-specific information.
+*   **User Dashboard:** Revamped user dashboard with a consistent UI/UX, including:
+    *   A left-hand navigation menu with collapsible, grouped categories.
+    *   A personalized top-right user dropdown for profile and logout.
+    *   Dynamic user avatars based on initials.
+    *   A 'Quick Actions' section for immediate access to key functionalities.
+    *   An enhanced 'Euro Balance' card with improved visual appeal and a 'Top Up' call to action.
+    *   Dedicated sections for user-specific information (My Children, Upcoming Lessons, etc.).
 *   **Robust Payment Testing:** Comprehensive unit tests for the payment processing logic, ensuring reliability and stability.
 
 ---
