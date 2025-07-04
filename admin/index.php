@@ -5,6 +5,8 @@ require_once __DIR__ . '/header.php';
 // --- Data Fetching ---
 $pdo = $container->getPdo();
 
+
+
 // 1. New Users Today
 $stmt_users = $pdo->prepare("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = CURDATE()");
 $stmt_users->execute();
@@ -20,17 +22,17 @@ $stmt_packages = $pdo->prepare("SELECT COUNT(*) as count FROM purchases");
 $stmt_packages->execute();
 $total_packages_sold = $stmt_packages->fetchColumn();
 
-// 4. Recent User Registrations
+// Fetch Recent User Registrations
 $stmt_recent_users = $pdo->prepare("SELECT name, email, created_at FROM users ORDER BY created_at DESC LIMIT 5");
 $stmt_recent_users->execute();
 $recent_users = $stmt_recent_users->fetchAll(PDO::FETCH_ASSOC);
 
-// 5. Recent Purchases
-$stmt_recent_purchases = $pdo->prepare("SELECT u.name as user_name, p.amount_cents, p.purchased_at FROM purchases p JOIN users u ON p.user_id = u.id ORDER BY p.purchased_at DESC LIMIT 5");
+// Fetch Recent Purchases
+$stmt_recent_purchases = $pdo->prepare("SELECT u.name as user_name, p.amount_cents, p.purchased_at FROM purchases p JOIN users u ON p.user_id = u.id JOIN packages pk ON p.package_id = pk.id ORDER BY p.purchased_at DESC LIMIT 5");
 $stmt_recent_purchases->execute();
 $recent_purchases = $stmt_recent_purchases->fetchAll(PDO::FETCH_ASSOC);
 
-// 6. Recent Bookings
+// Fetch Recent Bookings
 $stmt_recent_bookings = $pdo->prepare("
     SELECT b.id, u.name as user_name, l.title as lesson_title, b.created_at 
     FROM bookings b
@@ -41,6 +43,51 @@ $stmt_recent_bookings = $pdo->prepare("
 ");
 $stmt_recent_bookings->execute();
 $recent_bookings = $stmt_recent_bookings->fetchAll(PDO::FETCH_ASSOC);
+
+// Consolidate all recent activities
+$all_activities = [];
+
+foreach ($recent_users as $user) {
+    $all_activities[] = [
+        'type' => 'user_registration',
+        'timestamp' => $user['created_at'],
+        'details' => [
+            'name' => $user['name'],
+            'email' => $user['email'],
+        ]
+    ];
+}
+
+foreach ($recent_purchases as $purchase) {
+    $all_activities[] = [
+        'type' => 'purchase',
+        'timestamp' => $purchase['purchased_at'],
+        'details' => [
+            'user_name' => $purchase['user_name'],
+            'amount_cents' => $purchase['amount_cents'],
+        ]
+    ];
+}
+
+foreach ($recent_bookings as $booking) {
+    $all_activities[] = [
+        'type' => 'booking',
+        'timestamp' => $booking['created_at'],
+        'details' => [
+            'id' => $booking['id'],
+            'user_name' => $booking['user_name'],
+            'lesson_title' => $booking['lesson_title'],
+        ]
+    ];
+}
+
+// Sort all activities by timestamp in descending order
+usort($all_activities, function($a, $b) {
+    return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+});
+
+// Limit to top 10 recent activities
+$all_activities = array_slice($all_activities, 0, 10);
 
 // Quick Actions
 $user_id = $_SESSION['user_id'] ?? null;
@@ -135,8 +182,7 @@ if (!empty($quick_actions_order)) {
 
     <!-- Quick Actions -->
     <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-gray-800">Quick Actions</h2>
+        <div class="flex justify-end mb-4">
             <button id="openQuickActionsModalBtn" class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition text-sm">Rearrange</button>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -150,53 +196,47 @@ if (!empty($quick_actions_order)) {
     </div>
 
     <!-- Quick Actions Modal -->
-    <div id="quickActionsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-            <div class="flex justify-between items-center pb-3">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Rearrange Quick Actions</h3>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-500">
-                    <span class="material-icons">close</span>
-                </button>
+    <div id="quickActionsModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-8 w-full max-w-4xl transform transition-all duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Rearrange Quick Actions</h2>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
             </div>
-            <div class="mt-2 grid grid-cols-2 gap-4">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Available Actions -->
                 <div>
-                    <h4 class="text-md font-semibold text-gray-700 mb-2">Available Actions</h4>
-                    <ul id="availableQuickActions" class="space-y-2 min-h-[100px] border border-gray-300 p-2 rounded-md bg-gray-50">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Available Actions</h3>
+                    <div id="availableQuickActions" class="quick-action-list min-h-[200px] bg-gray-50 p-4 rounded-lg border border-gray-200">
                         <?php
-                        $selectedUrls = array_column($quick_actions, 'url');
-                        foreach ($all_quick_actions as $key => $action) :
-                            if (!in_array($action['url'], $selectedUrls)) :
+                        $available_actions = array_diff_key($all_quick_actions, $quick_actions);
+                        foreach ($available_actions as $url => $action):
                         ?>
-                                <li class="bg-gray-100 p-3 rounded-md flex items-center justify-between cursor-grab" data-url="<?= $action['url'] ?>">
-                                    <div class="flex items-center">
-                                        <span class="material-icons mr-3"><?= $action['icon'] ?></span>
-                                        <span><?= $action['text'] ?></span>
-                                    </div>
-                                    <span class="material-icons text-gray-400">drag_indicator</span>
-                                </li>
-                        <?php
-                            endif;
-                        endforeach;
-                        ?>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-md font-semibold text-gray-700 mb-2">Selected Actions</h4>
-                    <ul id="selectedQuickActions" class="space-y-2 min-h-[100px] border border-gray-300 p-2 rounded-md bg-gray-50">
-                        <?php foreach ($quick_actions as $action) : ?>
-                            <li class="bg-gray-100 p-3 rounded-md flex items-center justify-between cursor-grab" data-url="<?= $action['url'] ?>">
-                                <div class="flex items-center">
-                                    <span class="material-icons mr-3"><?= $action['icon'] ?></span>
-                                    <span><?= $action['text'] ?></span>
-                                </div>
-                                <span class="material-icons text-gray-400">drag_indicator</span>
-                            </li>
+                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm mb-3 cursor-move border border-gray-200" data-url="<?php echo htmlspecialchars($url); ?>">
+                                <span class="material-icons text-gray-500 mr-4"><?php echo $action['icon']; ?></span>
+                                <span class="font-medium text-gray-700"><?php echo $action['text']; ?></span>
+                            </div>
                         <?php endforeach; ?>
-                    </ul>
+                    </div>
+                </div>
+
+                <!-- Selected Actions -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Selected Actions (Max 5)</h3>
+                    <div id="selectedQuickActions" class="quick-action-list min-h-[200px] bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <?php foreach ($quick_actions as $url => $action): ?>
+                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm mb-3 cursor-move border border-gray-200" data-url="<?php echo htmlspecialchars($url); ?>">
+                                <span class="material-icons text-gray-500 mr-4"><?php echo $action['icon']; ?></span>
+                                <span class="font-medium text-gray-700"><?php echo $action['text']; ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
-            <div class="mt-4 flex justify-end">
-                <button id="saveQuickActionsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Save Order</button>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button class="close-modal-btn bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+                <button id="saveQuickActionsBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Save Changes</button>
             </div>
         </div>
     </div>
@@ -295,72 +335,127 @@ if (!empty($quick_actions_order)) {
         });
     </script>
 
-    <!-- Recent Activity -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent User Registrations</h2>
-            <?php if (!empty($recent_users)): ?>
-                <ul class="divide-y divide-gray-200">
-                    <?php foreach ($recent_users as $user): ?>
-                        <li class="py-3 flex justify-between items-center">
-                            <div>
-                                <p class="text-gray-800 font-medium"><?php echo htmlspecialchars($user['name']); ?></p>
-                                <p class="text-gray-600 text-sm"><?php echo htmlspecialchars($user['email']); ?></p>
-                            </div>
-                            <span class="text-gray-500 text-sm"><?php echo date('M d, Y H:i', strtotime($user['created_at'])); ?></span>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <p class="text-gray-600">No recent user registrations.</p>
-            <?php endif; ?>
-        </div>
+    
+    
 
-        <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Purchases</h2>
-            <?php if (!empty($recent_purchases)): ?>
-                <ul class="divide-y divide-gray-200">
-                    <?php foreach ($recent_purchases as $purchase): ?>
-                        <li class="py-3 flex justify-between items-center">
-                            <div>
-                                <p class="text-gray-800 font-medium">Purchase by <?php echo htmlspecialchars($purchase['user_name']); ?></p>
-                                <p class="text-gray-600 text-sm">€<?php echo number_format($purchase['amount_cents'] / 100, 2); ?></p>
-                            </div>
-                            <span class="text-gray-500 text-sm"><?php echo date('M d, Y H:i', strtotime($purchase['purchased_at'])); ?></span>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <p class="text-gray-600">No recent purchases.</p>
-            <?php endif; ?>
-        </div>
-    </div>
+    
 
-    <!-- Recent Bookings -->
-    <div class="grid grid-cols-1 gap-6">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script nonce="<?php echo $nonce; ?>">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quick Actions Modal Logic
+            const quickActionsModal = document.getElementById('quickActionsModal');
+            const openModalBtn = document.getElementById('openQuickActionsModalBtn');
+            const closeModalBtns = document.querySelectorAll('.close-modal-btn');
+            const availableList = document.getElementById('availableQuickActions');
+            const selectedList = document.getElementById('selectedQuickActions');
+            const saveQuickActionsBtn = document.getElementById('saveQuickActionsBtn');
+
+            if (availableList && selectedList) {
+                new Sortable(availableList, {
+                    group: 'quickActions',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost'
+                });
+
+                new Sortable(selectedList, {
+                    group: 'quickActions',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost'
+                });
+            }
+
+            if (openModalBtn) {
+                openModalBtn.addEventListener('click', function() {
+                    quickActionsModal.classList.remove('hidden');
+                });
+            }
+
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    quickActionsModal.classList.add('hidden');
+                });
+            });
+
+            if (quickActionsModal) {
+                quickActionsModal.addEventListener('click', function(event) {
+                    if (event.target === quickActionsModal) {
+                        quickActionsModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            if (saveQuickActionsBtn) {
+                saveQuickActionsBtn.addEventListener('click', async function() {
+                    const orderedUrls = Array.from(selectedList.children).map(item => item.dataset.url);
+                    const userId = <?php echo json_encode($user_id); ?>;
+
+                    try {
+                        const response = await fetch('save_quick_actions.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ order: orderedUrls, userId: userId })
+                        });
+                        const data = await response.json();
+
+                        if (data.status === 'success') {
+                            quickActionsModal.classList.add('hidden');
+                            location.reload();
+                        } else {
+                            alert('Error saving quick actions: ' + data.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while saving quick actions.');
+                    }
+                });
+            }
+        });
+    </script>
+    <div class="grid grid-cols-1 gap-6 mb-8">
         <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Bookings</h2>
-            <?php if (!empty($recent_bookings)): ?>
-                <ul class="divide-y divide-gray-200">
-                    <?php foreach ($recent_bookings as $booking): ?>
-                        <li class="py-3 flex justify-between items-center">
-                            <div>
-                                <p class="text-gray-800 font-medium">
-                                    <a href="/admin/bookings/index.php?highlight=<?= $booking['id'] ?>" class="text-blue-600 hover:underline">
-                                        Booking #<?= $booking['id'] ?>
-                                    </a>
-                                    for "<?= htmlspecialchars($booking['lesson_title']) ?>"
-                                </p>
-                                <p class="text-gray-600 text-sm">
-                                    Booked by <?= htmlspecialchars($booking['user_name']) ?>
-                                </p>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
+            <?php if (!empty($all_activities)): ?>
+                <div class="space-y-3">
+                    <?php foreach ($all_activities as $activity): ?>
+                        <div class="bg-gray-50 p-4 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center">
+                                <?php if ($activity['type'] === 'user_registration'): ?>
+                                    <div class="bg-blue-100 p-2 rounded-lg mr-4">
+                                        <span class="material-icons text-blue-500">person_add</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">New User: <?php echo htmlspecialchars($activity['details']['name']); ?></p>
+                                        <p class="text-xs text-gray-600"><?php echo htmlspecialchars($activity['details']['email']); ?></p>
+                                    </div>
+                                <?php elseif ($activity['type'] === 'purchase'): ?>
+                                    <div class="bg-green-100 p-2 rounded-lg mr-4">
+                                        <span class="material-icons text-green-500">shopping_cart</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">Purchase by <?php echo htmlspecialchars($activity['details']['user_name']); ?></p>
+                                        <p class="text-xs text-gray-600">€<?php echo number_format($activity['details']['amount_cents'] / 100, 2); ?></p>
+                                    </div>
+                                <?php elseif ($activity['type'] === 'booking'): ?>
+                                    <div class="bg-purple-100 p-2 rounded-lg mr-4">
+                                        <span class="material-icons text-purple-500">event_available</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">Booking #<?php echo htmlspecialchars($activity['details']['id']); ?>: <?php echo htmlspecialchars($activity['details']['lesson_title']); ?></p>
+                                        <p class="text-xs text-gray-600">Booked by <?php echo htmlspecialchars($activity['details']['user_name']); ?></p>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            <span class="text-gray-500 text-sm"><?php echo date('M d, Y H:i', strtotime($booking['created_at'])); ?></span>
-                        </li>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <span class="mr-2"><?php echo date('M d, Y H:i', strtotime($activity['timestamp'])); ?></span>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
-                </ul>
+                </div>
             <?php else: ?>
-                <p class="text-gray-600">No recent bookings.</p>
+                <p class="text-gray-600">No recent activity.</p>
             <?php endif; ?>
         </div>
     </div>
