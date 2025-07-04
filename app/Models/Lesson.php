@@ -2,98 +2,73 @@
 
 namespace App\Models;
 
-use PDO;
-
 class Lesson
 {
-    private PDO $pdo;
+    protected $pdo;
 
-    public function __construct(PDO $pdo)
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
-    public function create(string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity, int $creditCost): int
+    public function findAll()
+    {
+        $stmt = $this->pdo->query(
+            'SELECT l.*, u.name as teacher_name 
+             FROM lessons l
+             JOIN users u ON l.teacher_id = u.id
+             ORDER BY l.start_time ASC'
+        );
+        return $stmt->fetchAll();
+    }
+
+    public function find($id)
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM lessons WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch();
+    }
+
+    public function create($data)
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO lessons (title, description, teacher_id, start_time, end_time, capacity, credit_cost)
+            'INSERT INTO lessons (title, description, teacher_id, start_time, end_time, capacity, credit_cost) 
              VALUES (:title, :description, :teacher_id, :start_time, :end_time, :capacity, :credit_cost)'
         );
-        $stmt->execute([
-            'title' => $title,
-            'description' => $description,
-            'teacher_id' => $teacherId,
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-            'capacity' => $capacity,
-            'credit_cost' => $creditCost,
+        return $stmt->execute([
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'teacher_id' => $data['teacher_id'],
+            'start_time' => $data['start_time'],
+            'end_time' => $data['end_time'],
+            'capacity' => $data['capacity'],
+            'credit_cost' => $data['credit_cost'],
         ]);
-        return (int)$this->pdo->lastInsertId();
     }
 
-    public function getById(int $id): ?array
-    {
-        $stmt = $this->pdo->prepare('SELECT *, credit_cost FROM lessons WHERE id = :id');
-        $stmt->execute(['id' => $id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ?: null;
-    }
-
-    public function getAll(): array
-    {
-        $stmt = $this->pdo->query('SELECT * FROM lessons ORDER BY start_time ASC');
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function update(int $id, string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity, int $creditCost): bool
+    public function update($id, $data)
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE lessons SET title = :title, description = :description, teacher_id = :teacher_id, start_time = :start_time, end_time = :end_time, capacity = :capacity, credit_cost = :credit_cost WHERE id = :id'
+            'UPDATE lessons 
+             SET title = :title, description = :description, teacher_id = :teacher_id, 
+                 start_time = :start_time, end_time = :end_time, capacity = :capacity, credit_cost = :credit_cost
+             WHERE id = :id'
         );
         return $stmt->execute([
             'id' => $id,
-            'title' => $title,
-            'description' => $description,
-            'teacher_id' => $teacherId,
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-            'capacity' => $capacity,
-            'credit_cost' => $creditCost,
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'teacher_id' => $data['teacher_id'],
+            'start_time' => $data['start_time'],
+            'end_time' => $data['end_time'],
+            'capacity' => $data['capacity'],
+            'credit_cost' => $data['credit_cost'],
         ]);
     }
 
-    public function delete(int $id): bool
+    public function delete($id)
     {
         $stmt = $this->pdo->prepare('DELETE FROM lessons WHERE id = :id');
         return $stmt->execute(['id' => $id]);
-    }
-
-    public function decreaseCapacity(int $lessonId): bool
-    {
-        $stmt = $this->pdo->prepare('UPDATE lessons SET capacity = capacity - 1 WHERE id = :lesson_id AND capacity > 0');
-        return $stmt->execute(['lesson_id' => $lessonId]);
-    }
-
-    public function findOrCreate(string $title, string $description, int $teacherId, string $startTime, string $endTime, int $capacity, int $creditCost): ?array
-    {
-        // Try to find an existing lesson first
-        $stmt = $this->pdo->prepare(
-            'SELECT * FROM lessons WHERE title = :title AND teacher_id = :teacher_id AND start_time = :start_time AND end_time = :end_time'
-        );
-        $stmt->execute([
-            'title' => $title,
-            'teacher_id' => $teacherId,
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-        ]);
-        $lesson = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($lesson) {
-            return $lesson;
-        } else {
-            // If not found, create a new one
-            $id = $this->create($title, $description, $teacherId, $startTime, $endTime, $capacity, $creditCost);
-            return $this->getById($id);
-        }
     }
 }
