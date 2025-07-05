@@ -71,4 +71,14 @@ class Lesson
         $stmt = $this->pdo->prepare('DELETE FROM lessons WHERE id = :id');
         return $stmt->execute(['id' => $id]);
     }
+
+    public function getBookingCount(int $lessonId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM bookings WHERE lesson_id = :lesson_id AND status = :status');
+        $stmt->execute([
+            'lesson_id' => $lessonId,
+            'status' => 'confirmed'
+        ]);
+        return (int)$stmt->fetchColumn();
+    }
 }

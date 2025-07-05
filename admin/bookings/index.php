@@ -1,7 +1,11 @@
 <?php
 require_once __DIR__ . '/../../bootstrap.php';
 
-// TODO: Add authentication and authorization check
+// Admin-only access
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    header('Location: /login.php');
+    exit;
+}
 
 $bookingModel = $container->getBookingModel();
 
@@ -38,7 +42,7 @@ if (isset($_GET['message'], $_GET['type'])) {
 $order_by = $_GET['order_by'] ?? 'id';
 $order_direction = $_GET['order_direction'] ?? 'ASC';
 
-$bookings = $bookingModel->getAll($order_by, $order_direction);
+$bookings = $bookingModel->findAllWithDetails($order_by, $order_direction);
 
 $page_title = 'Manage Bookings';
 

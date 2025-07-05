@@ -7,10 +7,11 @@ $bookingModel = $container->getBookingModel();
 $childModel = $container->getChildModel();
 
 $user_id = $_SESSION['user_id'];
-$user_euro_balance = $userModel->getEuroBalance($user_id);
-$user_email = $_SESSION['user_email'] ?? 'Guest';
+$user = $userModel->find($user_id);
+$user_euro_balance = $user['euro_balance'];
+$user_name = $user['name'];
 
-$upcomingBookings = $bookingModel->findByUser($user_id);
+$upcomingBookings = $bookingModel->findUpcomingWithDetailsByUserId($user_id);
 $children = $childModel->findByUserId($user_id);
 
 // Define user-specific quick actions
@@ -27,7 +28,7 @@ $page_title = "Dashboard";
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome, <?php echo htmlspecialchars($user_email); ?>!</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome, <?php echo htmlspecialchars($user_name); ?>!</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <!-- Top Row: Euro Balance and Quick Actions -->
@@ -68,10 +69,12 @@ $page_title = "Dashboard";
             <!-- Bottom-Left: My Children -->
             <div class="bg-white p-6 rounded-2xl shadow-lg">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">My Children</h2>
-                <?php if (empty($children)): ?>
+                <?php if (empty($children)):
+ ?>
                     <p class="text-gray-600">You have not added any children yet.</p>
                     <a href="my_children.php" class="text-primary-600 hover:underline">Add a child</a>
-                <?php else: ?>
+                <?php else:
+ ?>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white">
                             <thead>
@@ -98,9 +101,11 @@ $page_title = "Dashboard";
             <!-- Bottom-Right: Upcoming Lessons -->
             <div class="bg-white p-6 rounded-2xl shadow-lg">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Upcoming Lessons</h2>
-                <?php if (empty($upcomingBookings)): ?>
+                <?php if (empty($upcomingBookings)):
+ ?>
                     <p class="text-gray-600">You have no upcoming lessons.</p>
-                <?php else: ?>
+                <?php else:
+ ?>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white">
                             <thead>
@@ -109,7 +114,6 @@ $page_title = "Dashboard";
                                     <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teacher</th>
                                     <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
                                     <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Time</th>
-                                    <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,9 +121,8 @@ $page_title = "Dashboard";
                                     <tr>
                                         <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($booking['lesson_title']); ?></td>
                                         <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars($booking['teacher_name']); ?></td>
-                                        <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(date('Y-m-d', strtotime($booking['start_time']))); ?></td>
-                                        <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(date('H:i', strtotime($booking['start_time']))) . ' - ' . htmlspecialchars(date('H:i', strtotime($booking['end_time']))); ?></td>
-                                        <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(ucfirst($booking['status'])); ?></td>
+                                        <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(date('D, M j, Y', strtotime($booking['start_time']))); ?></td>
+                                        <td class="py-2 px-4 border-b border-gray-200"><?php echo htmlspecialchars(date('g:i A', strtotime($booking['start_time']))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($booking['end_time']))); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -129,5 +132,11 @@ $page_title = "Dashboard";
             </div>
         </div>
     </div>
+
+    
+
+</div>
+
+
 
     

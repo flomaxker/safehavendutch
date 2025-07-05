@@ -5,7 +5,7 @@ use App\Database\Database;
 use App\Models\User;
 use App\Models\Lesson;
 use App\Models\Booking;
-use App\Calendar\iCalParser;
+use App\Models\Child;
 
 class BookingIntegrationTest extends TestCase
 {
@@ -13,115 +13,170 @@ class BookingIntegrationTest extends TestCase
     private $userModel;
     private $lessonModel;
     private $bookingModel;
-    private $iCalParser;
+    private $childModel;
 
     protected function setUp(): void
     {
-        // Use an in-memory SQLite database for testing
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Create necessary tables (simplified for test)
-        $this->pdo->exec('CREATE TABLE users (
+        // Create tables with SQLite-compatible syntax
+        $this->pdo->exec("CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT UNIQUE,
-            password TEXT,
-            role TEXT,
-            euro_balance INTEGER DEFAULT 0,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'member',
+            euro_balance INTEGER NOT NULL DEFAULT 0,
+            quick_actions_order TEXT,
             ical_url TEXT,
-            quick_actions_order TEXT
-        )');
-        $this->pdo->exec('CREATE TABLE lessons (
+            last_login_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $this->pdo->exec("CREATE TABLE children (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            date_of_birth DATE NOT NULL,
+            avatar TEXT,
+            notes TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )");
+
+        $this->pdo->exec("CREATE TABLE lessons (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
             description TEXT,
-            teacher_id INTEGER,
-            start_time DATETIME,
-            end_time DATETIME,
-            capacity INTEGER DEFAULT 1,
-            credit_cost INTEGER DEFAULT 0
-        )');
-        $this->pdo->exec('CREATE TABLE bookings (
+            teacher_id INTEGER NOT NULL,
+            start_time DATETIME NOT NULL,
+            end_time DATETIME NOT NULL,
+            capacity INTEGER NOT NULL,
+            credit_cost INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (teacher_id) REFERENCES users(id)
+        )");
+
+        $this->pdo->exec("CREATE TABLE bookings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            lesson_id INTEGER,
-            status TEXT
-        )');
+            user_id INTEGER NOT NULL,
+            lesson_id INTEGER NOT NULL,
+            child_id INTEGER NOT NULL,
+            status TEXT NOT NULL DEFAULT 'confirmed',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (lesson_id) REFERENCES lessons(id),
+            FOREIGN KEY (child_id) REFERENCES children(id)
+        )");
 
         $this->userModel = new User($this->pdo);
         $this->lessonModel = new Lesson($this->pdo);
         $this->bookingModel = new Booking($this->pdo);
-        $this->iCalParser = new iCalParser();
+        $this->childModel = new Child($this->pdo);
 
-        // Seed a test user
-        $this->userModel->create('Test User', 'test@example.com', password_hash('password', PASSWORD_DEFAULT), 'member', 500);
-        $this->userModel->create('Test Teacher', 'teacher@example.com', password_hash('password', PASSWORD_DEFAULT), 'teacher', 0, '[]', 'BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//hacksw/handcal//NONSGML v1.0//EN
-BEGIN:VEVENT
-UID:test-event-1@example.com
-DTSTAMP:20250710T090000Z
-DTSTART:20250710T100000Z
-DTEND:20250710T110000Z
-SUMMARY:Dutch Lesson
-END:VEVENT
-END:VCALENDAR');
+        // Seed a test user, teacher, and child
+        $this->userModel->create('Test Parent', 'parent@example.com', password_hash('password', PASSWORD_DEFAULT), 'parent', 500);
+        $this->userModel->create('Test Teacher', 'teacher@example.com', password_hash('password', PASSWORD_DEFAULT), 'teacher');
+        $parent = $this->userModel->findByEmail('parent@example.com');
+        $this->childModel->create(['user_id' => $parent['id'], 'name' => 'Test Child', 'date_of_birth' => '2018-01-01']);
     }
 
     public function testUserCanBookLessonAndCreditsAreDeducted(): void
     {
-        // 1. Find the test user and teacher
-        $user = $this->userModel->findByEmail('test@example.com');
+        $parent = $this->userModel->findByEmail('parent@example.com');
         $teacher = $this->userModel->findByEmail('teacher@example.com');
+        $child = $this->childModel->findByUserId($parent['id'])[0];
 
-        // 2. Create a lesson
-        $lessonId = $this->lessonModel->create('Test Lesson', 'A lesson for testing.', $teacher['id'], '2025-07-10 10:00:00', '2025-07-10 11:00:00', 1, 100);
+        $this->lessonModel->create([
+            'title' => 'Test Lesson', 
+            'description' => 'A lesson for testing.', 
+            'teacher_id' => $teacher['id'], 
+            'start_time' => '2025-08-01 10:00:00', 
+            'end_time' => '2025-08-01 11:00:00', 
+            'capacity' => 1, 
+            'credit_cost' => 100
+        ]);
+        $lessonId = $this->pdo->lastInsertId();
 
-        // 3. Book the lesson
-        $this->bookingModel->create($user['id'], $lessonId, 'confirmed');
+        $bookingId = $this->bookingModel->create([
+            'user_id' => $parent['id'],
+            'lesson_id' => $lessonId,
+            'child_id' => $child['id']
+        ]);
 
-        // 4. Assert booking exists
-        $booking = $this->bookingModel->findByUserAndLesson($user['id'], $lessonId);
-        $this->assertNotFalse($booking);
+        $this->assertNotNull($bookingId);
+        $booking = $this->bookingModel->find($bookingId);
         $this->assertEquals('confirmed', $booking['status']);
 
-        // 5. Assert credits were deducted
-        $updatedUser = $this->userModel->find($user['id']);
+        $updatedUser = $this->userModel->find($parent['id']);
         $this->assertEquals(400, $updatedUser['euro_balance']);
     }
 
     public function testUserCannotBookFullLesson(): void
     {
-        // 1. Find the test user and teacher
-        $user = $this->userModel->findByEmail('test@example.com');
-        $teacher = $this->userModel->findByEmail('teacher@example.com');
-
-        // 2. Create a lesson with 0 capacity
-        $lessonId = $this->lessonModel->create('Full Lesson', 'A lesson with no spots.', $teacher['id'], '2025-07-11 10:00:00', '2025-07-11 11:00:00', 0, 100);
-
-        // 3. Expect an exception when booking
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('This lesson is full.');
+        $this->expectExceptionMessage('This lesson is already full.');
 
-        // 4. Attempt to book the lesson
-        $this->bookingModel->create($user['id'], $lessonId, 'confirmed');
+        $parent = $this->userModel->findByEmail('parent@example.com');
+        $teacher = $this->userModel->findByEmail('teacher@example.com');
+        $child = $this->childModel->findByUserId($parent['id'])[0];
+
+        $this->lessonModel->create([
+            'title' => 'Full Lesson', 
+            'description' => 'A lesson with no spots.', 
+            'teacher_id' => $teacher['id'], 
+            'start_time' => '2025-08-01 10:00:00', 
+            'end_time' => '2025-08-01 11:00:00', 
+            'capacity' => 0, 
+            'credit_cost' => 100
+        ]);
+        $lessonId = $this->pdo->lastInsertId();
+
+        try {
+            $this->bookingModel->create([
+                'user_id' => $parent['id'],
+                'lesson_id' => $lessonId,
+                'child_id' => $child['id']
+            ]);
+        } catch (\Exception $e) {
+            // Verify user balance is unchanged
+            $user = $this->userModel->find($parent['id']);
+            $this->assertEquals(500, $user['euro_balance']);
+            throw $e; // Re-throw exception for PHPUnit to catch
+        }
     }
 
     public function testUserCannotBookWithInsufficientCredits(): void
     {
-        // 1. Find the test user and teacher
-        $user = $this->userModel->findByEmail('test@example.com');
-        $teacher = $this->userModel->findByEmail('teacher@example.com');
-
-        // 2. Create a lesson that costs more than the user's balance
-        $lessonId = $this->lessonModel->create('Expensive Lesson', 'A very expensive lesson.', $teacher['id'], '2025-07-12 10:00:00', '2025-07-12 11:00:00', 1, 600);
-
-        // 3. Expect an exception when booking
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Insufficient credits.');
+        $this->expectExceptionMessage('Insufficient credits to book this lesson.');
 
-        // 4. Attempt to book the lesson
-        $this->bookingModel->create($user['id'], $lessonId, 'confirmed');
+        $parent = $this->userModel->findByEmail('parent@example.com');
+        $teacher = $this->userModel->findByEmail('teacher@example.com');
+        $child = $this->childModel->findByUserId($parent['id'])[0];
+
+        $this->lessonModel->create([
+            'title' => 'Expensive Lesson', 
+            'description' => 'A very expensive lesson.', 
+            'teacher_id' => $teacher['id'], 
+            'start_time' => '2025-08-01 10:00:00', 
+            'end_time' => '2025-08-01 11:00:00', 
+            'capacity' => 1, 
+            'credit_cost' => 600
+        ]);
+        $lessonId = $this->pdo->lastInsertId();
+
+        try {
+            $this->bookingModel->create([
+                'user_id' => $parent['id'],
+                'lesson_id' => $lessonId,
+                'child_id' => $child['id']
+            ]);
+        } catch (\Exception $e) {
+            // Verify user balance is unchanged
+            $user = $this->userModel->find($parent['id']);
+            $this->assertEquals(500, $user['euro_balance']);
+            throw $e; // Re-throw exception for PHPUnit to catch
+        }
     }
 }

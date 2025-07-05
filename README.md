@@ -32,6 +32,9 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
     *   An enhanced 'Euro Balance' card with improved visual appeal and a 'Top Up' call to action.
     *   Dedicated sections for user-specific information (My Children, Upcoming Lessons, etc.).
 *   **Robust Payment Testing:** Comprehensive unit tests for the payment processing logic, ensuring reliability and stability.
+*   **Secure Booking Engine:** Implemented transactional booking logic to prevent double-bookings and ensure data consistency, including capacity checks and credit deduction.
+*   **Enhanced Parent Dashboard:** Updated the parent dashboard to display detailed upcoming lesson information.
+*   **Admin Booking Management:** Developed a dedicated admin page for viewing and managing all bookings, including authentication and bulk deletion.
 
 ---
 
