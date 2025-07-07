@@ -35,6 +35,7 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
 *   **Secure Booking Engine:** Implemented transactional booking logic to prevent double-bookings and ensure data consistency, including capacity checks and credit deduction.
 *   **Enhanced Parent Dashboard:** Updated the parent dashboard to display detailed upcoming lesson information.
 *   **Admin Booking Management:** Developed a dedicated admin page for viewing and managing all bookings, including authentication and bulk deletion.
+*   **UI Enhancements:** Increased the hero image size and improved spacing on the homepage for a more balanced and visually appealing layout.
 
 ---
 

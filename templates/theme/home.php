@@ -15,7 +15,7 @@ include 'header.php'; // We still need the header for nav, etc.
     <div class="bg-blur-circle-br"></div>
 
     <div class="container mx-auto px-6 py-8 relative z-10">
-        <section class="mt-16 md:mt-24 flex flex-col md:flex-row items-center text-center md:text-left gap-y-16 md:gap-x-16">
+        <section class="mt-16 md:mt-24 mb-16 flex flex-col md:flex-row items-center text-center md:text-left gap-y-16 md:gap-x-16">
             <div class="md:w-1/2 relative">
                 <h1 class="text-5xl md:text-6xl font-bold leading-tight">
                     The best place to
@@ -30,7 +30,7 @@ include 'header.php'; // We still need the header for nav, etc.
                 </a>
             </div>
             <div class="md:w-1/2 flex justify-center items-center relative">
-                <div class="hero-image-card w-full max-w-sm aspect-[3/4] transform rotate-2">
+                <div class="hero-image-card w-full max-w-lg aspect-[3/4]">
                     <img src="<?= htmlspecialchars($heroImage) ?>" alt="A welcoming scene from the Netherlands" class="w-full h-full object-cover" />
                 </div>
             </div>

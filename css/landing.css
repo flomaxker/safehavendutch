@@ -82,11 +82,6 @@ body {
     border-radius: 1.5rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-    transform: rotate(3deg);
-    transition: transform 0.3s ease;
-}
-.hero-image-card:hover {
-    transform: rotate(1deg) scale(1.02);
 }
 .hero-image-card img {
     width: 100%;
