@@ -9,7 +9,7 @@ if (defined('USER_DASHBOARD_ACTIVE')) {
 
 if (!headers_sent()) {
     $csp_policy = "default-src 'self'; ";
-    $csp_policy .= "script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdn.tiny.cloud; ";
+    $csp_policy .= "script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdn.tiny.cloud 'unsafe-eval'; ";
     $csp_policy .= "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; ";
     $csp_policy .= "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; ";
     $csp_policy .= "img-src 'self' data: https:; ";
@@ -20,9 +20,20 @@ if (!headers_sent()) {
 }
 
 use App\Models\Setting;
+use App\Models\User;
+
 $settingModel = new Setting($container->getPdo());
 $settings = $settingModel->getAllSettings();
 $siteLogo = $settings['site_logo'] ?? '/assets/images/default-logo.png';
+
+$user_name = '';
+if (isset($_SESSION['user_id'])) {
+    $userModel = $container->getUserModel();
+    $user = $userModel->find($_SESSION['user_id']);
+    if ($user) {
+        $user_name = $user['name'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,6 +52,7 @@ $siteLogo = $settings['site_logo'] ?? '/assets/images/default-logo.png';
     <meta property="og:url" content="<?php echo htmlspecialchars($page['og_url'] ?? (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>">
     <meta property="og:type" content="website">
 
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
     <link rel="stylesheet" href="/css/landing.css?v=<?php echo filemtime(__DIR__ . '/css/landing.css'); ?>">
     <link rel="stylesheet" href="/style.css?v=<?php echo filemtime(__DIR__ . '/style.css'); ?>">
@@ -48,6 +60,7 @@ $siteLogo = $settings['site_logo'] ?? '/assets/images/default-logo.png';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body>
 <?php
@@ -73,8 +86,20 @@ if (!isset($nav_links)) {
                 <?php
                 $dashboard_url = (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/admin/index.php' : '/dashboard.php';
                 ?>
-                <a href="<?= $dashboard_url ?>" class="text-gray-600 font-medium hover:text-primary-600">Dashboard</a>
-                <a href="logout.php" class="text-gray-600 font-medium hover:text-primary-600">Logout</a>
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
+                        <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user_name); ?>&background=random&color=fff" alt="User Avatar" class="w-8 h-8 rounded-full">
+                        <span><?php echo htmlspecialchars($user_name); ?></span>
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-cloak @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <a href="<?= $dashboard_url ?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                        <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
             <?php else: ?>
                 <a href="login.php" class="text-gray-600 font-medium hover:text-primary-600">Login</a>
                 <a href="register.php" class="bg-blue-600 text-white px-4 py-2 rounded-full font-medium hover:bg-blue-700 transition">Register</a>
