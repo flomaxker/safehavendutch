@@ -48,6 +48,20 @@ This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a
 
 ---
 
+## Tailwind CSS Production Build
+
+For production deployments, it is recommended to build Tailwind CSS locally rather than relying on the CDN. This provides better performance and removes external dependencies.
+
+To generate a minified production-ready CSS file, run the following command:
+
+```bash
+npm run build:production
+```
+
+This will create a `style.css` file in your project root. When deploying to production, ensure that your `header.php`, `admin/header.php`, and `user_header.php` files are updated to link to this local `style.css` file instead of the Tailwind CSS CDN.
+
+---
+
 ## 🚀 Getting Started
 
 1.  **Install Dependencies:**
