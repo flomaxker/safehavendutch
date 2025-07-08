@@ -34,7 +34,19 @@ class Setting
 
     public function updateSetting(string $key, string $value): bool
     {
-        $stmt = $this->pdo->prepare("UPDATE settings SET setting_value = :value WHERE setting_key = :key");
-        return $stmt->execute(['key' => $key, 'value' => $value]);
+        // Check if the setting already exists
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM settings WHERE setting_key = :key");
+        $stmt->execute(['key' => $key]);
+        $exists = (bool)$stmt->fetchColumn();
+
+        if ($exists) {
+            // Update existing setting
+            $stmt = $this->pdo->prepare("UPDATE settings SET setting_value = :value WHERE setting_key = :key");
+            return $stmt->execute(['key' => $key, 'value' => $value]);
+        } else {
+            // Insert new setting
+            $stmt = $this->pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (:key, :value)");
+            return $stmt->execute(['key' => $key, 'value' => $value]);
+        }
     }
 }

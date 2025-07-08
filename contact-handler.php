@@ -1,9 +1,16 @@
 <?php
+require_once __DIR__ . '/bootstrap.php';
+
+use App\Models\Setting;
+
 // --- Configuration ---
 // These values should ideally come from a CMS configuration or database.
-$recipient_email = "info@yourcms.com";
-$server_mandated_from_email = "noreply@yourcms.com";
-$from_display_name = "Your CMS Contact Form";
+$settingModel = new Setting($container->getPdo());
+$settings = $settingModel->getAllSettings();
+
+$recipient_email = $settings['contact_recipient_email'] ?? "info@yourcms.com";
+$server_mandated_from_email = $settings['contact_from_email'] ?? "noreply@yourcms.com";
+$from_display_name = $settings['contact_from_name'] ?? "Your CMS Contact Form";
 $email_subject_prefix = "New Contact Form Submission";
 
 // --- Initialize Response Array ---
@@ -15,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // --- Get and Trim Input ---
     $user_name = isset($_POST['name']) ? trim($_POST['name']) : '';
     $user_email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $user_subject = isset($_POST['subject']) ? trim($_POST['subject']) : '';
     $user_message = isset($_POST['message']) ? trim($_POST['message']) : ''; // Raw message
 
     // --- Server-side Validate Input ---
@@ -29,6 +37,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($user_message)) {
         $response['errors'][] = "Message is required.";
     }
+    if (empty($user_subject)) {
+        $response['errors'][] = "Subject is required.";
+    }
 
     if (!empty($response['errors'])) {
         http_response_code(400);
@@ -36,13 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // --- Sanitize inputs appropriately ---
         $display_user_name = htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8');
         $display_user_email = htmlspecialchars($user_email, ENT_QUOTES, 'UTF-8');
+        $display_user_subject = htmlspecialchars($user_subject, ENT_QUOTES, 'UTF-8');
         $message_for_html_body = nl2br(htmlspecialchars($user_message, ENT_QUOTES, 'UTF-8'));
 
         // --- Construct Email Content ---
-        $email_subject = $email_subject_prefix;
-        if (!empty($display_user_name)) {
-            $email_subject .= " from " . $display_user_name;
-        }
+        $email_subject = $email_subject_prefix . ": " . $display_user_subject;
 
         // Construct HTML Email Body
         $email_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>";

@@ -78,12 +78,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $messageType = 'error';
         }
     }
+
+    // Handle Contact Form Settings
+    if (isset($_POST['contact_form_settings_submit'])) {
+        $recipientEmail = $_POST['contact_recipient_email'] ?? '';
+        $fromEmail = $_POST['contact_from_email'] ?? '';
+        $fromName = $_POST['contact_from_name'] ?? '';
+
+        $updated = 0;
+        if ($settingModel->updateSetting('contact_recipient_email', $recipientEmail)) $updated++;
+        if ($settingModel->updateSetting('contact_from_email', $fromEmail)) $updated++;
+        if ($settingModel->updateSetting('contact_from_name', $fromName)) $updated++;
+
+        if ($updated > 0) {
+            $message = 'Contact form settings updated successfully!';
+            $messageType = 'success';
+        } else {
+            $message = 'Failed to update contact form settings.';
+            $messageType = 'error';
+        }
+    }
 }
 
 $settings = $settingModel->getAllSettings();
 $tinymceApiKey = $settings['tinymce_api_key'] ?? '';
 $siteLogo = $settings['site_logo'] ?? '/assets/images/default-logo.png';
 $heroImage = $settings['hero_image'] ?? '/assets/images/default-hero.jpg';
+
+// These assignments must happen AFTER all POST handling
+$contactRecipientEmail = $settings['contact_recipient_email'] ?? '';
+$contactFromEmail = $settings['contact_from_email'] ?? '';
+$contactFromName = $settings['contact_from_name'] ?? '';
 
 $page_title = 'System Settings';
 include __DIR__ . '/../header.php';
@@ -103,22 +128,57 @@ include __DIR__ . '/../header.php';
 <?php endif; ?>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div class="bg-white p-8 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">API Keys</h2>
-        <form method="post">
-            <div class="mb-6">
-                <label for="tinymce_api_key" class="block text-gray-700 text-sm font-bold mb-2">TinyMCE API Key</label>
-                <input type="text" id="tinymce_api_key" name="tinymce_api_key" value="<?= htmlspecialchars($tinymceApiKey) ?>" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <p class="text-gray-600 text-xs italic mt-2">
-                    Get your free API key from <a href="https://www.tiny.cloud/auth/signup/" target="_blank" class="text-blue-500 hover:underline">tiny.cloud</a>.
-                </p>
-            </div>
-            <div class="flex items-center">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Save API Key
-                </button>
-            </div>
-        </form>
+    <div>
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">API Keys</h2>
+            <form method="post">
+                <div class="mb-6">
+                    <label for="tinymce_api_key" class="block text-gray-700 text-sm font-bold mb-2">TinyMCE API Key</label>
+                    <input type="text" id="tinymce_api_key" name="tinymce_api_key" value="<?= htmlspecialchars($tinymceApiKey) ?>" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-600 text-xs italic mt-2">
+                        Get your free API key from <a href="https://www.tiny.cloud/auth/signup/" target="_blank" class="text-blue-500 hover:underline">tiny.cloud</a>.
+                    </p>
+                </div>
+                <div class="flex items-center">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Save API Key
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Contact Form Settings</h2>
+            <form method="post">
+                <input type="hidden" name="contact_form_settings_submit" value="1">
+                <div class="mb-6">
+                    <label for="contact_recipient_email" class="block text-gray-700 text-sm font-bold mb-2">Recipient Email</label>
+                    <input type="email" id="contact_recipient_email" name="contact_recipient_email" value="<?= htmlspecialchars($contactRecipientEmail) ?>" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-600 text-xs italic mt-2">
+                        The email address where contact form submissions will be sent.
+                    </p>
+                </div>
+                <div class="mb-6">
+                    <label for="contact_from_email" class="block text-gray-700 text-sm font-bold mb-2">"From" Email Address</label>
+                    <input type="email" id="contact_from_email" name="contact_from_email" value="<?= htmlspecialchars($contactFromEmail) ?>" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-600 text-xs italic mt-2">
+                        The email address used in the "From" field of the sent email (often a server-mandated address like noreply@yourdomain.com).
+                    </p>
+                </div>
+                <div class="mb-6">
+                    <label for="contact_from_name" class="block text-gray-700 text-sm font-bold mb-2">"From" Display Name</label>
+                    <input type="text" id="contact_from_name" name="contact_from_name" value="<?= htmlspecialchars($contactFromName) ?>" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-600 text-xs italic mt-2">
+                        The name displayed as the sender of the contact form email.
+                    </p>
+                </div>
+                <div class="flex items-center">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Save Contact Settings
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="bg-white p-8 rounded-lg shadow-md">

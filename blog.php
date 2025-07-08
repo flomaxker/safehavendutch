@@ -15,8 +15,8 @@ include 'header.php';
     <div class="bg-blur-circle-br"></div>
 
     <!-- Blog Hero Section -->
-    <section class="text-center py-20 bg-primary-100 relative">
-        <div class="container mx-auto relative z-10">
+    <section class="pt-24 bg-primary-100 relative">
+        <div class="container mx-auto relative z-10 py-20 text-center">
             <h1 class="text-5xl font-bold text-primary-800 mb-4">Our Blog</h1>
             <p class="text-xl text-primary-700 max-w-3xl mx-auto">
                 Insights, stories, and advice on navigating life abroad.

@@ -51,5 +51,5 @@ $nav_links = [
     ['title' => 'About', 'url' => 'about.php'],
     ['title' => 'Packages', 'url' => 'packages.php'],
     ['title' => 'Blog', 'url' => 'blog.php'],
-    ['title' => 'Contact', 'url' => 'page.php?slug=contact']
+    ['title' => 'Contact', 'url' => 'contact.php']
 ];

@@ -161,5 +161,15 @@ class Package
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM packages WHERE active = 1");
         return (int)$stmt->fetchColumn();
     }
+
+    /**
+     * Get all active packages.
+     * @return array
+     */
+    public function getAllActive(): array
+    {
+        $stmt = $this->pdo->query("SELECT * FROM packages WHERE active = 1 ORDER BY id ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 

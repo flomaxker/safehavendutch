@@ -23,7 +23,7 @@ $success = '';
 // Initialize form fields with existing package data
 $name = $package['name'];
 $description = $package['description'];
-$creditAmount = $package['credit_amount'];
+$creditAmount = $package['euro_value'];
 $priceEuros = $package['price_cents'] / 100;
 $active = (bool)$package['active'];
 
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $package = $packageModel->getById($id);
         $name = $package['name'];
         $description = $package['description'];
-        $creditAmount = $package['credit_amount'];
+        $creditAmount = $package['euro_value'];
         $priceCents = $package['price_cents'];
         $active = (bool)$package['active'];
     }

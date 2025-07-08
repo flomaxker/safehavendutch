@@ -30,6 +30,9 @@ $pages = $pageModel->getAll();
                     Slug
                 </th>
                 <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Page Type
+                </th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Actions
                 </th>
             </tr>
@@ -48,13 +51,10 @@ $pages = $pageModel->getAll();
                             <?php echo htmlspecialchars($page['slug']); ?>
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <?php 
-                                        $edit_url = 'edit.php?id=' . $page['id'];
-                                        if ($page['slug'] === 'about') {
-                                            $edit_url = 'edit_about.php';
-                                        }
-                                    ?>
-                                    <a href="<?php echo $edit_url; ?>" class="text-blue-500 hover:text-blue-700">Edit</a>
+                            <?php echo htmlspecialchars($page['page_type'] ?? 'standard'); ?>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <a href="edit.php?id=<?php echo $page['id']; ?>" class="text-blue-500 hover:text-blue-700">Edit</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

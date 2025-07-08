@@ -2,11 +2,15 @@
 require_once __DIR__ . '/bootstrap.php';
 
 use App\Models\Package;
+use App\Models\Page;
+
+$pageModel = $container->getPageModel();
+$page = $pageModel->findBySlug('packages');
 
 $packageModel = new Package($container->getPdo());
 $packages = $packageModel->getAllActive();
 
-$page_title = 'Our Packages';
+$page_title = $page['title'] ?? 'Our Packages';
 include 'header.php';
 ?>
 
@@ -15,14 +19,20 @@ include 'header.php';
     <div class="bg-blur-circle-br"></div>
 
     <!-- Packages Hero Section -->
-    <section class="text-center py-20 bg-primary-100 relative">
-        <div class="container mx-auto relative z-10">
-            <h1 class="text-5xl font-bold text-primary-800 mb-4">Our Packages</h1>
+    <section class="pt-24 bg-primary-100 relative">
+        <div class="container mx-auto relative z-10 py-20 text-center">
+            <h1 class="text-5xl font-bold text-primary-800 mb-4"><?php echo htmlspecialchars($page['title'] ?? 'Our Packages'); ?></h1>
             <p class="text-xl text-primary-700 max-w-3xl mx-auto">
-                Choose the perfect plan to start your journey with us. All packages include personalized coaching and access to our community.
+                <?php echo htmlspecialchars($page['meta_description'] ?? 'Choose the perfect plan to start your journey with us. All packages include personalized coaching and access to our community.'); ?>
             </p>
         </div>
     </section>
+
+    <div class="container mx-auto px-6 py-8">
+        <p class="text-lg text-gray-700 leading-relaxed">
+            <?php echo nl2br(htmlspecialchars($page['main_content'] ?? '')); ?>
+        </p>
+    </div>
 
     <!-- Pricing Section -->
     <section class="py-20">

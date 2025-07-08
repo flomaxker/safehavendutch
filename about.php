@@ -15,8 +15,8 @@ include 'header.php';
     <div class="bg-blur-circle-br"></div>
 
     <!-- About Us Hero Section -->
-    <section class="text-center py-20 bg-primary-100 relative">
-        <div class="container mx-auto relative z-10">
+    <section class="pt-24 bg-primary-100 relative">
+        <div class="container mx-auto relative z-10 py-20 text-center">
             <h1 class="text-5xl font-bold text-primary-800 mb-4"><?php echo htmlspecialchars($page['about_hero_title'] ?? 'About Safe Haven Dutch'); ?></h1>
             <p class="text-xl text-primary-700 max-w-3xl mx-auto">
                 <?php echo htmlspecialchars($page['about_hero_subtitle'] ?? ''); ?>

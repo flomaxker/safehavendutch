@@ -1,0 +1,11 @@
+ALTER TABLE pages
+ADD COLUMN features_heading VARCHAR(255) NULL,
+ADD COLUMN feature1_icon VARCHAR(255) NULL,
+ADD COLUMN feature1_title VARCHAR(255) NULL,
+ADD COLUMN feature1_description TEXT NULL,
+ADD COLUMN feature2_icon VARCHAR(255) NULL,
+ADD COLUMN feature2_title VARCHAR(255) NULL,
+ADD COLUMN feature2_description TEXT NULL,
+ADD COLUMN feature3_icon VARCHAR(255) NULL,
+ADD COLUMN feature3_title VARCHAR(255) NULL,
+ADD COLUMN feature3_description TEXT NULL;
