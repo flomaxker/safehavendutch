@@ -42,7 +42,7 @@ include 'header.php'; // We still need the header for nav, etc.
                 <div class="grid md:grid-cols-3 gap-8">
                     <div class="feature-card bg-primary-100 text-center">
                         <div class="feature-icon mx-auto">
-                            <span class="material-icons"><?php echo htmlspecialchars($page['feature1_icon'] ?? ''); ?></span>
+                            <i class="fas fa-lg <?php echo htmlspecialchars($page['feature1_icon'] ?? ''); ?>"></i>
                         </div>
                         <h3 class="text-2xl font-semibold text-primary-800 mb-2"><?php echo htmlspecialchars($page['feature1_title'] ?? ''); ?></h3>
                         <p class="text-gray-600">
@@ -51,7 +51,7 @@ include 'header.php'; // We still need the header for nav, etc.
                     </div>
                     <div class="feature-card bg-secondary-100 text-center">
                         <div class="feature-icon mx-auto" style="background-color: #ccfbf1;">
-                            <span class="material-icons text-secondary-600"><?php echo htmlspecialchars($page['feature2_icon'] ?? ''); ?></span>
+                            <i class="fas fa-lg <?php echo htmlspecialchars($page['feature2_icon'] ?? ''); ?> text-secondary-600"></i>
                         </div>
                         <h3 class="text-2xl font-semibold text-secondary-800 mb-2"><?php echo htmlspecialchars($page['feature2_title'] ?? ''); ?></h3>
                         <p class="text-gray-600">
@@ -60,7 +60,7 @@ include 'header.php'; // We still need the header for nav, etc.
                     </div>
                     <div class="feature-card bg-white text-center">
                          <div class="feature-icon mx-auto">
-                            <span class="material-icons"><?php echo htmlspecialchars($page['feature3_icon'] ?? ''); ?></span>
+                            <i class="fas fa-lg <?php echo htmlspecialchars($page['feature3_icon'] ?? ''); ?>"></i>
                         </div>
                         <h3 class="text-2xl font-semibold text-primary-800 mb-2"><?php echo htmlspecialchars($page['feature3_title'] ?? ''); ?></h3>
                         <p class="text-gray-600">

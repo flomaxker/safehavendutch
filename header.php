@@ -54,10 +54,10 @@ if (isset($_SESSION['user_id'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-    <link rel="stylesheet" href="/css/landing.css?v=<?php echo filemtime(__DIR__ . '/css/landing.css'); ?>">
-    <link rel="stylesheet" href="/style.css?v=<?php echo filemtime(__DIR__ . '/style.css'); ?>">
-    <link rel="stylesheet" href="/css/extras.css?v=<?php echo filemtime(__DIR__ . '/css/extras.css'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/landing.css?v=<?php echo filemtime(__DIR__ . '/css/landing.css'); ?>">
+    <link rel="stylesheet" href="/css/extras.css?v=<?php echo filemtime(__DIR__ . '/css/extras.css'); ?>">
+    <link rel="stylesheet" href="/style.css?v=<?php echo filemtime(__DIR__ . '/style.css'); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <style>[x-cloak] { display: none !important; }</style>
