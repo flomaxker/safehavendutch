@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
-
+ob_start(); // Start output buffering
+session_start(); // Ensure session is started before destroying
 session_unset();
 session_destroy();
 
-header('Location: login.php');
+ob_end_clean(); // Clean (erase) the output buffer and turn off output buffering
+header('Location: /login.php'); // Redirect to the main login page
 exit();
