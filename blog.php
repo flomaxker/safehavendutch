@@ -2,11 +2,15 @@
 require_once __DIR__ . '/bootstrap.php';
 
 use App\Models\Post;
+use App\Models\Page;
+
+$pageModel = $container->getPageModel();
+$page = $pageModel->findBySlug('blog');
 
 $postModel = new Post($container->getPdo());
 $posts = $postModel->getPublishedPosts();
 
-$page_title = 'Blog';
+$page_title = $page['title'] ?? 'Blog';
 include 'header.php';
 ?>
 

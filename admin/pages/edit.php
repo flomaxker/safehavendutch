@@ -43,6 +43,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['page_id'])) {
         'about_founder_title' => $_POST['about_founder_title'] ?? '',
         'about_founder_quote' => $_POST['about_founder_quote'] ?? '',
         'about_founder_image' => $_POST['about_founder_image'] ?? '',
+        'features_heading' => $_POST['features_heading'] ?? null,
+        'feature1_icon' => $_POST['feature1_icon'] ?? null,
+        'feature1_title' => $_POST['feature1_title'] ?? null,
+        'feature1_description' => $_POST['feature1_description'] ?? null,
+        'feature2_icon' => $_POST['feature2_icon'] ?? null,
+        'feature2_title' => $_POST['feature2_title'] ?? null,
+        'feature2_description' => $_POST['feature2_description'] ?? null,
+        'feature3_icon' => $_POST['feature3_icon'] ?? null,
+        'feature3_title' => $_POST['feature3_title'] ?? null,
+        'feature3_description' => $_POST['feature3_description'] ?? null,
     ];
 
     if (empty($updated_data['title'])) {
@@ -64,8 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['page_id'])) {
     $errors[] = "Invalid request.";
 }
 
-$nonce = base64_encode(random_bytes(16));
-
+$_SESSION['csrf_token'] = $nonce; // Use the single, valid nonce from the header for security.
 ?>
 
 <header class="flex justify-between items-center mb-8">
@@ -107,7 +116,50 @@ $nonce = base64_encode(random_bytes(16));
             </div>
 
             <?php if ($page['page_type'] === 'home'): ?>
-            <!-- Home Page Fields -->
+            <div class="mt-6 border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Hero Section</h2>
+                <div class="mb-4">
+                    <label for="hero_title" class="block text-gray-700 text-sm font-bold mb-2">Hero Title:</label>
+                    <input type="text" id="hero_title" name="hero_title" value="<?php echo htmlspecialchars($page['hero_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="mb-4">
+                    <label for="hero_subtitle" class="block text-gray-700 text-sm font-bold mb-2">Hero Subtitle:</label>
+                    <textarea id="hero_subtitle" name="hero_subtitle" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"><?php echo htmlspecialchars($page['hero_subtitle'] ?? ''); ?></textarea>
+                </div>
+            </div>
+            <div class="mt-6 border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Features Section</h2>
+                <div class="mb-4">
+                    <label for="features_heading" class="block text-gray-700 text-sm font-bold mb-2">Features Heading:</label>
+                    <input type="text" id="features_heading" name="features_heading" value="<?php echo htmlspecialchars($page['features_heading'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="feature1_icon" class="block text-gray-700 text-sm font-bold mb-2">Feature 1 Icon:</label>
+                        <input type="text" id="feature1_icon" name="feature1_icon" value="<?php echo htmlspecialchars($page['feature1_icon'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <label for="feature1_title" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Feature 1 Title:</label>
+                        <input type="text" id="feature1_title" name="feature1_title" value="<?php echo htmlspecialchars($page['feature1_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <label for="feature1_description" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Feature 1 Description:</label>
+                        <textarea id="feature1_description" name="feature1_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"><?php echo htmlspecialchars($page['feature1_description'] ?? ''); ?></textarea>
+                    </div>
+                    <div>
+                        <label for="feature2_icon" class="block text-gray-700 text-sm font-bold mb-2">Feature 2 Icon:</label>
+                        <input type="text" id="feature2_icon" name="feature2_icon" value="<?php echo htmlspecialchars($page['feature2_icon'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <label for="feature2_title" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Feature 2 Title:</label>
+                        <input type="text" id="feature2_title" name="feature2_title" value="<?php echo htmlspecialchars($page['feature2_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <label for="feature2_description" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Feature 2 Description:</label>
+                        <textarea id="feature2_description" name="feature2_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"><?php echo htmlspecialchars($page['feature2_description'] ?? ''); ?></textarea>
+                    </div>
+                    <div>
+                        <label for="feature3_icon" class="block text-gray-700 text-sm font-bold mb-2">Feature 3 Icon:</label>
+                        <input type="text" id="feature3_icon" name="feature3_icon" value="<?php echo htmlspecialchars($page['feature3_icon'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <label for="feature3_title" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Feature 3 Title:</label>
+                        <input type="text" id="feature3_title" name="feature3_title" value="<?php echo htmlspecialchars($page['feature3_title'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <label for="feature3_description" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Feature 3 Description:</label>
+                        <textarea id="feature3_description" name="feature3_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"><?php echo htmlspecialchars($page['feature3_description'] ?? ''); ?></textarea>
+                    </div>
+                </div>
+            </div>
             <?php endif; ?>
 
             <?php if ($page['page_type'] === 'standard'): ?>
@@ -315,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', '../upload_image.php', true);
+                xhr.setRequestHeader('X-CSRF-Token', '<?php echo $nonce; ?>');
 
                 xhr.onload = function() {
                     if (xhr.status === 200) {

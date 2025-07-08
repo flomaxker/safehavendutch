@@ -29,7 +29,18 @@ $siteLogo = $settings['site_logo'] ?? '/assets/images/default-logo.png';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Safe Haven Dutch</title>
+    
+    <!-- SEO -->
+    <title><?php echo htmlspecialchars($page['title'] ?? 'Safe Haven Dutch'); ?></title>
+    <meta name="description" content="<?php echo htmlspecialchars($page['meta_description'] ?? 'Default meta description for Safe Haven Dutch.'); ?>">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="<?php echo htmlspecialchars($page['og_title'] ?? $page['title'] ?? 'Safe Haven Dutch'); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars($page['og_description'] ?? $page['meta_description'] ?? 'Default OG description.'); ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($page['og_image'] ?? $siteLogo); ?>">
+    <meta property="og:url" content="<?php echo htmlspecialchars($page['og_url'] ?? (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>">
+    <meta property="og:type" content="website">
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
     <link rel="stylesheet" href="/css/landing.css?v=<?php echo filemtime(__DIR__ . '/css/landing.css'); ?>">
     <link rel="stylesheet" href="/style.css?v=<?php echo filemtime(__DIR__ . '/style.css'); ?>">

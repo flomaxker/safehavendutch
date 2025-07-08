@@ -1,6 +1,13 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
 
+// Check for CSRF token
+if (!isset($_SERVER['HTTP_X_CSRF_TOKEN']) || $_SERVER['HTTP_X_CSRF_TOKEN'] !== $_SESSION['csrf_token']) {
+    header('HTTP/1.1 403 Forbidden');
+    echo json_encode(['error' => 'Invalid CSRF token.']);
+    exit();
+}
+
 // Check if user is admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('HTTP/1.1 403 Forbidden');
