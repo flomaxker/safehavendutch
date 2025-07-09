@@ -113,7 +113,7 @@ function is_active_link($link_url, $current_uri) {
         <i class="fas fa-bars text-gray-600 text-2xl"></i>
     </button>
 
-    <aside id="sidebar" class="w-full md:w-64 bg-white p-8 border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out z-50 md:flex">
+    <aside id="sidebar" class="w-full md:w-72 bg-white p-8 border-r border-gray-200 flex-col justify-between h-screen overflow-y-auto fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out z-50 md:flex">
         <div>
             <div class="flex items-center mb-4">
                 <img alt="Site logo" class="h-8 mr-2" src="<?php echo $site_logo; ?>"/>
@@ -165,7 +165,7 @@ function is_active_link($link_url, $current_uri) {
     <!-- Overlay for mobile menu -->
     <div id="mobile-menu-overlay" class="fixed inset-0 bg-black opacity-0 md:hidden z-40 pointer-events-none transition-opacity duration-200 ease-in-out"></div>
 
-    <main class="w-full md:flex-1 p-8 h-screen overflow-y-auto">
+    <main class="w-full md:flex-1 p-8 h-screen overflow-y-auto bg-white rounded-lg shadow-md">
         <div class="flex justify-end mb-6">
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">

@@ -279,7 +279,7 @@ if (!empty($quick_actions_order)) {
             </div>
 
             <!-- Business Overview Chart -->
-            <div class="bg-white p-6 rounded-2xl shadow-lg flex-grow flex flex-col">
+            <div class="bg-white p-6 rounded-2xl shadow-lg h-[350px] flex flex-col">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 flex-shrink-0">
                     <h2 class="text-xl font-bold text-gray-800 mb-2 md:mb-0">Business Overview</h2>
                     <div class="flex items-center space-x-2">
@@ -304,9 +304,9 @@ if (!empty($quick_actions_order)) {
         </div>
 
         <!-- Right Column: Recent Activity -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+        <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col flex-grow">
             <h2 class="text-xl font-bold text-gray-800 mb-4 flex-shrink-0">Recent Activity</h2>
-            <div class="relative flex-grow overflow-y-auto pr-4 -mr-4">
+            <div class="relative flex-grow overflow-y-auto">
                 <div class="relative border-l-2 border-gray-200 ml-3 space-y-8">
                         <?php if (!empty($all_activities)): ?>
                             <?php foreach ($all_activities as $activity): ?>
