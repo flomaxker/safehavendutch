@@ -30,6 +30,21 @@ $stmt_packages = $pdo->prepare("SELECT COUNT(*) as count FROM purchases");
 $stmt_packages->execute();
 $total_packages_sold = $stmt_packages->fetchColumn();
 
+// 4. Total Registered Users
+$stmt_total_users = $pdo->prepare("SELECT COUNT(*) FROM users");
+$stmt_total_users->execute();
+$total_registered_users = $stmt_total_users->fetchColumn();
+
+// 5. Total Lessons Booked
+$stmt_total_bookings = $pdo->prepare("SELECT COUNT(*) FROM bookings");
+$stmt_total_bookings->execute();
+$total_lessons_booked = $stmt_total_bookings->fetchColumn();
+
+// 6. Total Revenue (All Time)
+$stmt_total_revenue = $pdo->prepare("SELECT SUM(amount_cents) FROM purchases");
+$stmt_total_revenue->execute();
+$total_revenue = $stmt_total_revenue->fetchColumn() ?: 0;
+
 // Helper function to calculate percentage change
 function calculate_percentage_change($current, $previous) {
     if ($previous == 0) {
@@ -262,6 +277,43 @@ if (!empty($quick_actions_order)) {
 
         <!-- Left Column: Quick Actions and Chart -->
         <div class="lg:col-span-2 flex flex-col space-y-8">
+            <!-- Additional Key Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-indigo-100 text-indigo-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                            <span class="material-icons text-3xl">group</span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Registered Users</p>
+                            <p class="text-3xl font-bold text-gray-900"><?php echo $total_registered_users; ?></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-orange-100 text-orange-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                            <span class="material-icons text-3xl">event_available</span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Lessons Booked</p>
+                            <p class="text-3xl font-bold text-gray-900"><?php echo $total_lessons_booked; ?></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-teal-100 text-teal-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                            <span class="material-icons text-3xl">euro</span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Revenue</p>
+                            <p class="text-3xl font-bold text-gray-900">€<?php echo number_format($total_revenue / 100, 2); ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="bg-white p-6 rounded-2xl shadow-lg flex-shrink-0">
                 <div class="flex justify-between items-center mb-4">
