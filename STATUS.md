@@ -55,7 +55,7 @@ All new UI development must closely follow the style, structure, and user experi
 - **Parent Dashboard (Core)**: Parents can view their credit balance and a list of their upcoming lessons.
 - **Dynamic Site Content**: Admin can manage the homepage, about page, blog, and site branding (logo, hero image).
 - **Admin Dashboard KPIs**: Enhanced admin dashboard to display key performance indicators including total users, total bookings, and total revenue.
-- **UI/UX Enhancements**: Improved admin and user dashboard aesthetics, including wider sidebars, styled main content areas, and optimized chart/activity panel layouts.
+- **UI/UX Enhancements**: Improved admin and user dashboard aesthetics, including wider sidebars, styled main content areas, optimized chart/activity panel layouts, and a new right sidebar for recent activity with reordered central content elements.
 
 ### 🚀 Next Steps (Prioritized MVP To-Do List)
 

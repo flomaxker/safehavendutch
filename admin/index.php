@@ -225,58 +225,57 @@ if (!empty($quick_actions_order)) {
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
-    <!-- Key Metrics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <div class="flex items-center">
-                <div class="bg-blue-100 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
-                    <span class="material-icons text-3xl">person_add</span>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8 items-stretch">
+
+        <!-- Central Column: KPIs, Quick Actions, Chart -->
+        <div class="lg:col-span-3 flex flex-col space-y-8">
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                            <span class="material-icons text-3xl">person_add</span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">New Users (Today)</p>
+                            <div class="flex items-baseline">
+                                <p class="text-3xl font-bold text-gray-900"><?php echo $new_users_today; ?></p>
+                                <span class="text-sm font-semibold ml-2 <?php echo $user_change >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+                                    <?php echo ($user_change >= 0 ? '+' : '') . number_format($user_change, 1); ?>%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-gray-600 text-sm font-medium">New Users (Today)</p>
-                    <div class="flex items-baseline">
-                        <p class="text-3xl font-bold text-gray-900"><?php echo $new_users_today; ?></p>
-                        <span class="text-sm font-semibold ml-2 <?php echo $user_change >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
-                            <?php echo ($user_change >= 0 ? '+' : '') . number_format($user_change, 1); ?>%
-                        </span>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 text-green-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                            <span class="material-icons text-3xl">attach_money</span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Sales Revenue (Today)</p>
+                            <div class="flex items-baseline">
+                                <p class="text-3xl font-bold text-gray-900">€<?php echo number_format($sales_today / 100, 2); ?></p>
+                                <span class="text-sm font-semibold ml-2 <?php echo $sales_change >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+                                    <?php echo ($sales_change >= 0 ? '+' : '') . number_format($sales_change, 1); ?>%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 text-purple-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
+                            <span class="material-icons text-3xl">redeem</span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Packages Sold</p>
+                            <p class="text-3xl font-bold text-gray-900"><?php echo $total_packages_sold; ?></p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <div class="flex items-center">
-                <div class="bg-green-100 text-green-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
-                    <span class="material-icons text-3xl">attach_money</span>
-                </div>
-                <div>
-                    <p class="text-gray-600 text-sm font-medium">Sales Revenue (Today)</p>
-                    <div class="flex items-baseline">
-                        <p class="text-3xl font-bold text-gray-900">€<?php echo number_format($sales_today / 100, 2); ?></p>
-                        <span class="text-sm font-semibold ml-2 <?php echo $sales_change >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
-                            <?php echo ($sales_change >= 0 ? '+' : '') . number_format($sales_change, 1); ?>%
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <div class="flex items-center">
-                <div class="bg-purple-100 text-purple-600 w-12 h-12 flex items-center justify-center rounded-xl mr-4">
-                    <span class="material-icons text-3xl">redeem</span>
-                </div>
-                <div>
-                    <p class="text-gray-600 text-sm font-medium">Total Packages Sold</p>
-                    <p class="text-3xl font-bold text-gray-900"><?php echo $total_packages_sold; ?></p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-
-        <!-- Left Column: Quick Actions and Chart -->
-        <div class="lg:col-span-2 flex flex-col space-y-8">
             <!-- Additional Key Metrics -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
@@ -331,7 +330,7 @@ if (!empty($quick_actions_order)) {
             </div>
 
             <!-- Business Overview Chart -->
-            <div class="bg-white p-6 rounded-2xl shadow-lg h-[350px] flex flex-col">
+            <div class="bg-white p-6 rounded-2xl shadow-lg flex-grow flex flex-col">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 flex-shrink-0">
                     <h2 class="text-xl font-bold text-gray-800 mb-2 md:mb-0">Business Overview</h2>
                     <div class="flex items-center space-x-2">
@@ -355,55 +354,57 @@ if (!empty($quick_actions_order)) {
             </div>
         </div>
 
-        <!-- Right Column: Recent Activity -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col flex-grow">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex-shrink-0">Recent Activity</h2>
-            <div class="relative flex-grow overflow-y-auto">
-                <div class="relative border-l-2 border-gray-200 ml-3 space-y-8">
-                        <?php if (!empty($all_activities)): ?>
-                            <?php foreach ($all_activities as $activity): ?>
-                                <div class="relative">
-                                    <div class="absolute -left-4 top-1 flex items-center justify-center w-6 h-6 rounded-full
-                                        <?php if ($activity['type'] === 'user_registration'): ?> bg-blue-500
-                                        <?php elseif ($activity['type'] === 'purchase'): ?> bg-green-500
-                                        <?php elseif ($activity['type'] === 'booking'): ?> bg-purple-500
-                                        <?php endif; ?>
-                                    ">
-                                        <span class="material-icons text-white text-sm">
-                                            <?php if ($activity['type'] === 'user_registration'): ?>person_add
-                                            <?php elseif ($activity['type'] === 'purchase'): ?>shopping_cart
-                                            <?php elseif ($activity['type'] === 'booking'): ?>event_available
+        <!-- Right Sidebar: Recent Activity -->
+        <div class="lg:col-span-1 flex flex-col space-y-8">
+            <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col flex-grow">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex-shrink-0">Recent Activity</h2>
+                <div class="relative flex-grow overflow-y-auto">
+                    <div class="relative border-l-2 border-gray-200 ml-3 space-y-8">
+                            <?php if (!empty($all_activities)): ?>
+                                <?php foreach ($all_activities as $activity): ?>
+                                    <div class="relative">
+                                        <div class="absolute -left-4 top-1 flex items-center justify-center w-6 h-6 rounded-full
+                                            <?php if ($activity['type'] === 'user_registration'): ?> bg-blue-500
+                                            <?php elseif ($activity['type'] === 'purchase'): ?> bg-green-500
+                                            <?php elseif ($activity['type'] === 'booking'): ?> bg-purple-500
                                             <?php endif; ?>
-                                        </span>
-                                    </div>
-                                    <div class="ml-10">
-                                        <div class="flex justify-between items-center">
-                                            <p class="font-medium text-gray-800 text-sm">
+                                        ">
+                                            <span class="material-icons text-white text-sm">
+                                                <?php if ($activity['type'] === 'user_registration'): ?>person_add
+                                                <?php elseif ($activity['type'] === 'purchase'): ?>shopping_cart
+                                                <?php elseif ($activity['type'] === 'booking'): ?>event_available
+                                                <?php endif; ?>
+                                            </span>
+                                        </div>
+                                        <div class="ml-10">
+                                            <div class="flex justify-between items-center">
+                                                <p class="font-medium text-gray-800 text-sm">
+                                                    <?php if ($activity['type'] === 'user_registration'): ?>
+                                                        New User: <a href="/admin/users/edit.php?id=<?php echo $activity['details']['id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['name']); ?></a>
+                                                    <?php elseif ($activity['type'] === 'purchase'): ?>
+                                                        Purchase by <a href="/admin/users/edit.php?id=<?php echo $activity['details']['user_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['user_name']); ?></a>
+                                                    <?php elseif ($activity['type'] === 'booking'): ?>
+                                                        <a href="/admin/bookings/index.php?highlight=<?php echo $activity['details']['id']; ?>" class="text-blue-600 hover:underline">New Booking</a> by <a href="/admin/users/edit.php?id=<?php echo $activity['details']['user_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['user_name']); ?></a>
+                                                    <?php endif; ?>
+                                                </p>
+                                                <span class="text-xs text-gray-500 whitespace-nowrap pl-2"><?php echo time_ago($activity['timestamp']); ?></span>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-1">
                                                 <?php if ($activity['type'] === 'user_registration'): ?>
-                                                    New User: <a href="/admin/users/edit.php?id=<?php echo $activity['details']['id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['name']); ?></a>
+                                                    <?php echo htmlspecialchars($activity['details']['email']); ?>
                                                 <?php elseif ($activity['type'] === 'purchase'): ?>
-                                                    Purchase by <a href="/admin/users/edit.php?id=<?php echo $activity['details']['user_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['user_name']); ?></a>
+                                                    Amount: €<?php echo number_format($activity['details']['amount_cents'] / 100, 2); ?>
                                                 <?php elseif ($activity['type'] === 'booking'): ?>
-                                                    <a href="/admin/bookings/index.php?highlight=<?php echo $activity['details']['id']; ?>" class="text-blue-600 hover:underline">New Booking</a> by <a href="/admin/users/edit.php?id=<?php echo $activity['details']['user_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($activity['details']['user_name']); ?></a>
+                                                    <?php echo htmlspecialchars($activity['details']['lesson_title']); ?>
                                                 <?php endif; ?>
                                             </p>
-                                            <span class="text-xs text-gray-500 whitespace-nowrap pl-2"><?php echo time_ago($activity['timestamp']); ?></span>
                                         </div>
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            <?php if ($activity['type'] === 'user_registration'): ?>
-                                                <?php echo htmlspecialchars($activity['details']['email']); ?>
-                                            <?php elseif ($activity['type'] === 'purchase'): ?>
-                                                Amount: €<?php echo number_format($activity['details']['amount_cents'] / 100, 2); ?>
-                                            <?php elseif ($activity['type'] === 'booking'): ?>
-                                                <?php echo htmlspecialchars($activity['details']['lesson_title']); ?>
-                                            <?php endif; ?>
-                                        </p>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-gray-600">No recent activity.</p>
-                        <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-gray-600">No recent activity.</p>
+                            <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
