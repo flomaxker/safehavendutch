@@ -8,3 +8,6 @@
 !/uploads/.gitkeep
 content/blog/user/
 !content/blog/user/.gitkeep
+
+# Internal project management file
+STATUS.md
