@@ -223,7 +223,8 @@ if (!empty($quick_actions_order)) {
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+    <h1 class="text-3xl font-light text-gray-600">Welcome back, <?php echo htmlspecialchars($admin_name); ?>!</h1>
+    <h2 class="text-2xl font-bold text-gray-800 mt-4 mb-6">Dashboard</h2>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8 items-stretch">
 
@@ -359,11 +360,11 @@ if (!empty($quick_actions_order)) {
             <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col flex-grow">
                 <h2 class="text-xl font-bold text-gray-800 mb-4 flex-shrink-0">Recent Activity</h2>
                 <div class="relative flex-grow overflow-y-auto">
-                    <div class="relative border-l-2 border-gray-200 ml-3 space-y-8">
+                    <div class="relative border-l-2 border-gray-200 ml-4 space-y-8">
                             <?php if (!empty($all_activities)): ?>
                                 <?php foreach ($all_activities as $activity): ?>
                                     <div class="relative">
-                                        <div class="absolute -left-4 top-1 flex items-center justify-center w-6 h-6 rounded-full
+                                        <div class="absolute -left-3 top-1 flex items-center justify-center w-6 h-6 rounded-full
                                             <?php if ($activity['type'] === 'user_registration'): ?> bg-blue-500
                                             <?php elseif ($activity['type'] === 'purchase'): ?> bg-green-500
                                             <?php elseif ($activity['type'] === 'booking'): ?> bg-purple-500
