@@ -2,7 +2,7 @@
 
 This is a custom-built Content Management System (CMS) for "Safe Haven Dutch," a coaching service for expats and internationals in the Netherlands. It is built with a modern tech stack and features a user-friendly front-end and a powerful admin panel.
 
-For detailed project status, development roadmap, and design guidelines, please refer to `STATUS.md`.
+For detailed project status, development roadmap, and design guidelines, please refer to `STATUS.md`. For detailed project documentation, see the [`/docs`](./docs) folder.
 
 ---
 
