@@ -137,7 +137,7 @@ function is_active_link($link_url, $current_uri) {
                             $menu_id = 'user_menu_item_' . $index;
                         ?>
                         <li x-data="{ open: JSON.parse(localStorage.getItem('<?php echo $menu_id; ?>')) ?? <?php echo $is_group_active ? 'true' : 'false'; ?> }" x-init="$watch('open', val => localStorage.setItem('<?php echo $menu_id; ?>', val))">
-                            <a href="#" @click.prevent="open = !open" class="flex items-center justify-between text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 <?php echo $is_group_active ? 'bg-gray-100 text-gray-900' : ''; ?>">
+                            <a href="#" @click.prevent="open = !open" class="flex items-center justify-between text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 text-sm <?php echo $is_group_active ? 'bg-gray-100 text-gray-900' : ''; ?>">
                                 <div class="flex items-center">
                                     <span class="material-icons mr-3"><?php echo $group['links'][0]['icon']; ?></span> <!-- Using first icon of the group as group icon -->
                                     <span><?php echo $group['title']; ?></span>
@@ -148,7 +148,7 @@ function is_active_link($link_url, $current_uri) {
                                 <?php foreach ($group['links'] as $link): ?>
                                     <?php $is_active = is_active_link($link['url'], $current_uri); ?>
                                     <li>
-                                        <a href="<?php echo $link['url']; ?>" class="flex items-center text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 <?php echo $is_active ? 'bg-gray-200 text-gray-900' : ''; ?>">
+                                        <a href="<?php echo $link['url']; ?>" class="flex items-center text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg transition-colors duration-200 text-sm <?php echo $is_active ? 'bg-gray-200 text-gray-900' : ''; ?>">
                                             <span class="material-icons mr-3"><?php echo $link['icon']; ?></span>
                                             <span><?php echo $link['title']; ?></span>
                                         </a>

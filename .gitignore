@@ -10,6 +10,6 @@ content/blog/user/
 !content/blog/user/.gitkeep
 
 # Internal project management file
-STATUS.md
+/docs/STATUS.md
 /docs/PROJECT_OVERVIEW.md
 /docs/DEVELOPMENT_SESSION.md
