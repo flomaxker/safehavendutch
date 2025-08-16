@@ -6,7 +6,8 @@ require_once __DIR__ . '/vendor/autoload.php'; // Ensure Composer autoloader is 
 use Dotenv\Dotenv;
 
 if (file_exists(__DIR__ . '/.env')) {
-    $dotenv = Dotenv::createImmutable(__DIR__);
+    // Use unsafe to populate getenv() for Database.php
+    $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
     $dotenv->load();
 }
 
@@ -31,6 +32,8 @@ try {    $database = new Database();    $pdo = $database->getConnection();    ec
             'hero_title' => 'Welcome to Your Platform',
             'hero_subtitle' => 'Your personalized solution for [Your Niche/Benefit].',
             'main_content' => 'This is the main content for the homepage. You can edit this text from the admin panel.',
+            'show_contact_form' => 1,
+            'show_packages' => 1,
             'features_heading' => 'Our Supportive Features',
             'feature1_icon' => 'school',
             'feature1_title' => 'Feature One Title',
@@ -71,7 +74,7 @@ try {    $database = new Database();    $pdo = $database->getConnection();    ec
             'og_description' => 'Have questions or need support? Contact our team.',
             'og_url' => '/contact.php',
             'og_image' => '/assets/images/default-blog-banner.jpg',
-            'content' => '<h2>Contact Us</h2><p>We\'d love to hear from you! Whether you have a question about our CMS, need technical support, or just want to provide feedback, feel free to reach out.</p>\n<p>You can reach us via email at <a href="mailto:info@yourcompany.com">info@yourcompany.com</a> or through the contact form on our homepage.</p>',
+            'main_content' => 'We\'d love to hear from you! Whether you have a question about our CMS, need technical support, or just want to provide feedback, feel free to reach out.\n\nYou can reach us via email at info@yourcompany.com or through the contact form on our homepage.',
         ],
         [
             'slug' => 'privacy-policy',

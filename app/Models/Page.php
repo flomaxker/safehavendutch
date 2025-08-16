@@ -24,7 +24,7 @@ class Page
 
     public function create(array $data): bool
     {
-        $sql = "INSERT INTO pages (slug, title, meta_description, og_title, og_description, og_url, og_image, hero_title, hero_subtitle, main_content, show_contact_form, show_packages, about_hero_title, about_hero_subtitle, about_mission_heading, about_mission_text, about_mission_image, about_founder_heading, about_founder_image, about_founder_name, about_founder_title, about_founder_quote, features_heading, feature1_icon, feature1_title, feature1_description, feature2_icon, feature2_title, feature2_description, feature3_icon, feature3_title, feature3_description, page_type) VALUES (:slug, :title, :meta_description, :og_title, :og_description, :og_url, :og_image, :hero_title, :hero_subtitle, :main_content, :show_contact_form, :show_packages, :about_hero_title, :about_hero_subtitle, :about_mission_heading, :about_mission_text, :about_mission_image, :about_founder_heading, :about_founder_image, :about_founder_name, :about_founder_title, :about_founder_quote, :features_heading, :feature1_icon, :feature1_title, :feature1_description, :feature2_icon, :feature2_title, :feature2_description, :feature3_icon, :feature3_title, :feature3_description, :page_type)";
+        $sql = "INSERT INTO pages (slug, title, meta_description, og_title, og_description, og_url, og_image, content, hero_title, hero_subtitle, main_content, show_contact_form, show_packages, about_hero_title, about_hero_subtitle, about_mission_heading, about_mission_text, about_mission_image, about_founder_heading, about_founder_image, about_founder_name, about_founder_title, about_founder_quote, features_heading, feature1_icon, feature1_title, feature1_description, feature2_icon, feature2_title, feature2_description, feature3_icon, feature3_title, feature3_description, page_type) VALUES (:slug, :title, :meta_description, :og_title, :og_description, :og_url, :og_image, :content, :hero_title, :hero_subtitle, :main_content, :show_contact_form, :show_packages, :about_hero_title, :about_hero_subtitle, :about_mission_heading, :about_mission_text, :about_mission_image, :about_founder_heading, :about_founder_image, :about_founder_name, :about_founder_title, :about_founder_quote, :features_heading, :feature1_icon, :feature1_title, :feature1_description, :feature2_icon, :feature2_title, :feature2_description, :feature3_icon, :feature3_title, :feature3_description, :page_type)";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
             'slug' => $data['slug'],
@@ -34,6 +34,7 @@ class Page
             'og_description' => $data['og_description'] ?? null,
             'og_url' => $data['og_url'] ?? null,
             'og_image' => $data['og_image'] ?? null,
+            'content' => $data['content'] ?? null,
             'hero_title' => $data['hero_title'] ?? null,
             'hero_subtitle' => $data['hero_subtitle'] ?? null,
             'main_content' => $data['main_content'] ?? null,
