@@ -51,6 +51,27 @@ if ($q !== '') {
     $params[':q'] = $q_like;
 }
 
+// Sorting (whitelisted columns)
+$allowed_sorts = [
+    'name' => 'children.name',
+    'date_of_birth' => 'children.date_of_birth',
+    'parent_name' => 'users.name',
+    'parent_email' => 'users.email',
+];
+if ($has_status_column) {
+    $allowed_sorts['status'] = 'children.status';
+}
+
+$order_by = isset($_GET['order_by']) ? (string) $_GET['order_by'] : 'name';
+if (!array_key_exists($order_by, $allowed_sorts)) {
+    $order_by = 'name';
+}
+$order_direction = strtoupper((string) ($_GET['order_direction'] ?? 'ASC'));
+if ($order_direction !== 'ASC' && $order_direction !== 'DESC') {
+    $order_direction = 'ASC';
+}
+$order_by_sql = $allowed_sorts[$order_by];
+
 // Count query for pagination
 $count_sql = 'SELECT COUNT(*) AS total FROM children JOIN users ON children.user_id = users.id' . $where;
 $count_stmt = $pdo->prepare($count_sql);
@@ -67,7 +88,7 @@ if ($has_status_column) {
     $select_fields .= ', children.status';
 }
 
-$sql = 'SELECT ' . $select_fields . ' FROM children JOIN users ON children.user_id = users.id' . $where . ' ORDER BY children.name ASC LIMIT :limit OFFSET :offset';
+$sql = 'SELECT ' . $select_fields . ' FROM children JOIN users ON children.user_id = users.id' . $where . ' ORDER BY ' . $order_by_sql . ' ' . $order_direction . ' LIMIT :limit OFFSET :offset';
 $stmt = $pdo->prepare($sql);
 foreach ($params as $key => $value) {
     $stmt->bindValue($key, $value);
@@ -144,12 +165,55 @@ require_once __DIR__ . '/../header.php';
       <table class="min-w-full leading-normal">
           <thead>
               <tr>
-                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Child</th>
-                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DOB → Age</th>
-                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Parent Name</th>
-                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Parent Email</th>
+                  <?php
+                    $sort_url = function (string $key) use ($q, $per_page, $order_by, $order_direction): string {
+                        $new_dir = ($order_by === $key && strtoupper($order_direction) === 'ASC') ? 'DESC' : 'ASC';
+                        $params = [
+                            'page' => 1,
+                            'per_page' => $per_page,
+                            'order_by' => $key,
+                            'order_direction' => $new_dir,
+                        ];
+                        if ($q !== '') { $params['q'] = $q; }
+                        return 'index.php?' . http_build_query($params);
+                    };
+                  ?>
+                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <a href="<?= $sort_url('name'); ?>" class="flex items-center">Child
+                          <?php if ($order_by === 'name'): ?>
+                              <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down'; ?> ml-1"></i>
+                          <?php endif; ?>
+                      </a>
+                  </th>
+                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <a href="<?= $sort_url('date_of_birth'); ?>" class="flex items-center">DOB → Age
+                          <?php if ($order_by === 'date_of_birth'): ?>
+                              <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down'; ?> ml-1"></i>
+                          <?php endif; ?>
+                      </a>
+                  </th>
+                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <a href="<?= $sort_url('parent_name'); ?>" class="flex items-center">Parent Name
+                          <?php if ($order_by === 'parent_name'): ?>
+                              <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down'; ?> ml-1"></i>
+                          <?php endif; ?>
+                      </a>
+                  </th>
+                  <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <a href="<?= $sort_url('parent_email'); ?>" class="flex items-center">Parent Email
+                          <?php if ($order_by === 'parent_email'): ?>
+                              <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down'; ?> ml-1"></i>
+                          <?php endif; ?>
+                      </a>
+                  </th>
                   <?php if ($has_status_column): ?>
-                      <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                      <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                          <a href="<?= $sort_url('status'); ?>" class="flex items-center">Status
+                              <?php if ($order_by === 'status'): ?>
+                                  <i class="fas fa-sort-<?= ($order_direction === 'ASC') ? 'up' : 'down'; ?> ml-1"></i>
+                              <?php endif; ?>
+                          </a>
+                      </th>
                   <?php endif; ?>
                   <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
               </tr>
@@ -209,8 +273,8 @@ require_once __DIR__ . '/../header.php';
 
   <?php if ($total_pages > 1): ?>
       <?php
-      $build_url = function (int $p) use ($q, $per_page): string {
-          $params = ['page' => $p, 'per_page' => $per_page];
+      $build_url = function (int $p) use ($q, $per_page, $order_by, $order_direction): string {
+          $params = ['page' => $p, 'per_page' => $per_page, 'order_by' => $order_by, 'order_direction' => $order_direction];
           if ($q !== '') {
               $params['q'] = $q;
           }
@@ -256,6 +320,8 @@ require_once __DIR__ . '/../header.php';
                   <input type="hidden" name="q" value="<?= htmlspecialchars($q, ENT_QUOTES, 'UTF-8'); ?>" />
               <?php endif; ?>
               <input type="hidden" name="per_page" value="<?= (int) $per_page; ?>" />
+              <input type="hidden" name="order_by" value="<?= htmlspecialchars($order_by, ENT_QUOTES, 'UTF-8'); ?>" />
+              <input type="hidden" name="order_direction" value="<?= htmlspecialchars($order_direction, ENT_QUOTES, 'UTF-8'); ?>" />
               <label for="jump_page" class="text-sm text-gray-600">Jump to</label>
               <input id="jump_page" type="number" name="page" min="1" max="<?= (int) $total_pages; ?>" value="<?= (int) $page; ?>" class="w-20 border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               <button type="submit" class="px-3 py-1 border rounded bg-gray-100 hover:bg-gray-200">Go</button>
