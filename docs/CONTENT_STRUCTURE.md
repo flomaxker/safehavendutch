@@ -44,15 +44,16 @@ Located under `/admin/`. Admin-only access is enforced per page.
 ## 4) Source of Truth (Database)
 Primary content is **database-driven**. Key tables (excerpt):
 
-- `users (id, name, email, role, euro_balance, ...)`
-- `children (id, user_id, name, date_of_birth, [status], [notes])`
-- `lessons (id, teacher_id, start_time, end_time, capacity, credit_cost)`
-- `bookings (id, user_id, lesson_id, status)`
+- `users (id, name, email, role, euro_balance, quick_actions_order JSON, ical_url, last_login_at, ...)`
+- `children (id, user_id, name, date_of_birth, notes, audit_log, [status])`
+- `lessons (id, teacher_id, title, start_time, end_time, capacity, credit_cost)`
+- `bookings (id, user_id, lesson_id, child_id, status)`
 - `lesson_feedback (id, booking_id, teacher_id, notes, attachment_path)`
-- `pages (id, slug, title, page_type, content)` — editable site pages
+- `pages` — rich CMS fields: `slug`, `title`, `content`, hero/about/feature fields, `show_contact_form`, `show_packages`, `page_type`, etc.
 - `posts (id, user_id, title, slug, content, status)`
 - `categories (id, name, slug)` + `post_categories (post_id, category_id)`
-- `purchases`, `packages`, `login_attempts` (security/billing)
+- `packages (id, name, euro_value, price_cents, active)`, `purchases (user_id, package_id, stripe_session_id, amount_cents, status)`
+- `login_attempts (id, ip_address, attempted_at, successful, user_id)`
 
 > **Blog & pages are rendered from the DB.**  
 > Any legacy files under `content/` are considered **seed/legacy** only and are not the live source.
@@ -106,6 +107,11 @@ Primary content is **database-driven**. Key tables (excerpt):
 - Webserver user must have **write** access to `uploads/`; all other code paths remain **read-only**.  
 - Environment config via `.env` (copy from `.env.example`), not committed.  
 - Run database migrations via `php scripts/run-migrations.php`.
+  - Baseline: when `migrations/100_baseline_schema.sql` exists, runner applies only `100+` migrations and tolerates common duplicate/exists errors (idempotent).
+- Seed demo content (optional):
+  - Pages: `php create_default_pages.php`
+  - Users/Packages/Children: `php scripts/seed-database.php`
+  - Lessons + Bookings: `php scripts/seed-lessons-and-bookings.php`
 
 ---
 
@@ -118,3 +124,4 @@ Primary content is **database-driven**. Key tables (excerpt):
 
 ## 11) Change Log (brief)
 - **2025-08-16:** Convert document to PHP CMS model; clarify DB-first blog, admin-only child CRUD, uploads hardening, and read-only parent children page.
+- **2025-08-16:** Update DB excerpts (children.audit_log, bookings.child_id, pages rich fields) and document baseline migrations + seed scripts.

@@ -38,8 +38,8 @@ For detailed project status, development roadmap, and design guidelines, please 
 2.  **Configure Environment:**
     Copy `.env.example` to `.env` and fill in your database credentials and any other required API keys (Stripe, etc.).
 
-3.  **Run Database Migrations:**
-    This will set up all the necessary tables in your database.
+3.  **Run Database Migrations (Idempotent + Baseline):**
+    This sets up all necessary tables. When a baseline exists (`migrations/100_baseline_schema.sql`), only 100+ migrations run.
     ```bash
     php scripts/run-migrations.php
     ```
@@ -51,7 +51,21 @@ For detailed project status, development roadmap, and design guidelines, please 
     ```
     (Note: You can change the default credentials in the script itself.)
 
-5.  **Run the Application:**
+5.  **Seed Demo Content (optional):**
+    - Seed pages (Home/About/Packages/Contact/Terms/Privacy):
+      ```bash
+      php create_default_pages.php
+      ```
+    - Seed users, packages, balances, children:
+      ```bash
+      php scripts/seed-database.php
+      ```
+    - Seed demo lessons and auto-book children:
+      ```bash
+      php scripts/seed-lessons-and-bookings.php
+      ```
+
+6.  **Run the Application:**
     Use a local PHP server or configure a virtual host to point to the project's root directory.
 
 ---
