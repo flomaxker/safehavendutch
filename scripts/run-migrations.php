@@ -1,15 +1,38 @@
 <?php
 
-require_once __DIR__ . '/../bootstrap.php';
+// Lightweight CLI bootstrap for migrations (avoid sessions/headers)
+define('PROJECT_ROOT', dirname(__DIR__));
+
+// Composer autoload or simple PSR-4 fallback
+if (file_exists(PROJECT_ROOT . '/vendor/autoload.php')) {
+    require_once PROJECT_ROOT . '/vendor/autoload.php';
+} else {
+    spl_autoload_register(function ($class) {
+        $prefix = 'App\\';
+        $baseDir = PROJECT_ROOT . '/app/';
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) === 0) {
+            $relativeClass = substr($class, $len);
+            $path = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+            if (file_exists($path)) {
+                require_once $path;
+            }
+        }
+    });
+}
+
+// Load environment
+if (file_exists(PROJECT_ROOT . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createUnsafeImmutable(PROJECT_ROOT);
+    $dotenv->load();
+}
 
 use App\Database\Database;
-use PDOException;
-
 
 try {
     $db = new Database();
     $pdo = $db->getConnection();
-} catch (PDOException $e) {
+} catch (\PDOException $e) {
     fwrite(STDERR, 'Connection failed: ' . $e->getMessage() . PHP_EOL);
     exit(1);
 }
@@ -22,7 +45,7 @@ try {
             applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )'
     );
-} catch (PDOException $e) {
+} catch (\PDOException $e) {
     fwrite(STDERR, 'Failed to ensure migrations table: ' . $e->getMessage() . PHP_EOL);
     exit(1);
 }
@@ -72,7 +95,7 @@ foreach ($migrations as $file) {
         $insert = $pdo->prepare('INSERT INTO migrations (filename) VALUES (:filename)');
         $insert->execute(['filename' => $filename]);
         echo 'Applied: ' . $filename . PHP_EOL;
-    } catch (PDOException $e) {
+    } catch (\PDOException $e) {
         $errorInfo = $e->errorInfo;
         $code = isset($errorInfo[1]) ? (int)$errorInfo[1] : null;
 

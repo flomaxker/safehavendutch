@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS categories (
 
 CREATE TABLE IF NOT EXISTS posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
     content TEXT NOT NULL,
@@ -174,4 +174,3 @@ CREATE TABLE IF NOT EXISTS login_attempts (
     user_id INT NULL,
     INDEX idx_login_attempts_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
