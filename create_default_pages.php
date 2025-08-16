@@ -17,7 +17,14 @@ require_once __DIR__ . '/bootstrap.php';
 use App\Database\Database;
 use App\Models\Page;
 
-try {    $database = new Database();    $pdo = $database->getConnection();    echo "Successfully connected to the database!\n";    $pageModel = new Page($pdo); // Pass PDO to Page constructor
+// Simple flag: --update to overwrite existing page fields
+$updateMode = in_array('--update', $argv ?? [], true) || in_array('-u', $argv ?? [], true);
+
+try {
+    $database = new Database();
+    $pdo = $database->getConnection();
+    echo "Successfully connected to the database!\n";
+    $pageModel = new Page($pdo); // Pass PDO to Page constructor
 
     $pages_to_create = [
         [
@@ -110,12 +117,21 @@ try {    $database = new Database();    $pdo = $database->getConnection();    ec
     ];
 
     foreach ($pages_to_create as $page_data) {
-        // Check if page already exists to prevent duplicates
-        if (!$pageModel->findBySlug($page_data['slug'])) {
+        $existing = $pageModel->findBySlug($page_data['slug']);
+        if (!$existing) {
             $pageModel->create($page_data);
-            echo "Page '" . $page_data['title'] . "' created successfully.\n";
+            echo "Page '" . $page_data['title'] . "' created.\n";
         } else {
-            echo "Page '" . $page_data['title'] . "' already exists. Skipping.\n";
+            if ($updateMode) {
+                $id = (int) $existing['id'];
+                // Only update keys provided in the seeder array
+                $updates = $page_data;
+                unset($updates['slug']); // don't update slug
+                $pageModel->update($id, $updates);
+                echo "Page '" . $page_data['title'] . "' updated (--update).\n";
+            } else {
+                echo "Page '" . $page_data['title'] . "' already exists. Skipping.\n";
+            }
         }
     }
 

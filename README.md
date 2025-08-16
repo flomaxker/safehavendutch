@@ -65,6 +65,11 @@ For detailed project status, development roadmap, and design guidelines, please 
       php scripts/seed-lessons-and-bookings.php
       ```
 
+    - Or run everything in one go (migrations + all seeders):
+      ```bash
+      php scripts/seed-all.php --update
+      ```
+
 6.  **Run the Application:**
     Use a local PHP server or configure a virtual host to point to the project's root directory.
 

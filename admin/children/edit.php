@@ -113,7 +113,8 @@ require_once __DIR__ . '/../header.php';
                 </div>
                 <div>
                     <label for="date_of_birth" class="block text-gray-700 text-sm font-semibold mb-2">Date of Birth</label>
-                    <input type="date" id="date_of_birth" name="date_of_birth" required value="<?= htmlspecialchars($dob_value); ?>" class="border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="date" id="date_of_birth" name="date_of_birth" value="<?= htmlspecialchars($dob_value); ?>" class="border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <p class="text-xs text-gray-500 mt-1">Optional; provide if known.</p>
                 </div>
             </div>
 
@@ -128,6 +129,13 @@ require_once __DIR__ . '/../header.php';
             </div>
         </form>
     </div>
+
+    <?php if (array_key_exists('audit_log', (array) $child) && !empty($child['audit_log'])): ?>
+        <div class="bg-white p-6 rounded-2xl shadow mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">Audit Log</h2>
+            <pre class="text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 rounded p-3 bg-gray-50"><?= htmlspecialchars((string) $child['audit_log']); ?></pre>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php require_once __DIR__ . '/../footer.php'; ?>

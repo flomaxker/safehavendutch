@@ -62,11 +62,9 @@ if ($name === '') {
     $errors[] = "Child's name must be at most 255 characters.";
 }
 
-// Validate date_of_birth (required and not in future)
+// Validate date_of_birth (optional; if provided must be valid and not future)
 $dob_for_db = null;
-if ($date_of_birth === '') {
-    $errors[] = 'Date of birth is required.';
-} else {
+if ($date_of_birth !== '') {
     $is_valid_format = (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_of_birth);
     if (!$is_valid_format) {
         $errors[] = 'Date of birth must be in YYYY-MM-DD format.';
@@ -142,4 +140,3 @@ try {
     header('Location: /admin/children/edit.php?id=' . (int) $child_id);
     exit;
 }
-
