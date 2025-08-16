@@ -35,6 +35,22 @@ if (!$migrations) {
 
 sort($migrations);
 
+// If a baseline exists (>=100), prefer running only >=100 to avoid re-running archived history
+$baseline = __DIR__ . '/../migrations/100_baseline_schema.sql';
+if (file_exists($baseline)) {
+    $filtered = [];
+    foreach ($migrations as $file) {
+        $base = basename($file);
+        if (preg_match('/^(\d+)_/', $base, $m)) {
+            $num = (int) $m[1];
+            if ($num >= 100) {
+                $filtered[] = $file;
+            }
+        }
+    }
+    $migrations = $filtered;
+}
+
 foreach ($migrations as $file) {
     $filename = basename($file);
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM migrations WHERE filename = :filename');
