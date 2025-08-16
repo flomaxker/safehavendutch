@@ -13,3 +13,21 @@ content/blog/user/
 /docs/STATUS.md
 /docs/PROJECT_OVERVIEW.md
 /docs/DEVELOPMENT_SESSION.md
+
+# Node dependencies
+/node_modules/
+
+# Temporary files
+/tmp/
+
+# Editor settings
+/.idea/
+/.vscode/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Coverage output
+/coverage/
