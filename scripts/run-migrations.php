@@ -58,18 +58,26 @@ foreach ($migrations as $file) {
         echo 'Applied: ' . $filename . PHP_EOL;
     } catch (PDOException $e) {
         $errorInfo = $e->errorInfo;
-        if (isset($errorInfo[1]) && (int)$errorInfo[1] === 1050) {
-            echo 'Skipping migration (table already exists): ' . $filename . PHP_EOL;
+        $code = isset($errorInfo[1]) ? (int)$errorInfo[1] : null;
+
+        // Tolerate idempotent reruns by accepting common MySQL duplicate/exists errors
+        $nonFatalCodes = [
+            1050, // Table already exists
+            1060, // Duplicate column name
+            1061, // Duplicate key name (index exists)
+            1062, // Duplicate entry (unique constraint)
+            1022, // Can't write; duplicate key (often FK/index exists)
+            1826, // Duplicate foreign key constraint name
+            1091, // Can't DROP; check that column/key exists
+        ];
+
+        if ($code !== null && in_array($code, $nonFatalCodes, true)) {
+            echo 'Skipping migration (non-fatal duplicate/exists condition): ' . $filename . ' [MySQL code ' . $code . ']' . PHP_EOL;
             $insert = $pdo->prepare('INSERT INTO migrations (filename) VALUES (:filename)');
             $insert->execute(['filename' => $filename]);
             continue;
         }
-        if (isset($errorInfo[1]) && (int)$errorInfo[1] === 1060) {
-            echo 'Skipping migration (column already exists): ' . $filename . PHP_EOL;
-            $insert = $pdo->prepare('INSERT INTO migrations (filename) VALUES (:filename)');
-            $insert->execute(['filename' => $filename]);
-            continue;
-        }
+
         fwrite(STDERR, 'Error applying ' . $filename . ': ' . $e->getMessage() . PHP_EOL);
         exit(1);
     }
