@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $title = 'Add Package - Admin';
 require __DIR__ . '/../header.php';
 ?>
-    <h1>Add New Package</h1>
+<div class="px-4 py-8 max-w-2xl mx-auto md:mx-0">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Add New Package</h1>
 
     <?php if (!empty($errors)): ?>
         <div style="color: red;">
@@ -68,13 +69,14 @@ require __DIR__ . '/../header.php';
         </div>
     <?php endif; ?>
 
-    <form method="post">
+    <form method="post" class="space-y-4 bg-white p-6 rounded-2xl shadow">
         <label>Name: <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required></label><br>
         <label>Description:<br><textarea name="description" rows="4"><?= htmlspecialchars($description) ?></textarea></label><br>
         <label>Credit Amount: <input type="number" name="credit_amount" value="<?= htmlspecialchars($creditAmount) ?>" required></label><br>
         <label>Price (in Euros): <input type="number" name="price_euros" value="<?= htmlspecialchars(number_format($priceEuros, 2)) ?>" step="0.01" required></label><br>
         <label><input type="checkbox" name="active" <?= $active ? 'checked' : '' ?>> Active</label><br>
-        <button type="submit">Create Package</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Create Package</button>
     </form>
-    <a href="index.php">Back to list</a>
+    <a class="inline-block mt-4 text-blue-600 hover:underline" href="index.php">Back to list</a>
+</div>
 <?php require __DIR__ . '/../footer.php'; ?>

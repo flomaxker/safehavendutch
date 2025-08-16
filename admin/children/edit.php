@@ -20,9 +20,9 @@ $page_title = 'Edit Child';
 include __DIR__ . '/../header.php';
 ?>
 
-<div class="container">
-    <h1>Edit Child</h1>
-    <form method="post">
+<div class="px-4 py-8 max-w-2xl mx-auto md:mx-0">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Child</h1>
+    <form method="post" class="space-y-4 bg-white p-6 rounded-2xl shadow">
         <div class="form-group">
             <label for="user_id">Parent</label>
             <select name="user_id" id="user_id" class="form-control" required>
@@ -43,7 +43,7 @@ include __DIR__ . '/../header.php';
             <label for="notes">Notes</label>
             <textarea name="notes" id="notes" class="form-control"><?= htmlspecialchars($child['notes']) ?></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Update</button>
     </form>
 </div>
 

@@ -77,6 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['page_id'])) {
 $_SESSION['csrf_token'] = $nonce; // Use the single, valid nonce from the header for security.
 ?>
 
+<div class="px-4 py-8 max-w-5xl mx-auto md:mx-0">
+
 <header class="flex justify-between items-center mb-8">
     <div>
         <h1 class="text-3xl font-bold text-gray-800">Edit Page</h1>
@@ -273,6 +275,8 @@ $_SESSION['csrf_token'] = $nonce; // Use the single, valid nonce from the header
         <a href="index.php" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4 inline-block">Back to Pages</a>
     </div>
 <?php endif; ?>
+
+</div>
 
 <div id="cropping-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg shadow-xl">

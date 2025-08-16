@@ -20,14 +20,13 @@ $failed_attempts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
-<div class="container mx-auto px-4 sm:px-8">
-    <div class="py-8">
-        <div>
+<div class="px-4 py-8">
+        <div class="mb-4">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Rate Limiting Monitoring</h1>
             <p class="text-gray-600">This page shows recent failed login attempts to help monitor potential brute-force attacks.</p>
         </div>
         <div class="my-5">
-            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-white shadow-md rounded-lg overflow-x-auto">
                 <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-700">Recent Failed Logins (Last Hour)</h3>
                 </div>
@@ -71,7 +70,6 @@ $failed_attempts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <?php include __DIR__ . '/../footer.php'; ?>

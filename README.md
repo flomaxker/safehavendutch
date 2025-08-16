@@ -56,6 +56,19 @@ For detailed project status, development roadmap, and design guidelines, please 
 
 ---
 
+## 👥 Roles & Access
+
+- Current roles in the database are `admin` and `member`. Treat `member` as “parent” throughout the app. An explicit `teacher` role (and `parent`) will be introduced during the P1/P3 roadmap items. See `docs/PROJECT_OVERVIEW.md` for details.
+
+---
+
+## 🔐 Security Notes
+
+- All database access uses prepared statements via the project database wrapper/`PDO`.
+- Admin forms use CSRF tokens (stored in session and/or set from a per-request nonce) which are validated by their handlers before processing.
+
+---
+
 ## 🧪 Testing
 
 To run the test suite, use the following command:

@@ -76,6 +76,8 @@ $page_title = $editing ? 'Edit Post' : 'Create Post';
 include __DIR__ . '/../../header.php';
 ?>
 
+<div class="px-4 py-8 max-w-5xl mx-auto md:mx-0">
+
 <?php
 $apiKey = $tinymceApiKey ?? 'no-api-key';
 ?>
@@ -153,5 +155,6 @@ $apiKey = $tinymceApiKey ?? 'no-api-key';
         </div>
     </div>
 </form>
+</div>
 
 <?php include __DIR__ . '/../../footer.php'; ?>

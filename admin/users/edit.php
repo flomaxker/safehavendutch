@@ -70,7 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $title = 'Edit User - Admin';
 require __DIR__ . '/../header.php';
 ?>
-    <h1>Edit User</h1>
+<div class="px-4 py-8 max-w-2xl mx-auto md:mx-0">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit User</h1>
 
     <?php if (!empty($errors)): ?>
         <div style="color: red;">
@@ -88,7 +89,7 @@ require __DIR__ . '/../header.php';
         </div>
     <?php endif; ?>
 
-    <form method="post">
+    <form method="post" class="space-y-4 bg-white p-6 rounded-2xl shadow">
         <label>Name: <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required></label><br>
         <label>Email: <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required></label><br>
         <label>Euro Balance: <input type="number" name="euro_balance" value="<?= htmlspecialchars($euroBalance) ?>" required></label><br>
@@ -99,7 +100,8 @@ require __DIR__ . '/../header.php';
             </select>
         </label><br>
         <label>iCal URL: <input type="url" name="ical_url" value="<?= htmlspecialchars($icalUrl) ?>"></label><br>
-        <button type="submit">Update User</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Update User</button>
     </form>
-    <a href="index.php">Back to list</a>
+    <a class="inline-block mt-4 text-blue-600 hover:underline" href="index.php">Back to list</a>
+</div>
 <?php require __DIR__ . '/../footer.php'; ?>

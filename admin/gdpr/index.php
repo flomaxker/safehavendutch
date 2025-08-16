@@ -40,6 +40,8 @@ $page_title = 'GDPR Data Anonymization';
 include __DIR__ . '/../header.php';
 ?>
 
+<div class="px-4 py-8 max-w-2xl mx-auto md:mx-0">
+
 <header class="flex justify-between items-center mb-8">
     <div>
         <h1 class="text-3xl font-bold text-gray-800">GDPR Data Anonymization Tool</h1>
@@ -90,6 +92,8 @@ include __DIR__ . '/../header.php';
             </form>
         </div>
     <?php endif; ?>
+    </div>
+
 </div>
 
 <?php include __DIR__ . '/../footer.php'; ?>

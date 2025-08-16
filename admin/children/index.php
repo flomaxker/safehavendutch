@@ -90,6 +90,22 @@ require_once __DIR__ . '/../header.php';
     <a href="create.php" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-medium">Add New Child</a>
   </header>
 
+  <?php
+    $success_message = $_SESSION['success_message'] ?? null;
+    $error_message = $_SESSION['error_message'] ?? null;
+    unset($_SESSION['success_message'], $_SESSION['error_message']);
+  ?>
+  <?php if ($success_message): ?>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" role="alert">
+          <span class="block sm:inline"><?= htmlspecialchars($success_message); ?></span>
+      </div>
+  <?php endif; ?>
+  <?php if ($error_message): ?>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+          <span class="block sm:inline"><?= htmlspecialchars($error_message); ?></span>
+      </div>
+  <?php endif; ?>
+
   <div class="sticky top-0 z-10 bg-white border-b py-2" style="top: -2rem;">
       <form method="get" class="mb-2">
         <div class="flex gap-2 items-center">
